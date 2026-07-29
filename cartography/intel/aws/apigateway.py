@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 from typing import Any
 from typing import Dict
 from typing import List
@@ -35,6 +36,17 @@ from cartography.util import aws_handle_regions
 from cartography.util import timeit
 
 logger = logging.getLogger(__name__)
+
+_LAMBDA_INTEGRATION_URI = re.compile(
+    r"/functions/(arn:[^:]+:lambda:[^/]+)/invocations(?:$|[/?])",
+)
+
+
+def _lambda_arn_from_integration_uri(uri: Any) -> Optional[str]:
+    if not isinstance(uri, str):
+        return None
+    match = _LAMBDA_INTEGRATION_URI.search(uri)
+    return match.group(1) if match else None
 
 
 @timeit
@@ -383,6 +395,9 @@ def transform_rest_api_details(
                     )
                 integration["type"] = integration.get("type")
                 integration["uri"] = integration.get("uri")
+                integration["lambdaArn"] = _lambda_arn_from_integration_uri(
+                    integration["uri"],
+                )
                 integration["connectionType"] = integration.get("connectionType")
                 integration["connectionId"] = integration.get("connectionId")
                 integration["credentials"] = integration.get("credentials")

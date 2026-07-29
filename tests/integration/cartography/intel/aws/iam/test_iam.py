@@ -36,10 +36,11 @@ def test_permission_relationships_file_arguments():
     assert config_default.permission_relationships_file is None
 
 
-def test_permission_relationships_file_cli():
+def test_permission_relationships_file_cli(monkeypatch):
     """
     Test that CLI correctly passes --permission-relationships-file to Config
     """
+    monkeypatch.setenv("CARTOGRAPHY_AWS_READ_ONLY", "false")
     from cartography.cli import CLI
 
     captured_config = None

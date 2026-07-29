@@ -4,6 +4,7 @@ from unittest.mock import patch
 from botocore.exceptions import ClientError
 
 import tests.data.aws.apigateway as test_data
+from cartography.intel.aws.apigateway import _lambda_arn_from_integration_uri
 from cartography.intel.aws.apigateway import get_rest_api_client_certificate
 from cartography.intel.aws.apigateway import get_rest_api_resources_methods_integrations
 from cartography.intel.aws.apigateway import parse_policy
@@ -22,6 +23,17 @@ def test_none_policy():
     res = parse_policy(None, None)
 
     assert (res) is None
+
+
+def test_extracts_lambda_arn_from_api_gateway_integration_uri():
+    arn = "arn:aws:lambda:eu-west-1:111122223333:function:orders"
+    uri = (
+        "arn:aws:apigateway:eu-west-1:lambda:path/2015-03-31/functions/"
+        f"{arn}/invocations"
+    )
+
+    assert _lambda_arn_from_integration_uri(uri) == arn
+    assert _lambda_arn_from_integration_uri("arn:aws:apigateway:eu-west-1:mock") is None
 
 
 @patch("time.sleep")

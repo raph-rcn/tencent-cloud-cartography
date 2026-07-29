@@ -70,12 +70,20 @@ ARCHITECTURE_DETAIL_MARKERS = (
 )
 ARCHITECTURE_DETAIL_LABELS = {
     "AWSAccountAccessKey",
+    "AWSAPIGatewayDeployment",
+    "AWSAPIGatewayIntegration",
+    "AWSAPIGatewayMethod",
+    "AWSAPIGatewayResource",
+    "AWSDBSubnetGroup",
     "AWSEC2Reservation",
     "AWSEC2Route",
     "AWSEventBridgeTarget",
     "AWSGroup",
     "AWSInstanceProfile",
+    "AWSLambdaLayer",
+    "AWSManagedPolicy",
     "AWSRole",
+    "AWSSecretsManagerSecretVersion",
     "AWSSNSTopicSubscription",
     "AWSUser",
     # Operational and security-control objects remain available in the full
@@ -180,13 +188,95 @@ def _compound_node(
     return {"data": data, "classes": node_type}
 
 
+def _project_architecture_edges(
+    raw_nodes: list[dict[str, Any]],
+    raw_edges: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    nodes = {node["element_id"]: node for node in raw_nodes}
+    outgoing: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for edge in raw_edges:
+        outgoing[edge["source"]].append(edge)
+
+    projected = list(raw_edges)
+    existing = {(edge["source"], edge["target"], edge["type"]) for edge in raw_edges}
+    for api in raw_nodes:
+        if "AWSAPIGatewayRestAPI" not in api["labels"]:
+            continue
+        for resource_edge in outgoing.get(api["element_id"], []):
+            resource = nodes.get(resource_edge["target"])
+            if (
+                resource_edge["type"] != "RESOURCE"
+                or not resource
+                or "AWSAPIGatewayResource" not in resource["labels"]
+            ):
+                continue
+            for integration_edge in outgoing.get(resource["element_id"], []):
+                integration = nodes.get(integration_edge["target"])
+                if (
+                    integration_edge["type"] != "HAS_INTEGRATION"
+                    or not integration
+                    or "AWSAPIGatewayIntegration" not in integration["labels"]
+                ):
+                    continue
+                for invoke_edge in outgoing.get(integration["element_id"], []):
+                    if invoke_edge["type"] != "INVOKES":
+                        continue
+                    candidate = (
+                        api["element_id"],
+                        invoke_edge["target"],
+                        "INVOKES",
+                    )
+                    if candidate not in existing:
+                        projected.append(
+                            {
+                                "source": candidate[0],
+                                "target": candidate[1],
+                                "type": candidate[2],
+                            }
+                        )
+                        existing.add(candidate)
+    return projected
+
+
+def _infer_vpc_memberships(
+    raw_nodes: list[dict[str, Any]],
+    raw_edges: list[dict[str, Any]],
+) -> dict[str, set[str]]:
+    nodes = {node["element_id"]: node for node in raw_nodes}
+    inferred: dict[str, set[str]] = defaultdict(set)
+    for edge in raw_edges:
+        if edge["type"] != "MEMBER_OF_DB_SUBNET_GROUP":
+            continue
+        source = nodes.get(edge["source"])
+        target = nodes.get(edge["target"])
+        if not source or not target:
+            continue
+        if (
+            "AWSRDSInstance" in source["labels"]
+            and "AWSDBSubnetGroup" in target["labels"]
+        ):
+            vpc_id = _property(target["properties"], "vpc_id", "vpcid")
+            if vpc_id:
+                inferred[source["element_id"]].add(vpc_id)
+        elif (
+            "AWSRDSInstance" in target["labels"]
+            and "AWSDBSubnetGroup" in source["labels"]
+        ):
+            vpc_id = _property(source["properties"], "vpc_id", "vpcid")
+            if vpc_id:
+                inferred[target["element_id"]].add(vpc_id)
+    return inferred
+
+
 def build_topology(
     raw_nodes: list[dict[str, Any]],
     raw_edges: list[dict[str, Any]],
     *,
     include_details: bool = False,
 ) -> dict[str, Any]:
+    inferred_vpcs = _infer_vpc_memberships(raw_nodes, raw_edges)
     if not include_details:
+        raw_edges = _project_architecture_edges(raw_nodes, raw_edges)
         raw_nodes = [
             node
             for node in raw_nodes
@@ -205,6 +295,8 @@ def build_topology(
     nodes_by_element_id = {node["element_id"]: node for node in raw_nodes}
     related_subnets: dict[str, set[str]] = defaultdict(set)
     related_vpcs: dict[str, set[str]] = defaultdict(set)
+    for element_id, vpc_ids in inferred_vpcs.items():
+        related_vpcs[element_id].update(vpc_ids)
 
     for edge in raw_edges:
         source = nodes_by_element_id.get(edge["source"])
@@ -548,8 +640,6 @@ def build_topology(
 
     relationship_counts: Counter[str] = Counter()
     for index, edge in enumerate(raw_edges):
-        if edge["type"] == "RESOURCE":
-            continue
         if frozenset((edge["source"], edge["target"])) in nested_memberships:
             continue
         source_node_id = resource_ids.get(edge["source"]) or container_ids.get(

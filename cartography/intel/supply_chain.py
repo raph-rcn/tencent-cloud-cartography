@@ -81,7 +81,9 @@ def extract_image_source_provenance(predicate: dict[str, Any]) -> dict[str, str]
     revision = vcs.get("revision")
     if not revision:
         for dependency in dependencies:
-            digest = dependency.get("digest", {}) if isinstance(dependency, dict) else {}
+            digest = (
+                dependency.get("digest", {}) if isinstance(dependency, dict) else {}
+            )
             if isinstance(digest, dict) and digest.get("gitCommit"):
                 revision = digest["gitCommit"]
                 break

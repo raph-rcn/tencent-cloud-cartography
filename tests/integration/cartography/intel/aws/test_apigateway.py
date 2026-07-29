@@ -7,6 +7,9 @@ from cartography.client.core.tx import load
 from cartography.models.aws.apigateway.apigatewaycertificate import (
     APIGatewayClientCertificateSchema,
 )
+from cartography.models.aws.apigateway.apigatewayintegration import (
+    APIGatewayIntegrationSchema,
+)
 from cartography.models.aws.apigateway.apigatewayresource import (
     APIGatewayResourceSchema,
 )
@@ -18,6 +21,50 @@ from tests.integration.util import check_rels
 TEST_ACCOUNT_ID = "000000000000"
 TEST_REGION = "eu-west-1"
 TEST_UPDATE_TAG = 123456789
+
+
+def test_load_apigateway_lambda_integration_relationship(neo4j_session):
+    lambda_arn = "arn:aws:lambda:eu-west-1:000000000000:function:orders"
+    create_test_account(neo4j_session, TEST_ACCOUNT_ID, TEST_UPDATE_TAG)
+    neo4j_session.run(
+        "CREATE (:AWSLambda {id: $arn, arn: $arn})",
+        arn=lambda_arn,
+    )
+
+    load(
+        neo4j_session,
+        APIGatewayIntegrationSchema(),
+        [
+            {
+                "id": "api/resource/GET",
+                "resourceId": "resource",
+                "apiId": "api",
+                "httpMethod": "GET",
+                "type": "AWS_PROXY",
+                "lambdaArn": lambda_arn,
+            }
+        ],
+        lastupdated=TEST_UPDATE_TAG,
+        AWS_ID=TEST_ACCOUNT_ID,
+    )
+
+    assert check_rels(
+        neo4j_session,
+        "AWSAPIGatewayIntegration",
+        "id",
+        "AWSLambda",
+        "arn",
+        "INVOKES",
+        rel_direction_right=True,
+    ) == {("api/resource/GET", lambda_arn)}
+    neo4j_session.run(
+        """
+        MATCH (n)
+        WHERE n.id = 'api/resource/GET' OR n.arn = $arn
+        DETACH DELETE n
+        """,
+        arn=lambda_arn,
+    ).consume()
 
 
 def test_load_apigateway_rest_apis(neo4j_session):

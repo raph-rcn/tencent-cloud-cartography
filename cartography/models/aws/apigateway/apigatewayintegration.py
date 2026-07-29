@@ -22,6 +22,7 @@ class APIGatewayIntegrationNodeProperties(CartographyNodeProperties):
     api_id: PropertyRef = PropertyRef("apiId")
     type: PropertyRef = PropertyRef("type")
     uri: PropertyRef = PropertyRef("uri")
+    lambda_arn: PropertyRef = PropertyRef("lambdaArn")
     connection_type: PropertyRef = PropertyRef("connectionType")
     connection_id: PropertyRef = PropertyRef("connectionId")
     credentials: PropertyRef = PropertyRef("credentials")
@@ -45,6 +46,24 @@ class APIGatewayIntegrationToAPIGatewayResourceRel(CartographyRelSchema):
     rel_label: str = "HAS_INTEGRATION"
     properties: APIGatewayIntegrationToAPIGatewayResourceRelRelProperties = (
         APIGatewayIntegrationToAPIGatewayResourceRelRelProperties()
+    )
+
+
+@dataclass(frozen=True)
+class APIGatewayIntegrationToLambdaRelProperties(CartographyRelProperties):
+    lastupdated: PropertyRef = PropertyRef("lastupdated", set_in_kwargs=True)
+
+
+@dataclass(frozen=True)
+class APIGatewayIntegrationToLambdaRel(CartographyRelSchema):
+    target_node_label: str = "AWSLambda"
+    target_node_matcher: TargetNodeMatcher = make_target_node_matcher(
+        {"arn": PropertyRef("lambdaArn")},
+    )
+    direction: LinkDirection = LinkDirection.OUTWARD
+    rel_label: str = "INVOKES"
+    properties: APIGatewayIntegrationToLambdaRelProperties = (
+        APIGatewayIntegrationToLambdaRelProperties()
     )
 
 
@@ -81,5 +100,8 @@ class APIGatewayIntegrationSchema(CartographyNodeSchema):
         APIGatewayIntegrationToAWSAccountRel()
     )
     other_relationships: OtherRelationships = OtherRelationships(
-        [APIGatewayIntegrationToAPIGatewayResourceRel()],
+        [
+            APIGatewayIntegrationToAPIGatewayResourceRel(),
+            APIGatewayIntegrationToLambdaRel(),
+        ],
     )

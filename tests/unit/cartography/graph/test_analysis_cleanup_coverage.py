@@ -8,7 +8,7 @@ from cartography.graph.analysisbuilder import cleanup_query
 AWS = ScopeById("AWSAccount", "AWS_ID")
 
 
-@pytest.mark.parametrize(
+@pytest.mark.parametrize(  # type: ignore[misc]
     ("effect", "scope", "expected"),
     [
         (
