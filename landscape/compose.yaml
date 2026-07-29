@@ -1,0 +1,28 @@
+services:
+  neo4j:
+    image: neo4j:5.26-community
+    container_name: cartography-landscape-neo4j
+    restart: unless-stopped
+    environment:
+      NEO4J_AUTH: none
+      NEO4J_server_memory_heap_initial__size: 512m
+      NEO4J_server_memory_heap_max__size: 1G
+      NEO4J_server_memory_pagecache_size: 512m
+    ports:
+      - "127.0.0.1:7474:7474"
+      - "127.0.0.1:7687:7687"
+    volumes:
+      - cartography-landscape-data:/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- http://127.0.0.1:7474 >/dev/null 2>&1 || exit 1",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  cartography-landscape-data:
+    name: cartography-landscape-data

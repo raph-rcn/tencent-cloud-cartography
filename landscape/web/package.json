@@ -1,0 +1,23 @@
+{
+  "name": "cartography-landscape",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "cytoscape": "3.33.0",
+    "cytoscape-cola": "2.5.1",
+    "cytoscape-expand-collapse": "4.1.0",
+    "cytoscape-fcose": "2.2.0",
+    "file-saver": "2.0.5"
+  },
+  "devDependencies": {
+    "vite": "7.3.6",
+    "vitest": "4.1.10"
+  }
+}

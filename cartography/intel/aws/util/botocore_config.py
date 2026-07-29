@@ -3,6 +3,7 @@ from functools import lru_cache
 from typing import Any
 
 import botocore.config
+from botocore.exceptions import BotoCoreError
 
 DEFAULT_READ_TIMEOUT = 120
 DEFAULT_MAX_ATTEMPTS = 3
@@ -14,6 +15,64 @@ MAX_ATTEMPTS_ENV_VAR = "CARTOGRAPHY_AWS_MAX_ATTEMPTS"
 READ_TIMEOUT_ENV_VAR = "CARTOGRAPHY_AWS_READ_TIMEOUT"
 LAMBDA_READ_TIMEOUT = 30
 LAMBDA_MAX_ATTEMPTS = 2
+READ_ONLY_ENV_VAR = "CARTOGRAPHY_AWS_READ_ONLY"
+
+_READ_ONLY_OPERATION_PREFIXES = (
+    "BatchGet",
+    "BatchList",
+    "Describe",
+    "Get",
+    "Head",
+    "List",
+    "Lookup",
+    "Query",
+    "Scan",
+    "Search",
+    "Select",
+)
+_READ_ONLY_OPERATION_ALLOWLIST = frozenset(
+    {
+        # Assuming a role creates temporary session credentials but does not
+        # mutate an AWS resource. Cartography needs it for cross-account syncs.
+        "AssumeRole",
+    }
+)
+
+
+class AWSReadOnlyViolation(BotoCoreError):
+    fmt = (
+        "Blocked AWS operation {operation_name!r} because " f"{READ_ONLY_ENV_VAR}=true"
+    )
+
+
+def _env_flag_enabled(name: str) -> bool:
+    return os.getenv(name, "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def aws_read_only_enabled() -> bool:
+    return _env_flag_enabled(READ_ONLY_ENV_VAR)
+
+
+def _is_read_only_operation(operation_name: str) -> bool:
+    return (
+        operation_name in _READ_ONLY_OPERATION_ALLOWLIST
+        or operation_name.startswith(_READ_ONLY_OPERATION_PREFIXES)
+    )
+
+
+def _enforce_read_only_operation(model: Any, **_: Any) -> None:
+    if not _is_read_only_operation(model.name):
+        raise AWSReadOnlyViolation(operation_name=model.name)
+
+
+def _install_read_only_guard(client: Any) -> Any:
+    if aws_read_only_enabled():
+        client.meta.events.register(
+            "before-call.*.*",
+            _enforce_read_only_operation,
+            unique_id="cartography-aws-read-only-guard",
+        )
+    return client
 
 
 def _get_int_env(name: str, default: int) -> int:
@@ -140,11 +199,13 @@ def _create_client(
     config: botocore.config.Config | None = None,
     **kwargs: Any,
 ) -> Any:
-    return session.client(
-        service_name,
-        *args,
-        config=config or get_botocore_config(),
-        **kwargs,
+    return _install_read_only_guard(
+        session.client(
+            service_name,
+            *args,
+            config=config or get_botocore_config(),
+            **kwargs,
+        )
     )
 
 
@@ -171,12 +232,16 @@ def create_boto3_resource(
     config: botocore.config.Config | None = None,
     **kwargs: Any,
 ) -> Any:
-    return session.resource(
+    resource = session.resource(
         service_name,
         *args,
         config=config or get_botocore_config(),
         **kwargs,
     )
+    resource_client = getattr(getattr(resource, "meta", None), "client", None)
+    if resource_client is not None:
+        _install_read_only_guard(resource_client)
+    return resource
 
 
 def create_aioboto3_client(

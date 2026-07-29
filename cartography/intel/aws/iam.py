@@ -17,6 +17,7 @@ from cartography.client.core.tx import read_list_of_dicts_tx
 from cartography.client.core.tx import read_list_of_values_tx
 from cartography.graph.job import GraphJob
 from cartography.intel.aws.permission_relationships import principal_allowed_on_resource
+from cartography.intel.aws.util.botocore_config import aws_read_only_enabled
 from cartography.intel.aws.util.botocore_config import create_boto3_client
 from cartography.intel.aws.util.botocore_config import create_boto3_resource
 from cartography.models.aws.iam.access_key import AccountAccessKeySchema
@@ -1776,14 +1777,20 @@ def sync(
         update_tag,
         common_job_parameters,
     )
-    # Sync service last accessed details after all principals (users, groups, roles) are synced
-    sync_service_last_accessed_details(
-        neo4j_session,
-        boto3_session,
-        current_aws_account_id,
-        update_tag,
-        common_job_parameters,
-    )
+    # This AWS API starts a server-side report generation job. Skip it in strict
+    # read-only mode while retaining the IAM list/get inventory and trust graph.
+    if aws_read_only_enabled():
+        logger.info(
+            "Skipping IAM service-last-accessed report generation in AWS read-only mode."
+        )
+    else:
+        sync_service_last_accessed_details(
+            neo4j_session,
+            boto3_session,
+            current_aws_account_id,
+            update_tag,
+            common_job_parameters,
+        )
     sync_assumerole_relationships(
         neo4j_session,
         current_aws_account_id,
