@@ -530,9 +530,9 @@ def test_load_matchlinks_cartesian_product_warns_when_matcher_values_are_not_uni
 
 
 @patch("cartography.client.core.tx.time.sleep")
-def test_simulates_concurrent_gcp_firewall_write_conflict(mock_sleep):
+def test_simulates_concurrent_aws_security_group_write_conflict(mock_sleep):
     """
-    Simulates the scenario from the bug report where GCP firewall ingestion
+    Simulates a scenario where AWS security-group ingestion
     encounters EntityNotFound due to concurrent writes.
 
     This happens when:
@@ -545,7 +545,7 @@ def test_simulates_concurrent_gcp_firewall_write_conflict(mock_sleep):
     mock_session = MagicMock()
 
     # Simulate the transaction function that failed in production
-    def _load_gcp_ingress_firewalls_tx(tx, fw_list, update_tag):
+    def _load_aws_security_groups_tx(tx, security_groups, update_tag):
         # Simulate tx.run() that encounters EntityNotFound on first try
         # due to concurrent deletion of a VPC node
         if not hasattr(tx, "_attempt_count"):
@@ -572,8 +572,8 @@ def test_simulates_concurrent_gcp_firewall_write_conflict(mock_sleep):
     # Execute with retry
     result = execute_write_with_retry(
         mock_session,
-        _load_gcp_ingress_firewalls_tx,
-        [{"id": "fw-123"}],
+        _load_aws_security_groups_tx,
+        [{"id": "sg-123"}],
         12345,
     )
 
@@ -712,7 +712,7 @@ def test_run_index_query_ignores_equivalent_schema_rule_already_exists(mock_logg
     mock_session.run.side_effect = _create_client_error(
         "Neo.ClientError.Schema.EquivalentSchemaRuleAlreadyExists",
         "An equivalent index already exists, 'Index( id=619, name='index_164cdc93', "
-        "type='RANGE', schema=(:GCPPolicyBinding {id}), indexProvider='range-1.0' )'.",
+        "type='RANGE', schema=(:AWSRole {id}), indexProvider='range-1.0' )'.",
     )
 
     # Should NOT raise an exception

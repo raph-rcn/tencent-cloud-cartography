@@ -12,14 +12,12 @@ write_to = "cartography/_version.py"
 fallback_version = "0.0.0"
 
 [project]
-name = "cartography"
-description = "Explore assets and their relationships across your technical infrastructure."
+name = "aws-cartography-landscape"
+description = "Read-only local AWS inventory and architecture diagrams backed by Cartography."
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
-maintainers = [
-    { name = "Cartography Contributors" }
-]
+maintainers = [{ name = "Raphaël Curien Odin" }]
 classifiers = [
   'Development Status :: 4 - Beta',
   'Intended Audience :: Developers',
@@ -42,75 +40,19 @@ dependencies = [
     "backoff>=2.1.2",
     "boto3>=1.15.1",
     "aioboto3>=15.0.0",
-    "httpx>=0.24.0",
     "botocore>=1.18.1",
     "dnspython>=2.0.0",
+    "httpx>=0.24.0",
     "neo4j>=6.0.0",
     "policyuniverse>=1.1.0.0",
-    "google-api-python-client>=2.0.0",
-    "google-auth>=2.37.0",
-    "google-cloud-storage>=2.0.0",
     "marshmallow>=4.0.0",
-    "oci>=2.71.0",
-    # Pinned to <1.0.0 due to breaking changes. See #1243 for upgrade.
-    "okta<1.0.0",
-    "PyJWT[crypto]>=2.0.0",
-    "cryptography>=45.0.0",
     "pyyaml>=5.3.1",
     "requests>=2.22.0",
     "statsd>=4.0.0",
     "packaging>=26.0.0",
-    "packageurl-python>=0.17.0",
-    "python-digitalocean>=1.16.0",
-    "adal>=1.2.4",
-    "azure-cli-core>=2.26.0",
-    "azure-mgmt-compute>=38.1.0",
-    "azure-mgmt-containerinstance>=10.0.0",
-    "azure-mgmt-keyvault>=10.0.0",
-    "azure-mgmt-resource>=24.0.0,<25",
-    "azure-mgmt-cosmosdb>=6.0.0",
-    "azure-mgmt-web>=11.0.0",
-    "azure-mgmt-eventgrid>=10.0.0",
-    "azure-mgmt-logic>=10.0.0",
-    "azure-mgmt-eventhub>=10.1.0",
-    "azure-keyvault-secrets>=4.0.0",
-    "azure-keyvault-keys>=4.0.0",
-    "azure-keyvault-certificates>=4.0.0",
-    "azure-mgmt-datafactory>=8.0.0",
-    "azure-mgmt-containerservice>=41.0.0",
-    "azure-mgmt-network>=31.0.0",
-    "azure-mgmt-security>=5.0.0",
-    "azure-mgmt-monitor>=3.0.0",
-    "azure-mgmt-managementgroups>=2.0.0",
-    "msrestazure>=0.6.4",
-    "azure-mgmt-storage>=25.0.0",
-    "azure-mgmt-sql>=4.0.0",
-    "azure-mgmt-authorization>=0.60.0",
-    "azure-identity>=1.5.0",
-    "azure-storage-blob>=12.0.0",
-    "msgraph-sdk>=1.53.0",
-    "kubernetes>=22.6.0",
-    "pagerduty>=4.0.1",
-    "crowdstrike-falconpy>=0.5.1",
     "python-dateutil>=2.9.0",
-    "xmltodict>=1.0.0",
-    "duo-client>=5.5.0",
-    "cloudflare>=4.1.0",
-    "scaleway>=2.10.0",
-    "google-cloud-resource-manager>=1.14.2",
-    "google-cloud-asset>=1.0.0",
-    "google-cloud-artifact-registry>=1.21.0",
-    "google-cloud-aiplatform>=1.127.0",
-    "google-cloud-run>=0.13.0",
     "types-aiobotocore-ecr>=3.1.0",
     "typer>=0.9.0",
-    "azure-mgmt-synapse>=2.0.0",
-    "azure-synapse-artifacts>=0.17.0",
-    "slack-sdk>=3.37.0",
-    "workos>=8.0.0",
-    # tomllib is stdlib on 3.11+; tomli provides it on 3.10 (used by the GitHub
-    # lockfile fallback parser).
-    "tomli>=2.0.0; python_version < '3.11'",
 ]
 # Comes from Git tag
 dynamic = [ "version" ]
@@ -129,25 +71,13 @@ dev = [
     "black>=26.0.0",
     "types-requests>=2.32.0",
 ]
-doc = [
-    "myst-parser[linkify]>=4.0.1",
-    "shibuya>=2025.4.25",
-    "sphinx>=8.1.3",
-    "sphinx-autobuild>=2024.10.3",
-    "sphinx-copybutton>=0.5.2",
-    "sphinx-sitemap>=2.8.0",
-    "sphinxcontrib-mermaid>=1.0.0",
-]
-
-# Makes sure to look inside cartography/cartography/ for cli command
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["cartography*"]
 
 [project.scripts]
 cartography = "cartography.cli:main"
-cartography-detectdrift = "cartography.driftdetect.cli:main"
-cartography-rules = "cartography.rules.cli:main"
+aws-cartography-landscape = "cartography.cli:main"
 
 [tool.setuptools.package-data]
 "cartography" = ["py.typed"]
@@ -157,8 +87,6 @@ cartography-rules = "cartography.rules.cli:main"
 "cartography.data.jobs.cleanup" = ["*.json"]
 
 [project.urls]
-Homepage = "https://docs.cartography.dev"
-Documentation = "https://docs.cartography.dev"
-Repository = "https://github.com/cartography-cncf/cartography"
-Issues = "https://github.com/cartography-cncf/cartography/issues"
-Changelog = "https://github.com/cartography-cncf/cartography/releases"
+Homepage = "https://github.com/raph-rcn/cartography"
+Repository = "https://github.com/raph-rcn/cartography"
+Issues = "https://github.com/raph-rcn/cartography/issues"

@@ -1,21 +1,22 @@
-PYTEST_COV_FLAGS := --cov=cartography --cov-report term-missing
-PYTEST_COV_BRANCH_FLAGS := $(PYTEST_COV_FLAGS) --cov-branch
+.PHONY: install test lint web-test web-build audit verify
 
-test: test_lint test_unit test_integration
+install:
+	uv sync
+	cd landscape/web && npm ci
 
-test_lint:
-	uv run --frozen pre-commit run --all-files --show-diff-on-failure
+test:
+	uv run pytest tests/unit
 
-test_unit:
-	uv run --frozen pytest -vvv $(PYTEST_COV_FLAGS) tests/unit
+lint:
+	uv run pre-commit run --all-files
 
-test_integration:
-	uv run --frozen pytest -vvv $(PYTEST_COV_FLAGS) tests/integration
+web-test:
+	cd landscape/web && npm test -- --run
 
-test_coverage:
-	rm -f .coverage .coverage.unit .coverage.integration coverage.xml
-	COVERAGE_FILE=.coverage.unit uv run --frozen pytest -vvv $(PYTEST_COV_BRANCH_FLAGS) tests/unit
-	COVERAGE_FILE=.coverage.integration uv run --frozen pytest -vvv $(PYTEST_COV_BRANCH_FLAGS) tests/integration
-	uv run --frozen coverage combine .coverage.unit .coverage.integration
-	uv run --frozen coverage xml -o coverage.xml
-	uv run --frozen coverage report --show-missing
+web-build:
+	cd landscape/web && npm run build
+
+audit:
+	cd landscape/web && npm audit --audit-level=high
+
+verify: test lint web-test web-build audit

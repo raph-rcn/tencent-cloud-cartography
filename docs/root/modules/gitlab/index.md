@@ -1,6 +1,0 @@
-# GitLab
-
-```{toctree}
-config
-schema
-```

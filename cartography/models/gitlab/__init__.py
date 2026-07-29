@@ -1,1 +1,0 @@
-# GitLab data model

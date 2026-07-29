@@ -1,6 +1,0 @@
-# Anthropic
-
-```{toctree}
-config
-schema
-```

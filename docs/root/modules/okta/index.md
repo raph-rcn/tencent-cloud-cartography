@@ -1,6 +1,0 @@
-# Okta
-
-```{toctree}
-config
-schema
-```

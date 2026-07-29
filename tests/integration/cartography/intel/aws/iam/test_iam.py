@@ -1,3 +1,4 @@
+from pathlib import Path
 from unittest import mock
 from unittest.mock import MagicMock
 
@@ -49,7 +50,7 @@ def test_permission_relationships_file_cli():
 
     # Test custom file path
     with mock.patch(
-        "cartography.sync.run_with_config", side_effect=capture_run_with_config
+        "cartography.cli.run_with_config", side_effect=capture_run_with_config
     ):
         cli = CLI(prog="cartography")
         cli.main(["--permission-relationships-file", "/some/test/file.yaml"])
@@ -58,13 +59,12 @@ def test_permission_relationships_file_cli():
     # Test default value
     captured_config = None
     with mock.patch(
-        "cartography.sync.run_with_config", side_effect=capture_run_with_config
+        "cartography.cli.run_with_config", side_effect=capture_run_with_config
     ):
         cli = CLI(prog="cartography")
         cli.main([])
-    assert (
-        captured_config.permission_relationships_file
-        == "cartography/data/permission_relationships.yaml"
+    assert captured_config.permission_relationships_file == str(
+        Path(cartography.__file__).with_name("data") / "permission_relationships.yaml"
     )
 
 

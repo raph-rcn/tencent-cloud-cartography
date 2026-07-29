@@ -1,6 +1,0 @@
-# Duo
-
-```{toctree}
-config
-schema
-```

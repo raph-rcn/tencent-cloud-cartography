@@ -1,6 +1,0 @@
-# Spacelift
-
-```{toctree}
-config
-schema
-```

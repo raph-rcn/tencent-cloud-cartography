@@ -1,7 +1,7 @@
-# Cartography Landscape
+# AWS Cartography Landscape
 
-Cartography Landscape is a local-only, editable AWS architecture view on top of
-Cartography's Neo4j graph. It borrows the architecture-diagram approach from
+AWS Cartography Landscape is a local-only, editable AWS architecture view on
+top of the fork's Neo4j graph. It borrows the architecture-diagram approach from
 AWS Workload Discovery on AWS—Cytoscape compound nodes, fCoSE/Cola layouts,
 AWS resource icons, and draw.io export—without deploying the Workload
 Discovery backend.
@@ -11,9 +11,8 @@ Discovery backend.
 - AWS collection runs with `CARTOGRAPHY_AWS_READ_ONLY=true`. A botocore
   `before-call` handler blocks operations that are not read verbs before a
   request is sent.
-- The provided sync enables every AWS collector in this Cartography version
-  except the two payload-bearing streams: SSM parameter values and CloudTrail
-  management-event payloads. Secrets Manager is inventory-only: it lists
+- The provided sync enables every AWS collector in this fork except SSM
+  parameter-value ingestion. Secrets Manager is inventory-only: it lists
   secret/version metadata and never calls `GetSecretValue`.
 - Neo4j and the web UI bind only to `127.0.0.1`.
 - Neo4j is unauthenticated only inside that loopback-only boundary.

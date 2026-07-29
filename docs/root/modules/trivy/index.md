@@ -1,6 +1,0 @@
-# Trivy
-
-```{toctree}
-config
-schema
-```

@@ -189,10 +189,10 @@ class GraphJob:
             statements (List[GraphStatement]): List of statements to execute sequentially.
             short_name (Optional[str]): Short identifier for logging purposes.
         """
-        # E.g. "Okta intel module cleanup"
+        # E.g. "AWS resource cleanup"
         self.name = name
         self.statements: List[GraphStatement] = statements
-        # E.g. "okta_import_cleanup"
+        # E.g. "aws_resource_cleanup"
         self.short_name = short_name
 
     def merge_parameters(self, parameters: Dict) -> None:

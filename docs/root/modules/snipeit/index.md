@@ -1,6 +1,0 @@
-# SnipeIT
-
-```{toctree}
-config
-schema
-```

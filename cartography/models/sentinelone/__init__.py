@@ -1,1 +1,0 @@
-# SentinelOne data models

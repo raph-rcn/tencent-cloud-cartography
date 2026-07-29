@@ -111,73 +111,6 @@ class ECSContainerToECRImageRel(CartographyRelSchema):
 
 
 @dataclass(frozen=True)
-class ECSContainerToGitLabContainerImageRelProperties(CartographyRelProperties):
-    lastupdated: PropertyRef = PropertyRef("lastupdated", set_in_kwargs=True)
-
-
-@dataclass(frozen=True)
-class ECSContainerToGitLabContainerImageRel(CartographyRelSchema):
-    """
-    Relationship from AWSECSContainer to GitLabContainerImage.
-    Matches containers to GitLab registry images by runtime digest (imageDigest).
-    """
-
-    target_node_label: str = "GitLabContainerImage"
-    target_node_matcher: TargetNodeMatcher = make_target_node_matcher(
-        {"digest": PropertyRef("imageDigest")}
-    )
-    direction: LinkDirection = LinkDirection.OUTWARD
-    rel_label: str = "HAS_IMAGE"
-    properties: ECSContainerToGitLabContainerImageRelProperties = (
-        ECSContainerToGitLabContainerImageRelProperties()
-    )
-
-
-@dataclass(frozen=True)
-class ECSContainerToGCPArtifactRegistryImageRelProperties(CartographyRelProperties):
-    lastupdated: PropertyRef = PropertyRef("lastupdated", set_in_kwargs=True)
-
-
-@dataclass(frozen=True)
-class ECSContainerToGCPArtifactRegistryImageRel(CartographyRelSchema):
-    """
-    Matches containers to GAR image artifacts by runtime digest (imageDigest).
-    """
-
-    target_node_label: str = "GCPArtifactRegistryImage"
-    target_node_matcher: TargetNodeMatcher = make_target_node_matcher(
-        {"digest": PropertyRef("imageDigest")}
-    )
-    direction: LinkDirection = LinkDirection.OUTWARD
-    rel_label: str = "HAS_IMAGE"
-    properties: ECSContainerToGCPArtifactRegistryImageRelProperties = (
-        ECSContainerToGCPArtifactRegistryImageRelProperties()
-    )
-
-
-@dataclass(frozen=True)
-class ECSContainerToGitHubContainerImageRelProperties(CartographyRelProperties):
-    lastupdated: PropertyRef = PropertyRef("lastupdated", set_in_kwargs=True)
-
-
-@dataclass(frozen=True)
-class ECSContainerToGitHubContainerImageRel(CartographyRelSchema):
-    """
-    Matches containers to GitHub Container Registry images by runtime digest (imageDigest).
-    """
-
-    target_node_label: str = "GitHubContainerImage"
-    target_node_matcher: TargetNodeMatcher = make_target_node_matcher(
-        {"digest": PropertyRef("imageDigest")}
-    )
-    direction: LinkDirection = LinkDirection.OUTWARD
-    rel_label: str = "HAS_IMAGE"
-    properties: ECSContainerToGitHubContainerImageRelProperties = (
-        ECSContainerToGitHubContainerImageRelProperties()
-    )
-
-
-@dataclass(frozen=True)
 class ECSContainerSchema(CartographyNodeSchema):
     label: str = "AWSECSContainer"
     # DEPRECATED: legacy ECSContainer node label will be removed in v1.0.0.
@@ -193,8 +126,5 @@ class ECSContainerSchema(CartographyNodeSchema):
             ECSContainerToTaskRel(),
             ECSContainerToECSTaskWorkloadParentRel(),
             ECSContainerToECRImageRel(),
-            ECSContainerToGitLabContainerImageRel(),
-            ECSContainerToGCPArtifactRegistryImageRel(),
-            ECSContainerToGitHubContainerImageRel(),
         ]
     )

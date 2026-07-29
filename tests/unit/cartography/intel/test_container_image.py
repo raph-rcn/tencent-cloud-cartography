@@ -27,22 +27,6 @@ def test_parse_image_uri_tag_and_digest() -> None:
     assert parse_image_uri(raw) == (raw, "sha256:deadbeef")
 
 
-def test_parse_image_uri_azure_docker_prefix() -> None:
-    assert parse_image_uri("DOCKER|myregistry.azurecr.io/app:latest") == (
-        "myregistry.azurecr.io/app:latest",
-        None,
-    )
-    assert parse_image_uri("DOCKER|myregistry.azurecr.io/app@sha256:abc") == (
-        "myregistry.azurecr.io/app@sha256:abc",
-        "sha256:abc",
-    )
-
-
-def test_parse_image_uri_azure_docker_prefix_only() -> None:
-    assert parse_image_uri("DOCKER|") == (None, None)
-    assert parse_image_uri("DOCKER|   ") == (None, None)
-
-
 def test_parse_image_uri_trailing_at_no_digest() -> None:
     # Malformed input: trailing '@' without digest returns None digest, not empty string.
     assert parse_image_uri("registry.example.com/app@") == (

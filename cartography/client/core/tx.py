@@ -54,8 +54,8 @@ def _is_retryable_client_error(exc: Exception) -> bool:
     multi-threaded operations, even though the driver classifies it as a non-retryable
     ClientError. See: https://github.com/neo4j/neo4j/issues/6823
 
-    This is particularly common in Cartography when:
-    - Multiple providers sync concurrently (e.g., AWS + GCP + Okta)
+    This is particularly common when:
+    - Multiple AWS regions or accounts sync concurrently
     - Large batch sizes (10,000 nodes per transaction) are used
     - Page cache evictions occur under memory pressure (especially in Aura)
     - Concurrent MERGE and DETACH DELETE operations overlap
@@ -347,7 +347,7 @@ def run_write_query(
     - EntityNotFound errors during concurrent operations (specific ClientError)
     - BufferError with "cannot be re-sized" during concurrent multi-threaded operations
 
-    Used by intel modules that run manual transactions (e.g., GCP firewalls, AWS resources).
+    Used by AWS collectors that run manual transactions.
 
     :param neo4j_session: The Neo4j session
     :param query: The Cypher query to execute

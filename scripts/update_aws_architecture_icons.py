@@ -10,7 +10,6 @@ import urllib.request
 import zipfile
 from pathlib import Path
 
-
 AWS_ARCHITECTURE_ICONS_RELEASE = "04302026"
 AWS_ARCHITECTURE_ICONS_URL = (
     "https://d1.awsstatic.com/onedam/marketing-channels/website/aws/en_US/"
@@ -75,7 +74,9 @@ def update_icons(destination: Path, archive: Path | None = None) -> dict[str, st
     (destination / "manifest.json").write_text(
         json.dumps(manifest, indent=2) + "\n",
     )
-    return {name: hashlib.sha256(content).hexdigest() for name, content in icons.items()}
+    return {
+        name: hashlib.sha256(content).hexdigest() for name, content in icons.items()
+    }
 
 
 def main() -> None:

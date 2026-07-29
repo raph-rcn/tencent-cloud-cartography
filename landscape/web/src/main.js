@@ -42,7 +42,7 @@ document.querySelector('#app').innerHTML = `
         <span class="aws-mark"><img class="brand-logo" src="/icons/aws-wordmark.svg" alt="" /></span>
         <div>
           <h1>AWS Architecture</h1>
-          <div class="brand-subtitle">Cartography Landscape</div>
+          <div class="brand-subtitle">AWS Cartography Landscape</div>
         </div>
       </div>
       <div class="connection">

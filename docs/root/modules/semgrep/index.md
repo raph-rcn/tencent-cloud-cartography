@@ -1,6 +1,0 @@
-# Semgrep
-
-```{toctree}
-config
-schema
-```

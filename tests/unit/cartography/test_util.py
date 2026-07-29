@@ -7,17 +7,12 @@ from unittest.mock import patch
 
 import botocore
 import pytest
-from google.api_core.exceptions import InternalServerError
-from googleapiclient.errors import HttpError
 
 import cartography.util
 from cartography import util
 from cartography.graph.analysis import AnalysisJob
 from cartography.graph.analysis import AnalysisStatement
 from cartography.graph.analysis import SetProperty
-from cartography.intel.gcp.util import gcp_api_execute_with_retry
-from cartography.intel.gcp.util import GCP_API_MAX_RETRIES
-from cartography.intel.gcp.util import is_retryable_gcp_http_error
 from cartography.util import aws_handle_regions
 from cartography.util import batch
 from cartography.util import is_service_control_policy_explicit_deny
@@ -561,129 +556,3 @@ def test_to_datetime_unsupported_type_int_raises_error():
     """Test that integer raises TypeError."""
     with pytest.raises(TypeError, match="Cannot convert int to datetime"):
         to_datetime(12345)
-
-
-def test_is_retryable_gcp_http_error_503():
-    """Test that HTTP 503 is identified as retryable."""
-    mock_resp = MagicMock()
-    mock_resp.status = 503
-    error = HttpError(mock_resp, b"Service Unavailable")
-
-    assert is_retryable_gcp_http_error(error) is True
-
-
-def test_is_retryable_gcp_http_error_429():
-    """Test that HTTP 429 (rate limit) is identified as retryable."""
-    mock_resp = MagicMock()
-    mock_resp.status = 429
-    error = HttpError(mock_resp, b"Rate Limit Exceeded")
-
-    assert is_retryable_gcp_http_error(error) is True
-
-
-def test_is_retryable_gcp_http_error_5xx():
-    """Test that HTTP 5xx errors are identified as retryable."""
-    for status_code in [500, 502, 503, 504]:
-        mock_resp = MagicMock()
-        mock_resp.status = status_code
-        error = HttpError(mock_resp, b"Server Error")
-        assert (
-            is_retryable_gcp_http_error(error) is True
-        ), f"Expected {status_code} to be retryable"
-
-
-def test_is_retryable_gcp_http_error_4xx_not_retryable():
-    """Test that HTTP 4xx errors (except 429) are NOT identified as retryable."""
-    for status_code in [400, 401, 403, 404]:
-        mock_resp = MagicMock()
-        mock_resp.status = status_code
-        error = HttpError(mock_resp, b"Client Error")
-        assert (
-            is_retryable_gcp_http_error(error) is False
-        ), f"Expected {status_code} to NOT be retryable"
-
-
-def test_is_retryable_gcp_http_error_non_http_error():
-    """Test that non-HttpError exceptions are not retryable."""
-    assert is_retryable_gcp_http_error(ValueError("test")) is False
-    assert is_retryable_gcp_http_error(RuntimeError("test")) is False
-
-
-def test_gcp_api_execute_with_retry_success():
-    """Test successful execution without retry."""
-    mock_request = MagicMock()
-    mock_request.execute.return_value = {"items": ["data"]}
-
-    result = gcp_api_execute_with_retry(mock_request)
-
-    assert result == {"items": ["data"]}
-    mock_request.execute.assert_called_once()
-
-
-def test_gcp_api_execute_with_retry_retries_on_503(mocker):
-    """Test that 503 errors trigger retries."""
-    mock_resp = MagicMock()
-    mock_resp.status = 503
-
-    mock_request = MagicMock()
-    mock_request.execute.side_effect = [
-        HttpError(mock_resp, b"Service Unavailable"),
-        {"items": ["data"]},
-    ]
-
-    # Mock sleep to avoid delays
-    mocker.patch("time.sleep")
-
-    result = gcp_api_execute_with_retry(mock_request)
-
-    assert result == {"items": ["data"]}
-    assert mock_request.execute.call_count == 2
-
-
-def test_gcp_api_execute_with_retry_retries_on_google_api_core_500(mocker):
-    """Test that google-api-core 5xx errors trigger retries."""
-    mock_request = MagicMock()
-    mock_request.execute.side_effect = [
-        InternalServerError("Internal Server Error"),
-        {"items": ["data"]},
-    ]
-
-    mocker.patch("time.sleep")
-
-    result = gcp_api_execute_with_retry(mock_request)
-
-    assert result == {"items": ["data"]}
-    assert mock_request.execute.call_count == 2
-
-
-def test_gcp_api_execute_with_retry_gives_up_on_403():
-    """Test that 403 errors are not retried and are raised immediately."""
-    mock_resp = MagicMock()
-    mock_resp.status = 403
-
-    mock_request = MagicMock()
-    mock_request.execute.side_effect = HttpError(mock_resp, b"Forbidden")
-
-    with pytest.raises(HttpError):
-        gcp_api_execute_with_retry(mock_request)
-
-    # Should only be called once since 403 is not retryable
-    mock_request.execute.assert_called_once()
-
-
-def test_gcp_api_execute_with_retry_exhausts_retries(mocker):
-    """Test that after max retries, the error is raised."""
-    mock_resp = MagicMock()
-    mock_resp.status = 503
-
-    mock_request = MagicMock()
-    mock_request.execute.side_effect = HttpError(mock_resp, b"Service Unavailable")
-
-    # Mock sleep to avoid delays
-    mocker.patch("time.sleep")
-
-    with pytest.raises(HttpError):
-        gcp_api_execute_with_retry(mock_request)
-
-    # Should be called max_retries times
-    assert mock_request.execute.call_count == GCP_API_MAX_RETRIES

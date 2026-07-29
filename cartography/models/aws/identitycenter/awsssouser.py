@@ -24,24 +24,6 @@ class AWSSSOUserProperties(CartographyNodeProperties):
 
 
 @dataclass(frozen=True)
-class AWSSSOUserToOktaUserRelRelProperties(CartographyRelProperties):
-    lastupdated: PropertyRef = PropertyRef("lastupdated", set_in_kwargs=True)
-
-
-@dataclass(frozen=True)
-class AWSSSOUserToOktaUserRel(CartographyRelSchema):
-    target_node_label: str = "UserAccount"
-    target_node_matcher: TargetNodeMatcher = make_target_node_matcher(
-        {"id": PropertyRef("ExternalId")},
-    )
-    direction: LinkDirection = LinkDirection.INWARD
-    rel_label: str = "CAN_ASSUME_IDENTITY"
-    properties: AWSSSOUserToOktaUserRelRelProperties = (
-        AWSSSOUserToOktaUserRelRelProperties()
-    )
-
-
-@dataclass(frozen=True)
 class AWSSSOUserToAWSAccountRelRelProperties(CartographyRelProperties):
     lastupdated: PropertyRef = PropertyRef("lastupdated", set_in_kwargs=True)
 
@@ -148,7 +130,6 @@ class AWSSSOUserSchema(CartographyNodeSchema):
     sub_resource_relationship: AWSSSOUserToAWSAccountRel = AWSSSOUserToAWSAccountRel()
     other_relationships: OtherRelationships = OtherRelationships(
         [
-            AWSSSOUserToOktaUserRel(),
             AWSSSOUserToSSOGroupRel(),
             AWSSSOUserToSSOGroupMemberOfRel(),
             AWSSSOUserToPermissionSetRel(),

@@ -1,6 +1,0 @@
-# WorkOS
-
-```{toctree}
-config
-schema
-```

@@ -1,6 +1,0 @@
-# Kubernetes
-
-```{toctree}
-config
-schema
-```

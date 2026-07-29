@@ -52,10 +52,8 @@ AWS_LAMBDA_ECR = AnalysisJob(
 AWS_LB_CONTAINER_EXPOSURE = AnalysisJob(
     name="AWS LoadBalancer to ECS Container direct relationship",
     short_name="aws_lb_container_exposure",
-    # Runs in the cross-account analysis phase (after AWS_EC2_ASSET_EXPOSURE_JOBS compute
-    # lb.exposed_internet), so it is unscoped: AWS_ID is no longer in scope there. The
-    # AWSLoadBalancerV2/AWSECSContainer labels keep the global cleanup from touching the
-    # Kubernetes LB->container edges (KubernetesContainer is a :Container but not an :AWSECSContainer).
+    # Runs in the cross-account analysis phase after the AWS exposure jobs compute
+    # lb.exposed_internet. The concrete AWS labels keep this relationship precise.
     statements=(
         AnalysisStatement(
             match="MATCH (lb:AWSLoadBalancerV2 {exposed_internet: true})-[:EXPOSE]->(ip:AWSEC2PrivateIp)<-[:PRIVATE_IP_ADDRESS]-(ni:AWSNetworkInterface)<-[:NETWORK_INTERFACE]-(task:AWSECSTask)-[:HAS_CONTAINER]->(c:AWSECSContainer)",

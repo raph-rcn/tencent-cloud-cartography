@@ -1,6 +1,0 @@
-# Scaleway
-
-```{toctree}
-config
-schema
-```

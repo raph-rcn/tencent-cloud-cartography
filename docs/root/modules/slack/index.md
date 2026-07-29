@@ -1,6 +1,0 @@
-# Slack
-
-```{toctree}
-config
-schema
-```

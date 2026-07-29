@@ -1,6 +1,0 @@
-# Lastpass
-
-```{toctree}
-config
-schema
-```

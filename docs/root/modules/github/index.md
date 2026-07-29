@@ -1,6 +1,0 @@
-# Github
-
-```{toctree}
-config
-schema
-```

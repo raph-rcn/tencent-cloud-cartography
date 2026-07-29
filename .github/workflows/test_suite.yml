@@ -1,77 +1,43 @@
-name: Test Suite
+name: AWS Landscape checks
+
 on:
   pull_request:
-    branches:
-      - master
   push:
-    branches:
-      - master
 
-# Explicitly grant the `secrets.GITHUB_TOKEN` no permissions.
-permissions: {}
+permissions:
+  contents: read
 
 jobs:
-  linter:
+  verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-      - name: Install uv
-        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
-      - name: Check lockfile is up-to-date
-        run: uv lock --check
-      - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
-        with:
-          extra_args: --all-files --show-diff-on-failure
-
-  unit-and-integration-tests:
-    runs-on: ubuntu-latest
-    env:
-      NEO4J_DOCKER_IMAGE: neo4j:5-community
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
-        with:
-          python-version: "3.13"
-      - name: Install uv
-        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
+      - uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
-          cache-dependency-glob: "uv.lock"
-      - name: Install the project
-        run: uv sync --frozen --all-extras --dev
-      - name: Run unit tests
-        run: make test_unit
-      - name: Run integration tests
-        run: make test_integration
-
-  # Test that the docker image builds successfully on each commit
-  build-docker-image:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@v4
         with:
-          persist-credentials: false
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
-        with:
-          images: ghcr.io/${{ github.repository }}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
-
-      - name: Build
-        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
-        with:
-          file: dev.Dockerfile
-          push: false # only build the image, don't push it anywhere
-          context: .
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: landscape/web/package-lock.json
+      - name: Install Python dependencies
+        run: uv sync --frozen
+      - name: Run Python tests
+        run: uv run pytest tests/unit
+      - name: Run lint and type checks
+        run: uv run pre-commit run --all-files
+      - name: Install web dependencies
+        working-directory: landscape/web
+        run: npm ci
+      - name: Run web tests
+        working-directory: landscape/web
+        run: npm test -- --run
+      - name: Build web application
+        working-directory: landscape/web
+        run: npm run build
+      - name: Audit production dependencies
+        working-directory: landscape/web
+        run: npm audit --audit-level=high

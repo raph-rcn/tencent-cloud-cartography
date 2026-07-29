@@ -1,6 +1,0 @@
-# Airbyte
-
-```{toctree}
-config
-schema
-```

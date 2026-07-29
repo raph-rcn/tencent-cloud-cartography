@@ -1,6 +1,0 @@
-# CircleCI
-
-```{toctree}
-config
-schema
-```

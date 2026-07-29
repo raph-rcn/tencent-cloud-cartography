@@ -1,6 +1,0 @@
-# JumpCloud
-
-```{toctree}
-config
-schema
-```

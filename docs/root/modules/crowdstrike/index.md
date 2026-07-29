@@ -1,6 +1,0 @@
-# Crowdstrike
-
-```{toctree}
-config
-schema
-```

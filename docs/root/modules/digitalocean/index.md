@@ -1,6 +1,0 @@
-# DigitalOcean
-
-```{toctree}
-config
-schema
-```

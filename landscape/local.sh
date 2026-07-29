@@ -14,7 +14,7 @@ case "${1:-}" in
     cd "${REPO_DIR}"
     uv sync
     cd "${LANDSCAPE_DIR}/web"
-    npm install
+    npm ci
     npm run build
     ;;
   start)
@@ -31,7 +31,6 @@ case "${1:-}" in
     args=(
       --quiet
       --neo4j-uri bolt://127.0.0.1:7687
-      --selected-modules aws
       --aws-requested-syncs "${syncs}"
     )
     if [[ -n "${CARTOGRAPHY_AWS_REGIONS:-}" ]]; then

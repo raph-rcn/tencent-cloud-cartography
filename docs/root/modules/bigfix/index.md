@@ -1,6 +1,0 @@
-# BigFix
-
-```{toctree}
-config
-schema
-```

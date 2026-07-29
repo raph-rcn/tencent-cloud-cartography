@@ -1,6 +1,0 @@
-# Salesforce
-
-```{toctree}
-config
-schema
-```

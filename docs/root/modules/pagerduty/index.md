@@ -1,6 +1,0 @@
-# PagerDuty
-
-```{toctree}
-config
-schema
-```

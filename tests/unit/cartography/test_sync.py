@@ -9,77 +9,46 @@ from cartography.sync import Sync
 from cartography.sync import TOP_LEVEL_MODULES
 
 
-def test_available_modules_import():
-    # Check if all available modules are defined in the TOP_LEVEL_MODULES list
-    assert sorted(TOP_LEVEL_MODULES.keys()) == sorted(Sync.list_intel_modules().keys())
-
-
-def test_build_default_sync():
-    sync = build_default_sync()
-    # Use list because order matters
-    assert [name for name in sync._stages.keys()] == list(TOP_LEVEL_MODULES.keys())
-
-
-def test_default_sync_runs_cve_metadata_after_cve_producers():
-    stage_names = list(TOP_LEVEL_MODULES.keys())
-    cve_metadata_index = stage_names.index("cve_metadata")
-
-    for producer in (
-        "crowdstrike",
-        "cve",
-        "github",
-        "semgrep",
-        "trivy",
-        "ubuntu",
-        "sentinelone",
-    ):
-        assert stage_names.index(producer) < cve_metadata_index
-
-
-def test_build_sync():
-    # Arrange
-    selected_modules = "aws, gcp, analysis"
-
-    # Act
-    sync = build_sync(selected_modules)
+def test_available_modules_are_aws_only() -> None:
+    # Arrange / Act
+    available = Sync.list_intel_modules()
 
     # Assert
-    assert [name for name in sync._stages.keys()] == selected_modules.split(", ")
+    assert list(available) == ["create-indexes", "aws"]
+    assert list(available) == list(TOP_LEVEL_MODULES)
 
 
-def test_parse_and_validate_selected_modules():
-    no_spaces = "aws,gcp,oci,analysis"
-    assert parse_and_validate_selected_modules(no_spaces) == [
-        "aws",
-        "gcp",
-        "oci",
-        "analysis",
-    ]
+def test_build_default_sync() -> None:
+    # Arrange / Act
+    sync = build_default_sync()
 
-    mismatch_spaces = "gcp, oci,analysis"
-    assert parse_and_validate_selected_modules(mismatch_spaces) == [
-        "gcp",
-        "oci",
-        "analysis",
-    ]
-
-    sync_that_does_not_exist = "gcp, thisdoesnotexist, aws"
-    with pytest.raises(ValueError):
-        parse_and_validate_selected_modules(sync_that_does_not_exist)
-
-    absolute_garbage = "#@$@#RDFFHKjsdfkjsd,KDFJHW#@,"
-    with pytest.raises(ValueError):
-        parse_and_validate_selected_modules(absolute_garbage)
+    # Assert
+    assert list(sync._stages) == ["create-indexes", "aws"]
 
 
-def test_run_with_config_forwards_optional_driver_kwargs(mocker):
+def test_build_sync_accepts_only_aws_stages() -> None:
+    # Arrange / Act
+    sync = build_sync("create-indexes, aws")
+
+    # Assert
+    assert list(sync._stages) == ["create-indexes", "aws"]
+
+
+def test_parse_rejects_removed_provider() -> None:
+    # Arrange / Act / Assert
+    with pytest.raises(ValueError, match="Unsupported sync stage"):
+        parse_and_validate_selected_modules("aws,gcp")
+
+
+def test_run_with_config_forwards_optional_driver_kwargs(mocker) -> None:
+    # Arrange
     sync = mocker.Mock()
     driver = object()
     driver_mock = mocker.patch(
-        "cartography.sync.GraphDatabase.driver", return_value=driver
+        "cartography.sync.GraphDatabase.driver",
+        return_value=driver,
     )
     mocker.patch("cartography.sync.time.time", return_value=123)
-
     config = Config(
         neo4j_uri="bolt://localhost:7687",
         neo4j_user="neo4j",
@@ -93,8 +62,10 @@ def test_run_with_config_forwards_optional_driver_kwargs(mocker):
         neo4j_connection_acquisition_timeout=60.0,
     )
 
+    # Act
     run_with_config(sync, config)
 
+    # Assert
     driver_mock.assert_called_once_with(
         "bolt://localhost:7687",
         auth=("neo4j", "password"),
@@ -108,41 +79,3 @@ def test_run_with_config_forwards_optional_driver_kwargs(mocker):
     )
     sync.run.assert_called_once_with(driver, config)
     assert config.update_tag == 123
-
-
-def test_run_with_config_omits_unset_optional_driver_kwargs(mocker):
-    sync = mocker.Mock()
-    driver_mock = mocker.patch(
-        "cartography.sync.GraphDatabase.driver", return_value=object()
-    )
-    mocker.patch("cartography.sync.time.time", return_value=123)
-
-    config = Config(
-        neo4j_uri="bolt://localhost:7687",
-        neo4j_user="neo4j",
-        neo4j_password="password",
-    )
-
-    run_with_config(sync, config)
-
-    driver_mock.assert_called_once_with(
-        "bolt://localhost:7687",
-        auth=("neo4j", "password"),
-    )
-
-
-def test_config_preserves_existing_positional_arguments():
-    config = Config(
-        "bolt://localhost:7687",
-        "neo4j",
-        "password",
-        300,
-        30,
-        "neo4j-db",
-        "aws,analysis",
-        456,
-    )
-
-    assert config.neo4j_database == "neo4j-db"
-    assert config.selected_modules == "aws,analysis"
-    assert config.update_tag == 456

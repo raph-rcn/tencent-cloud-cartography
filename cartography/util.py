@@ -114,8 +114,7 @@ def run_analysis_job(
         ... )
 
     Note:
-        Analysis jobs are unscoped and apply to ALL resources in the graph
-        (all AWS accounts, all GCP projects, all Okta organizations, etc.).
+        Analysis jobs are unscoped and apply to all AWS accounts in the graph.
         For scoped analysis, use run_scoped_analysis_job() instead.
 
         The job file must be a valid JSON file containing GraphJob-compatible
@@ -176,16 +175,6 @@ def run_analysis_and_ensure_deps(
         ...     neo4j_session
         ... )
         # Will run because all dependencies are satisfied
-
-        Skipping analysis due to missing dependencies:
-        >>> run_analysis_and_ensure_deps(
-        ...     "gcp_analysis.json",
-        ...     {"gcp:compute", "gcp:iam"},
-        ...     {"aws:ec2"},  # Missing GCP dependencies
-        ...     common_params,
-        ...     neo4j_session
-        ... )
-        # Will skip and log warning
 
         Running analysis with no dependencies:
         >>> run_analysis_and_ensure_deps(
@@ -273,15 +262,15 @@ def run_scoped_analysis_job(
 
         Running scoped analysis from custom package:
         >>> run_scoped_analysis_job(
-        ...     "gcp_project_analysis.json",
+        ...     "custom_account_analysis.json",
         ...     neo4j_session,
         ...     common_params,
         ...     package="my_company.scoped_jobs"
         ... )
 
     Note:
-        Scoped analysis jobs are limited to data within a specific scope
-        (typically defined by parameters like AWS_ID, GCP_PROJECT_ID, etc.).
+        Scoped analysis jobs are limited to data within a specific AWS account
+        (typically defined by the AWS_ID parameter).
         This is in contrast to global analysis jobs that operate across
         all resources. See the queries in cartography.data.jobs.scoped_analysis
         for specific examples of scoped analysis patterns.
@@ -977,9 +966,6 @@ def is_throttling_exception(exc: Exception) -> bool:
         - LimitExceededException: General rate limit exceeded
         - Throttling: Request rate too high
 
-        The function can be extended to support other cloud providers like GCP
-        (google.api_core.exceptions.TooManyRequests) or Azure as needed.
-
         This function is particularly useful in conjunction with retry decorators
         or custom retry logic to distinguish between transient throttling errors
         that should be retried and permanent errors that should not.
@@ -991,8 +977,6 @@ def is_throttling_exception(exc: Exception) -> bool:
     if isinstance(exc, botocore.exceptions.ClientError):
         if exc.response["Error"]["Code"] in ["LimitExceededException", "Throttling"]:
             return True
-    # add other exceptions here, if needed, like:
-    # https://cloud.google.com/python/docs/reference/storage/1.39.0/retry_timeout#configuring-retries
     # if isinstance(exc, google.api_core.exceptions.TooManyRequests):
     #     return True
     return False

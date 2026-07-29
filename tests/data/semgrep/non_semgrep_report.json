@@ -1,8 +1,0 @@
-{
-  "message": "this is valid json but not a Semgrep OSS report",
-  "items": [
-    {
-      "kind": "not-semgrep"
-    }
-  ]
-}

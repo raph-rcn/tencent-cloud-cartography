@@ -225,12 +225,7 @@ class CartographyNodeSchema(abc.ABC):
             Optional[CartographyRelSchema]: The sub resource relationship schema,
                 or None if no sub resource relationship is defined.
 
-        Examples:
-            Sub resource examples by cloud provider:
-            - AWS: AWSAccount
-            - Azure: Subscription
-            - GCP: GCPProject
-            - Okta: OktaOrganization
+        In this fork, the subresource is normally an AWSAccount.
         """
         return None
 

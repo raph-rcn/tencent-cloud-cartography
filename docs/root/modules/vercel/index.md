@@ -1,6 +1,0 @@
-# Vercel
-
-```{toctree}
-config
-schema
-```

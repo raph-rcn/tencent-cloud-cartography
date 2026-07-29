@@ -1,6 +1,0 @@
-# OpenAI
-
-```{toctree}
-config
-schema
-```

@@ -1,6 +1,0 @@
-# Cloudflare
-
-```{toctree}
-config
-schema
-```

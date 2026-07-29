@@ -123,60 +123,6 @@ class AWSLambdaToECRImageRel(CartographyRelSchema):
 
 
 @dataclass(frozen=True)
-class AWSLambdaToGitLabContainerImageRelProperties(CartographyRelProperties):
-    lastupdated: PropertyRef = PropertyRef("lastupdated", set_in_kwargs=True)
-
-
-@dataclass(frozen=True)
-class AWSLambdaToGitLabContainerImageRel(CartographyRelSchema):
-    target_node_label: str = "GitLabContainerImage"
-    target_node_matcher: TargetNodeMatcher = make_target_node_matcher(
-        {"digest": PropertyRef("image_digest")},
-    )
-    direction: LinkDirection = LinkDirection.OUTWARD
-    rel_label: str = "HAS_IMAGE"
-    properties: AWSLambdaToGitLabContainerImageRelProperties = (
-        AWSLambdaToGitLabContainerImageRelProperties()
-    )
-
-
-@dataclass(frozen=True)
-class AWSLambdaToGCPArtifactRegistryImageRelProperties(CartographyRelProperties):
-    lastupdated: PropertyRef = PropertyRef("lastupdated", set_in_kwargs=True)
-
-
-@dataclass(frozen=True)
-class AWSLambdaToGCPArtifactRegistryImageRel(CartographyRelSchema):
-    target_node_label: str = "GCPArtifactRegistryImage"
-    target_node_matcher: TargetNodeMatcher = make_target_node_matcher(
-        {"digest": PropertyRef("image_digest")},
-    )
-    direction: LinkDirection = LinkDirection.OUTWARD
-    rel_label: str = "HAS_IMAGE"
-    properties: AWSLambdaToGCPArtifactRegistryImageRelProperties = (
-        AWSLambdaToGCPArtifactRegistryImageRelProperties()
-    )
-
-
-@dataclass(frozen=True)
-class AWSLambdaToGitHubContainerImageRelProperties(CartographyRelProperties):
-    lastupdated: PropertyRef = PropertyRef("lastupdated", set_in_kwargs=True)
-
-
-@dataclass(frozen=True)
-class AWSLambdaToGitHubContainerImageRel(CartographyRelSchema):
-    target_node_label: str = "GitHubContainerImage"
-    target_node_matcher: TargetNodeMatcher = make_target_node_matcher(
-        {"digest": PropertyRef("image_digest")},
-    )
-    direction: LinkDirection = LinkDirection.OUTWARD
-    rel_label: str = "HAS_IMAGE"
-    properties: AWSLambdaToGitHubContainerImageRelProperties = (
-        AWSLambdaToGitHubContainerImageRelProperties()
-    )
-
-
-@dataclass(frozen=True)
 class AWSLambdaSchema(CartographyNodeSchema):
     label: str = "AWSLambda"
     properties: AWSLambdaNodeProperties = AWSLambdaNodeProperties()
@@ -187,8 +133,5 @@ class AWSLambdaSchema(CartographyNodeSchema):
             AWSLambdaToPrincipalRel(),
             AWSLambdaToRoleAssumesRel(),
             AWSLambdaToECRImageRel(),
-            AWSLambdaToGitLabContainerImageRel(),
-            AWSLambdaToGCPArtifactRegistryImageRel(),
-            AWSLambdaToGitHubContainerImageRel(),
         ],
     )

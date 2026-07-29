@@ -833,12 +833,7 @@ def _build_attach_sub_resource_statement(
             if sub_resource_link is None.
 
     Examples:
-        Sub resource examples by cloud provider:
-        - AWS: AWSAccount
-        - Azure: Subscription
-        - GCP: GCPProject
-
-        >>> # AWS example
+        >>> # AWS account example
         >>> sub_resource_link = CartographyRelSchema(
         ...     target_node_label='AWSAccount',
         ...     target_node_matcher=TargetNodeMatcher(id=PropertyRef('account_id')),

@@ -1,6 +1,0 @@
-# Sentry
-
-```{toctree}
-config
-schema
-```

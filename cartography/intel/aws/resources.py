@@ -10,7 +10,6 @@ from . import bedrock
 from . import cloudformation
 from . import cloudfront
 from . import cloudtrail
-from . import cloudtrail_management_events
 from . import cloudwatch
 from . import codebuild
 from . import cognito
@@ -152,7 +151,6 @@ RESOURCE_FUNCTIONS: OrderedDict[str, Callable[..., None]] = OrderedDict(
         "config": config.sync,
         "identitycenter": identitycenter.sync_identity_center_instances,
         "cloudtrail": cloudtrail.sync,
-        "cloudtrail_management_events": cloudtrail_management_events.sync,
         "cloudwatch": cloudwatch.sync,
         "efs": efs.sync,
         "guardduty": guardduty.sync,

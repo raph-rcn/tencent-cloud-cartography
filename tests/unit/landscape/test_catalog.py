@@ -3,13 +3,12 @@ import re
 from pathlib import Path
 
 import cartography
+from cartography.intel.aws.resources import RESOURCE_FUNCTIONS
 from cartography.landscape.catalog import SERVICE_FAMILIES
 from cartography.landscape.catalog import service_family_for_label
 from cartography.landscape.drawio import ICON_DIRECTORY
 from cartography.landscape.syncs import EXCLUDED_LANDSCAPE_SYNCS
 from cartography.landscape.syncs import landscape_sync_names
-from cartography.intel.aws.resources import RESOURCE_FUNCTIONS
-
 
 AWS_MODELS = Path(cartography.__file__).parent / "models" / "aws"
 AWS_ICONS = ICON_DIRECTORY / "aws"
@@ -33,9 +32,7 @@ def test_every_cartography_aws_model_has_an_intentional_service_family() -> None
 
     # Act
     unresolved = sorted(
-        label
-        for label in labels
-        if service_family_for_label(label).key == "resource"
+        label for label in labels if service_family_for_label(label).key == "resource"
     )
 
     # Assert
@@ -81,9 +78,7 @@ def test_absent_account_services_resolve_to_their_real_icon_families() -> None:
     }
 
     # Act
-    actual = {
-        label: service_family_for_label(label).icon for label in expected
-    }
+    actual = {label: service_family_for_label(label).icon for label in expected}
 
     # Assert
     assert actual == expected
@@ -94,10 +89,5 @@ def test_landscape_enables_every_non_payload_aws_sync() -> None:
     actual = set(landscape_sync_names())
 
     # Assert
-    assert EXCLUDED_LANDSCAPE_SYNCS == {
-        "cloudtrail_management_events",
-        "ssm",
-    }
-    assert actual == (
-        set(RESOURCE_FUNCTIONS) - EXCLUDED_LANDSCAPE_SYNCS
-    )
+    assert EXCLUDED_LANDSCAPE_SYNCS == {"ssm"}
+    assert actual == (set(RESOURCE_FUNCTIONS) - EXCLUDED_LANDSCAPE_SYNCS)
