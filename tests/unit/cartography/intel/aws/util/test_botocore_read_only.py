@@ -2,13 +2,13 @@ from types import SimpleNamespace
 
 import pytest
 
-from cartography.intel.aws.util.botocore_config import AWSReadOnlyViolation
 from cartography.intel.aws.util.botocore_config import _enforce_read_only_operation
 from cartography.intel.aws.util.botocore_config import _is_read_only_operation
 from cartography.intel.aws.util.botocore_config import aws_read_only_enabled
+from cartography.intel.aws.util.botocore_config import AWSReadOnlyViolation
 
 
-@pytest.mark.parametrize(
+@pytest.mark.parametrize(  # type: ignore[misc]
     "operation_name",
     [
         "DescribeInstances",
@@ -25,7 +25,7 @@ def test_read_only_operations_are_allowed(operation_name: str) -> None:
     assert _is_read_only_operation(operation_name)
 
 
-@pytest.mark.parametrize(
+@pytest.mark.parametrize(  # type: ignore[misc]
     "operation_name",
     [
         "CreateBucket",
@@ -51,7 +51,10 @@ def test_guard_raises_before_a_mutating_operation_is_sent() -> None:
         _enforce_read_only_operation(model)
 
 
-@pytest.mark.parametrize("value", ["1", "true", "YES", "on"])
+@pytest.mark.parametrize(  # type: ignore[misc]
+    "value",
+    ["1", "true", "YES", "on"],
+)
 def test_read_only_environment_flag(
     monkeypatch: pytest.MonkeyPatch, value: str
 ) -> None:

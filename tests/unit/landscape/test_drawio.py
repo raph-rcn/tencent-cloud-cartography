@@ -2,8 +2,8 @@ import re
 from urllib.parse import unquote
 from xml.etree.ElementTree import fromstring
 
-from cartography.landscape.drawio import ICON_DIRECTORY
 from cartography.landscape.drawio import export_drawio
+from cartography.landscape.drawio import ICON_DIRECTORY
 
 
 def test_export_drawio_produces_editable_mxfile() -> None:
@@ -23,7 +23,7 @@ def test_export_drawio_produces_editable_mxfile() -> None:
             "id": "instance",
             "label": "Example instance",
             "type": "resource",
-            "icon": "ec2",
+            "icon": "amazon-ec2",
             "x": 100,
             "y": 100,
             "width": 58,
@@ -61,7 +61,7 @@ def test_export_drawio_produces_editable_mxfile() -> None:
             "depth": 3,
         },
     ]
-    edges = []
+    edges: list[dict] = []
 
     # Act
     body = export_drawio(nodes, edges)
@@ -77,7 +77,10 @@ def test_export_drawio_produces_editable_mxfile() -> None:
         instance.attrib["style"],
     )
     assert icon_match
-    assert unquote(icon_match.group(1)) == (ICON_DIRECTORY / "ec2.svg").read_text()
+    assert (
+        unquote(icon_match.group(1))
+        == (ICON_DIRECTORY / "aws" / "amazon-ec2.svg").read_text()
+    )
     vpc = next(cell for cell in cells if cell.attrib.get("id") == "vpc")
     assert "grIcon=mxgraph.aws4.group_vpc" in vpc.attrib["style"]
     assert "strokeColor=#8C4FFF" in vpc.attrib["style"]

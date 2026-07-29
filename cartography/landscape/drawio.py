@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from datetime import UTC
+import re
 from datetime import datetime
+from datetime import UTC
 from functools import lru_cache
 from pathlib import Path
-import re
 from urllib.parse import quote
 from xml.etree.ElementTree import Element
 from xml.etree.ElementTree import SubElement
@@ -57,7 +57,9 @@ def _icon_data_uri(icon: str) -> str:
     safe_icon = icon if SAFE_ICON_NAME.fullmatch(icon) else "default"
     icon_path = ICON_DIRECTORY / f"{safe_icon}.svg"
     if not icon_path.is_file():
-        icon_path = ICON_DIRECTORY / "default.svg"
+        icon_path = ICON_DIRECTORY / "aws" / f"{safe_icon}.svg"
+    if not icon_path.is_file():
+        icon_path = ICON_DIRECTORY / "aws" / "aws-resource-explorer.svg"
     return f"data:image/svg+xml,{quote(icon_path.read_text(), safe='')}"
 
 

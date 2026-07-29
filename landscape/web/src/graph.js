@@ -277,6 +277,17 @@ const graphStyle = [
     },
   },
   {
+    selector: 'edge.membership',
+    style: {
+      width: 1.5,
+      'line-style': 'dashed',
+      'line-color': '#64748b',
+      'target-arrow-color': '#64748b',
+      'target-arrow-shape': 'vee',
+      opacity: 0.75,
+    },
+  },
+  {
     selector: 'edge:selected',
     style: {
       width: 3,

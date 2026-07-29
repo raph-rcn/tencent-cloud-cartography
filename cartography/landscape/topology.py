@@ -5,9 +5,25 @@ from collections import Counter
 from collections import defaultdict
 from typing import Any
 
-CONTAINMENT_RELATIONSHIPS = {
-    "MEMBER_OF_AWS_VPC",
+from cartography.landscape.catalog import display_name_for_label
+from cartography.landscape.catalog import service_family_for_label
+from cartography.landscape.catalog import service_family_for_labels
+
+SUBNET_MEMBERSHIP_RELATIONSHIPS = {
     "PART_OF_SUBNET",
+    "SUBNET",
+    "USES_SUBNET",
+}
+VPC_MEMBERSHIP_RELATIONSHIPS = {
+    "MEMBER_OF_AWS_VPC",
+}
+VPC_BOUNDARY_RESOURCE_LABELS = {
+    "AWSInternetGateway",
+    "AWSVirtualPrivateGateway",
+}
+CONTAINMENT_RELATIONSHIPS = {
+    *SUBNET_MEMBERSHIP_RELATIONSHIPS,
+    *VPC_MEMBERSHIP_RELATIONSHIPS,
     "RESOURCE",
 }
 
@@ -30,66 +46,6 @@ PROPERTY_ALLOWLIST = (
     "engine",
     "dnsname",
 )
-
-LABEL_DISPLAY_NAMES = {
-    "AWSVpc": "VPC",
-    "AWSEC2Subnet": "Subnet",
-    "AWSEC2Instance": "EC2 instance",
-    "AWSS3Bucket": "S3 bucket",
-    "AWSLambda": "Lambda function",
-    "AWSRDSInstance": "RDS instance",
-    "AWSRDSCluster": "RDS cluster",
-    "AWSDynamoDBTable": "DynamoDB table",
-    "AWSEKSCluster": "EKS cluster",
-    "AWSECSCluster": "ECS cluster",
-    "AWSCloudFrontDistribution": "CloudFront distribution",
-    "AWSInternetGateway": "Internet gateway",
-    "AWSNatGateway": "NAT gateway",
-    "AWSVpcEndpoint": "VPC endpoint",
-    "AWSEC2SecurityGroup": "Security group",
-    "AWSNetworkInterface": "Network interface",
-    "AWSKMSKey": "AWS KMS key",
-    "AWSEC2RouteTable": "Route table",
-    "AWSEC2NetworkAcl": "Network ACL",
-    "AWSElasticIPAddress": "Elastic IP address",
-    "AWSRouteTable": "Route table",
-    "AWSRDSSnapshot": "RDS snapshot",
-    "AWSEC2KeyPair": "EC2 key pair",
-    "AWSEBSVolume": "EBS volume",
-    "AWSECRRepository": "ECR repository",
-    "AWSCloudFormationStack": "CloudFormation stack",
-    "AWSSNSTopic": "SNS topic",
-    "AWSEventBridgeRule": "EventBridge rule",
-}
-
-SERVICE_ICON_NAMES = {
-    "AWSEC2Instance": "ec2",
-    "AWSS3Bucket": "s3",
-    "AWSLambda": "lambda",
-    "AWSRDSInstance": "rds",
-    "AWSRDSCluster": "rds",
-    "AWSDynamoDBTable": "dynamodb",
-    "AWSEKSCluster": "eks",
-    "AWSECSCluster": "ecs",
-    "AWSCloudFrontDistribution": "cloudfront",
-    "AWSInternetGateway": "internet-gateway",
-    "AWSNatGateway": "nat-gateway",
-    "AWSVpcEndpoint": "vpc-endpoint",
-    "AWSEC2SecurityGroup": "security-group",
-    "AWSNetworkInterface": "network-interface",
-    "AWSKMSKey": "kms",
-    "AWSEC2RouteTable": "route-table",
-    "AWSEC2NetworkAcl": "network-acl",
-    "AWSElasticIPAddress": "elastic-ip",
-    "AWSRouteTable": "route-table",
-    "AWSRDSSnapshot": "rds",
-    "AWSEC2KeyPair": "key-pair",
-    "AWSEBSVolume": "ebs",
-    "AWSECRRepository": "ecr",
-    "AWSCloudFormationStack": "cloudformation",
-    "AWSSNSTopic": "sns",
-    "AWSEventBridgeRule": "eventbridge",
-}
 
 ARCHITECTURE_DETAIL_MARKERS = (
     "AccessKey",
@@ -136,49 +92,18 @@ ARCHITECTURE_DETAIL_LABELS = {
     "AWSRouteTable",
 }
 
-COMPONENT_BY_LABEL = {
-    "AWSS3Bucket": "Storage component",
-    "AWSDynamoDBTable": "Data component",
-    "AWSRDSInstance": "Data component",
-    "AWSRDSCluster": "Data component",
-    "AWSLambda": "Compute component",
-    "AWSEC2Instance": "Compute component",
-    "AWSECSCluster": "Container component",
-    "AWSEKSCluster": "Container component",
-    "AWSECRRepository": "Image deployment component",
-    "AWSCloudFormationStack": "Deployment component",
-    "AWSCloudFrontDistribution": "Web component",
-    "AWSSNSTopic": "Integration component",
-    "AWSSQSQueue": "Integration component",
-    "AWSEventBridgeRule": "Integration component",
-    "AWSInternetGateway": "Network component",
-    "AWSNatGateway": "Network component",
-    "AWSVpcEndpoint": "Network component",
-    "AWSEBSVolume": "Storage component",
-}
-
 
 def _stable_id(prefix: str, *parts: str) -> str:
     digest = hashlib.sha256("\x00".join(parts).encode()).hexdigest()[:16]
     return f"{prefix}:{digest}"
 
 
-def _primary_label(labels: list[str]) -> str:
-    aws_labels = [
-        label
-        for label in labels
-        if label.startswith("AWS") and label not in {"AWSAccount", "AWSPrincipal"}
-    ]
-    return aws_labels[0] if aws_labels else labels[0]
+def _primary_label(labels: list[str] | set[str]) -> str:
+    return service_family_for_labels(list(labels))[0]
 
 
 def _display_type(primary_label: str) -> str:
-    if primary_label in LABEL_DISPLAY_NAMES:
-        return LABEL_DISPLAY_NAMES[primary_label]
-    value = primary_label.removeprefix("AWS")
-    for token in ("EC2", "RDS", "ECS", "EKS", "S3"):
-        value = value.replace(token, f"{token} ")
-    return value.strip() or primary_label
+    return display_name_for_label(primary_label)
 
 
 def _display_name(primary_label: str, props: dict[str, Any]) -> str:
@@ -207,7 +132,7 @@ def _diagram_label(primary_label: str, props: dict[str, Any]) -> str:
 
 
 def _component_name(primary_label: str) -> str:
-    return COMPONENT_BY_LABEL.get(primary_label, "Supporting services component")
+    return service_family_for_label(primary_label).component
 
 
 def _safe_properties(props: dict[str, Any]) -> dict[str, Any]:
@@ -278,8 +203,8 @@ def build_topology(
         ]
 
     nodes_by_element_id = {node["element_id"]: node for node in raw_nodes}
-    related_subnet: dict[str, str] = {}
-    related_vpc: dict[str, str] = {}
+    related_subnets: dict[str, set[str]] = defaultdict(set)
+    related_vpcs: dict[str, set[str]] = defaultdict(set)
 
     for edge in raw_edges:
         source = nodes_by_element_id.get(edge["source"])
@@ -288,16 +213,39 @@ def build_topology(
             continue
         source_labels = set(source["labels"])
         target_labels = set(target["labels"])
-        if edge["type"] == "PART_OF_SUBNET":
+        if edge["type"] in SUBNET_MEMBERSHIP_RELATIONSHIPS:
             if "AWSEC2Subnet" in source_labels:
-                related_subnet[target["element_id"]] = str(source["properties"]["id"])
+                related_subnets[target["element_id"]].add(
+                    str(source["properties"]["id"]),
+                )
             elif "AWSEC2Subnet" in target_labels:
-                related_subnet[source["element_id"]] = str(target["properties"]["id"])
-        if edge["type"] == "MEMBER_OF_AWS_VPC":
+                related_subnets[source["element_id"]].add(
+                    str(target["properties"]["id"]),
+                )
+        if edge["type"] in VPC_MEMBERSHIP_RELATIONSHIPS:
             if "AWSVpc" in source_labels:
-                related_vpc[target["element_id"]] = str(source["properties"]["id"])
+                related_vpcs[target["element_id"]].add(
+                    str(source["properties"]["id"]),
+                )
             elif "AWSVpc" in target_labels:
-                related_vpc[source["element_id"]] = str(target["properties"]["id"])
+                related_vpcs[source["element_id"]].add(
+                    str(target["properties"]["id"]),
+                )
+        if not include_details and edge["type"] == "ATTACHED_TO":
+            if (
+                "AWSVpc" in source_labels
+                and target_labels & VPC_BOUNDARY_RESOURCE_LABELS
+            ):
+                related_vpcs[target["element_id"]].add(
+                    str(source["properties"]["id"]),
+                )
+            elif (
+                "AWSVpc" in target_labels
+                and source_labels & VPC_BOUNDARY_RESOURCE_LABELS
+            ):
+                related_vpcs[source["element_id"]].add(
+                    str(target["properties"]["id"]),
+                )
 
     subnets: dict[str, dict[str, Any]] = {}
     vpcs: dict[str, dict[str, Any]] = {}
@@ -311,6 +259,8 @@ def build_topology(
 
     elements: list[dict[str, Any]] = []
     created: set[str] = set()
+    container_ids: dict[str, str] = {}
+    nested_memberships: set[frozenset[str]] = set()
 
     def add(element: dict[str, Any]) -> None:
         element_id = element["data"]["id"]
@@ -375,6 +325,8 @@ def build_topology(
                 color="#248814",
             )
         )
+        if "AWSVpc" in labels:
+            container_ids[raw_node["element_id"]] = vpc_node_id
 
         if "AWSEC2Subnet" in labels:
             subnet_id = _property(props, "id", "subnet_id", "subnetid")
@@ -411,6 +363,11 @@ def build_topology(
                     color="#22c55e",
                 )
             )
+            container_ids[raw_node["element_id"]] = subnet_node_id
+            if vpc:
+                nested_memberships.add(
+                    frozenset((raw_node["element_id"], vpc["element_id"])),
+                )
 
     resource_ids: dict[str, str] = {}
     service_counts: Counter[str] = Counter()
@@ -450,15 +407,28 @@ def build_topology(
         )
         location_parent = region_node_id
 
-        subnet_id = _property(props, "subnet_id", "subnetid") or related_subnet.get(
-            raw_node["element_id"]
-        )
+        subnet_ids = set(related_subnets.get(raw_node["element_id"], set()))
+        property_subnet_id = _property(props, "subnet_id", "subnetid")
+        if property_subnet_id:
+            subnet_ids.add(property_subnet_id)
+        subnet_id = next(iter(subnet_ids)) if len(subnet_ids) == 1 else None
         subnet = subnets.get(subnet_id or "")
-        vpc_id = (
-            _property(props, "vpc_id", "vpcid")
-            or related_vpc.get(raw_node["element_id"])
-            or (_property(subnet["properties"], "vpc_id", "vpcid") if subnet else None)
-        )
+
+        vpc_ids = set(related_vpcs.get(raw_node["element_id"], set()))
+        property_vpc_id = _property(props, "vpc_id", "vpcid")
+        if property_vpc_id:
+            vpc_ids.add(property_vpc_id)
+        for member_subnet_id in subnet_ids:
+            member_subnet = subnets.get(member_subnet_id)
+            if member_subnet:
+                member_vpc_id = _property(
+                    member_subnet["properties"],
+                    "vpc_id",
+                    "vpcid",
+                )
+                if member_vpc_id:
+                    vpc_ids.add(member_vpc_id)
+        vpc_id = next(iter(vpc_ids)) if len(vpc_ids) == 1 else None
         vpc = vpcs.get(vpc_id or "")
 
         if vpc_id:
@@ -533,6 +503,13 @@ def build_topology(
                     )
                 )
                 location_parent = subnet_node_id
+                nested_memberships.add(
+                    frozenset((raw_node["element_id"], subnet["element_id"])),
+                )
+            elif vpc:
+                nested_memberships.add(
+                    frozenset((raw_node["element_id"], vpc["element_id"])),
+                )
 
         display_type = _display_type(primary_label)
         component_name = _component_name(primary_label)
@@ -562,7 +539,7 @@ def build_topology(
                     "parent": type_node_id,
                     "primaryLabel": primary_label,
                     "labels": labels,
-                    "icon": SERVICE_ICON_NAMES.get(primary_label, "default"),
+                    "icon": service_family_for_label(primary_label).icon,
                     "properties": safe_props,
                 },
                 "classes": "resource",
@@ -571,22 +548,33 @@ def build_topology(
 
     relationship_counts: Counter[str] = Counter()
     for index, edge in enumerate(raw_edges):
-        if edge["type"] in CONTAINMENT_RELATIONSHIPS:
+        if edge["type"] == "RESOURCE":
             continue
-        source = resource_ids.get(edge["source"])
-        target = resource_ids.get(edge["target"])
-        if not source or not target:
+        if frozenset((edge["source"], edge["target"])) in nested_memberships:
+            continue
+        source_node_id = resource_ids.get(edge["source"]) or container_ids.get(
+            edge["source"],
+        )
+        target_node_id = resource_ids.get(edge["target"]) or container_ids.get(
+            edge["target"],
+        )
+        if not source_node_id or not target_node_id:
             continue
         relationship_counts[edge["type"]] += 1
         elements.append(
             {
                 "data": {
-                    "id": f"edge:{index}:{source}:{target}",
-                    "source": source,
-                    "target": target,
+                    "id": f"edge:{index}:{source_node_id}:{target_node_id}",
+                    "source": source_node_id,
+                    "target": target_node_id,
                     "label": edge["type"].replace("_", " ").title(),
                     "relationship": edge["type"],
-                }
+                },
+                "classes": (
+                    "membership"
+                    if edge["type"] in CONTAINMENT_RELATIONSHIPS
+                    else "relationship"
+                ),
             }
         )
 

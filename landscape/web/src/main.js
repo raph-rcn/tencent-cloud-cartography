@@ -184,7 +184,9 @@ function enrichIcons(elements) {
   return elements.map((element) => {
     const icon =
       element.data?.kind === 'resource'
-        ? icons[element.data.icon] || icons.default
+        ? `/icons/aws/${encodeURIComponent(
+            element.data.icon || 'aws-resource-explorer',
+          )}.svg`
         : containerIcons[element.data?.type];
     if (!icon) return element;
     return {
