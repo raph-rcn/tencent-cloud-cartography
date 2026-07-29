@@ -60,8 +60,8 @@ Requirements:
 - working read-only AWS credentials or profile
 
 ```bash
-git clone https://github.com/raph-rcn/cartography.git
-cd cartography
+git clone https://github.com/raph-rcn/aws-cartography.git
+cd aws-cartography
 git switch agent/local-aws-landscape
 
 ./landscape/local.sh install

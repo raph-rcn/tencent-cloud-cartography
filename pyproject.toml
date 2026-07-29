@@ -87,6 +87,6 @@ aws-cartography-landscape = "cartography.cli:main"
 "cartography.data.jobs.cleanup" = ["*.json"]
 
 [project.urls]
-Homepage = "https://github.com/raph-rcn/cartography"
-Repository = "https://github.com/raph-rcn/cartography"
-Issues = "https://github.com/raph-rcn/cartography/issues"
+Homepage = "https://github.com/raph-rcn/aws-cartography"
+Repository = "https://github.com/raph-rcn/aws-cartography"
+Issues = "https://github.com/raph-rcn/aws-cartography/issues"
