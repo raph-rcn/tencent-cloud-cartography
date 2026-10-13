@@ -137,6 +137,8 @@ def pages(transport, spec, region, params=None, max_pages=10000):
             query.update(Page=cursor + 1, Rp=100)
         elif spec.paging == "offset-page":
             query.update(Offset=cursor + 1, Limit=100)
+        elif spec.paging == "number-page":
+            query.update(PageNumber=cursor + 1, PageSize=10)
         response = transport.call(spec.service, spec.action, region=region, **query)
         items = path_value(response, spec.result)
         if not isinstance(items, list):
@@ -170,7 +172,11 @@ def pages(transport, spec, region, params=None, max_pages=10000):
             return
         if total is None and len(items) < 100:
             return
-        cursor = cursor + 1 if spec.paging in {"page", "offset-page"} else cursor + len(items)
+        cursor = (
+            cursor + 1
+            if spec.paging in {"page", "offset-page", "number-page"}
+            else cursor + len(items)
+        )
     raise CollectionError("PageLimit")
 
 

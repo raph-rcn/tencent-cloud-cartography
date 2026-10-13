@@ -135,6 +135,15 @@ class CollectorRunner:
                 if request_id:
                     record["request_ids"].append(request_id)
                 for item in items:
+                    if spec.kind == "cls.topic" and (
+                        type(item.get("BizType")) is not int
+                        or item["BizType"] != (params or {}).get("BizType", 0)
+                    ):
+                        raise CollectionError("TopicTypeMismatch")
+                    if spec.kind == "cloudaudit.track" and (
+                        type(item.get("TrackId")) is not int or item["TrackId"] <= 0
+                    ):
+                        raise CollectionError("InvalidAuditTrackId")
                     if spec.kind == "ssl.certificate" and str(item.get("OwnerUin")) != self.account:
                         raise CollectionError("AccountMismatch")
                     if spec.kind == "privatedns.zone" and str(item.get("OwnerUin")) != self.account:
@@ -262,12 +271,20 @@ class CollectorRunner:
             if services and spec.service not in services:
                 continue
             for region in self.regions if spec.regional else ["global"]:
+                if spec.kind == "cls.topic":
+                    for biz_type in (0, 1):
+                        self.native(spec, region, {"BizType": biz_type})
+                    continue
                 if spec.action == "ListKeys" and spec.service == "kms":
                     from .kms import collect_keys
 
                     collect_keys(self, spec, region)
                     continue
                 collected = self.native(spec, region)
+                if spec.kind == "cloudaudit.track":
+                    from .observability import collect_track_details
+
+                    collect_track_details(self, collected)
                 if spec.kind == "apigateway.service":
                     from .gateway import collect_service
 
@@ -394,4 +411,7 @@ def collect(
     from .cam import link_compute_roles
 
     link_compute_roles(graph)
+    from .observability import link_destinations
+
+    link_destinations(graph)
     return graph.snapshot()

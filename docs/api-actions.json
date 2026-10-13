@@ -147,9 +147,34 @@
       "api_version": "2018-03-17"
     },
     {
+      "service": "cloudaudit",
+      "action": "DescribeAuditTrack",
+      "api_version": "2019-03-19"
+    },
+    {
+      "service": "cloudaudit",
+      "action": "DescribeAuditTracks",
+      "api_version": "2019-03-19"
+    },
+    {
       "service": "cloudrc",
       "action": "SearchResources",
       "api_version": "2024-06-06"
+    },
+    {
+      "service": "cls",
+      "action": "DescribeLogsets",
+      "api_version": "2020-10-16"
+    },
+    {
+      "service": "cls",
+      "action": "DescribeShippers",
+      "api_version": "2020-10-16"
+    },
+    {
+      "service": "cls",
+      "action": "DescribeTopics",
+      "api_version": "2020-10-16"
     },
     {
       "service": "cos",

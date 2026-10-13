@@ -73,6 +73,12 @@ SSL DescribeCertificates adds global metadata and reconciles previously unresolv
 
 CVM CamRoleName now resolves to unique, collected CAM RoleName within the same account; missing/ambiguous names remain references. Tencent directly attaches a role rather than using an AWS instance-profile resource. Template/scaling role bindings and effective permission analysis remain incomplete.
 
+## Audit and logging extension
+
+CloudAudit tracks and detail selectors now retain read/write/resource/event filters, status and the organization-delivery flag. COS storage names omit AppId; destination links require matching collected owner, region and optional AppId suffix. Explicit CLS destinations retain account/region references even when destination inventory is denied. Neither the organization flag nor a delivery configuration proves successful event collection or delivery.
+
+CLS adds log sets, separate log/metric topic inventory, retention/index/web-tracking metadata, custom KMS references and COS shippers. Shipper bucket names resolve to the unique collected bucket's actual account/region. Ambiguous or missing destinations remain visibly unresolved. AWS metric filters/alarms, legacy CloudAudit API equivalence, CKafka destination topic inventory, delivery-role/filter depth and live validation remain incomplete.
+
 ## Completion rule
 
 A registered action, mapping row, green unit test, or icon does not on its own establish parity. Each audit item must have corresponding native collection, model/relationship behavior, tests for failure and negative controls, and runtime evidence appropriate to that capability. Keep this audit incomplete until those checks hold for the original scope.

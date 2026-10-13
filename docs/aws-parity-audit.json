@@ -427,14 +427,14 @@
       "source_enabled": true,
       "tencent_counterpart": "CloudAudit",
       "status": "incomplete",
-      "evidence_or_gap": "Not implemented."
+      "evidence_or_gap": "Regional CloudAudit track lists/details, event selectors, status and organization-delivery flag implemented. Explicit CLS topic references and unambiguous collected COS destination links preserve destination owner/region without converting AppId to UIN. Legacy audit API equivalence, CKafka topic inventory/delivery links, actual delivery verification and live account validation remain incomplete."
     },
     {
       "aws_collector": "cloudwatch",
       "source_enabled": true,
       "tencent_counterpart": "Cloud Monitor / CLS",
       "status": "incomplete",
-      "evidence_or_gap": "Not implemented."
+      "evidence_or_gap": "CLS logsets, separate log/metric topic queries, retention/index/web-tracking flags, custom KMS references and COS shipper configuration implemented. Metric filters, alarm policies/actions and broader Cloud Monitor mappings remain incomplete; no log contents or effective delivery claims."
     },
     {
       "aws_collector": "efs",

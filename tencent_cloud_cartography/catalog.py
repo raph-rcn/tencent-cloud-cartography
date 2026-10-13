@@ -19,6 +19,43 @@ class Collector:
 
 COLLECTORS = (
     Collector(
+        "cloudaudit",
+        "DescribeAuditTracks",
+        "Tracks",
+        "cloudaudit.track",
+        ("TrackId",),
+        ("Name",),
+        paging="number-page",
+        require_total=True,
+    ),
+    Collector(
+        "cls",
+        "DescribeLogsets",
+        "Logsets",
+        "cls.logset",
+        ("LogsetId",),
+        ("LogsetName",),
+        require_total=True,
+    ),
+    Collector(
+        "cls",
+        "DescribeTopics",
+        "Topics",
+        "cls.topic",
+        ("TopicId",),
+        ("TopicName",),
+        require_total=True,
+    ),
+    Collector(
+        "cls",
+        "DescribeShippers",
+        "Shippers",
+        "cls.shipper",
+        ("ShipperId",),
+        ("ShipperName",),
+        require_total=True,
+    ),
+    Collector(
         "ssl",
         "DescribeCertificates",
         "Certificates",
@@ -485,10 +522,13 @@ ALLOWED_ACTIONS = {
     ("apigateway", "DescribeService"),
     ("apigateway", "DescribeApi"),
     ("clb", "DescribeListeners"),
+    ("cloudaudit", "DescribeAuditTrack"),
 }
 
 # Official archive titles; all assets are verified by tests against the manifest.
 SERVICE_ICONS = {
+    "cls": ("Cloud Log Service", "Cloud Log Service"),
+    "cloudaudit": ("CloudAudit", "CloudAudit"),
     "ssl": ("SSL Certificates", "SSL Certificates"),
     "autoscaling": ("Auto Scaling", "Auto Scaling"),
     "as": ("Auto Scaling", "Auto Scaling"),
@@ -576,6 +616,8 @@ DETAIL_KINDS = {
 }
 
 API_VERSIONS = {
+    "cls": "2020-10-16",
+    "cloudaudit": "2019-03-19",
     "ssl": "2019-12-05",
     "autoscaling": "2018-04-19",
     "vpc": "2017-03-12",

@@ -169,3 +169,7 @@ Started from committed AWS fork revision `48780ef5`; uncommitted changes in the 
 SSL certificate inventory retains domains/SANs, issuer source, type, status, algorithms and lifecycle metadata. Tencent certificate timestamps retain their documented Asia/Shanghai timezone. Private-key detail/download endpoints remain outside the allowlist. CLB listeners and routing rules are distinct nodes; server certificates, additional server certificates and client CA certificates use separate configured relationships. A configured client CA does not imply client verification is enabled. API Gateway certificate references reconcile with the same global account-scoped inventory.
 
 CVM CAM role names resolve only against unique collected roles in the same account. Unknown or ambiguous role names remain visible reference nodes. These are configured role bindings, not proof of effective permissions or successful role assumption.
+
+### Audit and log delivery
+
+CloudAudit tracks include selectors, enabled state, organization-delivery flags and configured storage destinations. CLS includes log sets, log and metric topics, retention/index/web-tracking settings, custom KMS references and COS shippers. Destination links use explicit IDs or unique collected bucket identities, including the destination's actual region. `delivery_verified=false` distinguishes configuration from successful log delivery. Unknown/ambiguous destinations stay visible in resource properties. No audit-event or log-content API is allowed.
