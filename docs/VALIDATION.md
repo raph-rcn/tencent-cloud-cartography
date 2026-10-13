@@ -243,3 +243,22 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
 - These are synthetic checks; no live Tencent request or Kafka message access was
   performed. Effective ACL evaluation, fuller Kafka configuration and the broader
   AWS capability comparison remain incomplete as detailed in PARITY.md.
+
+## 2026-10-13 — CMQ queues, topics and subscriptions
+
+- `uv run pytest -q`: **335 passed**. Thirty-two CMQ cases cover 50-item
+  pagination for all list operations, required totals, topic-scoped subscription
+  IDs, conflicting parent/detail IDs, independent access denials, subscription
+  count changes, dead-letter policy thresholds and forward/reverse conflicts,
+  cross-account/region/ambiguous queue names, endpoint redaction and excluded
+  message/mutation APIs. The full synthetic collection now checks 68 coverage rows.
+- Ruff and all **896 official icon** integrity checks passed. `npm ci`, **5
+  frontend tests**, production build and npm audit passed with **0 vulnerabilities**;
+  the existing bundle-size warning remains.
+- `.local/cmq-demo.json` rendered **6 resources / 5 relationships** on loopback
+  8788, with official CMQ icons, topic/subscription routing, the configured queue
+  destination and dead-letter queue. Preview: `.local/cmq-preview.png`.
+- Browser export `tencent-cloud-cartography (15).drawio` read back as **9 vertices,
+  5 edges and 6 embedded SVGs**. No frontend code changes were needed.
+- This was synthetic metadata. No live Tencent request, message operation or HTTP
+  callback occurred. Full AWS parity and live validation remain incomplete.

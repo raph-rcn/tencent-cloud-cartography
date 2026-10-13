@@ -4,6 +4,10 @@ from .model import first, stable_id, walk_values
 
 
 def enrich(graph, account, region, kind, nid, raw, source):
+    if kind.startswith("tdmq.cmq"):
+        from .cmq import configuration
+
+        configuration(graph, nid, raw, source)
     if kind.startswith("ckafka."):
         from .ckafka import configuration
 

@@ -223,3 +223,34 @@ Sources: [topic attributes](https://cloud.tencent.com/document/product/597/40846
 [topic listing](https://cloud.tencent.com/document/product/597/40847),
 [custom SSL certificate integration](https://intl.cloud.tencent.com/zh/document/product/597/81299),
 and the installed Tencent SDK 2019-08-19 request/response models.
+
+## CMQ queues and publish/subscribe configuration
+
+The SQS/SNS counterparts now include TDMQ for CMQ queue/topic inventories and
+per-resource details, with paginated subscriptions. All three list APIs use the
+50-item maximum and require totals. Queue and topic detail IDs/names must match
+inventory; subscriptions bind to the requested topic and retain topic-scoped IDs.
+A changed subscription count is reported as partial collection. Use native service
+filter `--services tdmq` for this collection.
+
+Queues retain retention, visibility, polling, capacities, transaction and dead-letter
+configuration. Dead-letter names resolve only to unique collected queues in the
+same account/region; reverse source metadata must agree with explicit forward
+configuration. Topics/subscriptions retain filters, retry strategy and content
+format. Queue destinations use the same scoped matching; unresolved/ambiguous
+names remain visible in properties. HTTP destinations retain origins and a
+redaction marker; userinfo, paths, query strings and fragments are omitted because
+webhook URLs can carry credentials. No request is made to these destinations.
+
+`CreateUin` is creator metadata and `TopicOwner` is an AppId; neither replaces the
+collecting account UIN. Tenant/namespace strings do not imply VPC or account
+containment. Source AWS queue policy, KMS, FIFO/deduplication fields, SNS
+confirmation/encryption/delivery-policy correspondence, wider messaging protocols,
+and live API validation remain gaps. No messages are read, sent, cleared or rewound.
+
+Sources: [CMQ queues](https://cloud.tencent.com/document/api/1179/55909),
+[subscription API](https://cloud.tencent.com/document/product/1179/55908),
+[control-flow SDK](https://cloud.tencent.com/document/product/1496/65108),
+and installed Tencent SDK `tdmq.v20200217` metadata models. The API catalog lists
+Frankfurt (`eu-frankfurt`); this does not establish availability for a particular
+account.

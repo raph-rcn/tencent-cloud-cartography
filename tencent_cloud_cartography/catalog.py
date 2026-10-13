@@ -20,6 +20,26 @@ class Collector:
 
 COLLECTORS = (
     Collector(
+        "tdmq",
+        "DescribeCmqQueues",
+        "QueueList",
+        "tdmq.cmqqueue",
+        ("QueueId",),
+        ("QueueName",),
+        require_total=True,
+        page_size=50,
+    ),
+    Collector(
+        "tdmq",
+        "DescribeCmqTopics",
+        "TopicList",
+        "tdmq.cmqtopic",
+        ("TopicId",),
+        ("TopicName",),
+        require_total=True,
+        page_size=50,
+    ),
+    Collector(
         "cls",
         "DescribeScheduledSqlInfo",
         "ScheduledSqlTaskInfos",
@@ -578,6 +598,9 @@ ALLOWED_ACTIONS = {
         SCF_FUNCTIONS,
     )
 } | {
+    ("tdmq", "DescribeCmqQueueDetail"),
+    ("tdmq", "DescribeCmqTopicDetail"),
+    ("tdmq", "DescribeCmqSubscriptionDetail"),
     ("ckafka", "DescribeTopic"),
     ("ckafka", "DescribeInstanceAttributes"),
     ("ckafka", "DescribeTopicAttributes"),
@@ -603,6 +626,7 @@ ALLOWED_ACTIONS = {
 
 # Official archive titles; all assets are verified by tests against the manifest.
 SERVICE_ICONS = {
+    "tdmq": ("TDMQ for CMQ", "TDMQ for CMQ"),
     "monitor": ("Cloud Monitor", "Cloud Monitor"),
     "cls": ("Cloud Log Service", "Cloud Log Service"),
     "cloudaudit": ("CloudAudit", "CloudAudit"),
@@ -644,6 +668,8 @@ KIND_ICONS = {
     "vpc.peeringconnection": "Peering Connection",
 }
 DETAIL_KINDS = {
+    "tdmq.cmqsubscription",
+    "tdmq.httpendpoint",
     "ckafka.topic",
     "ckafka.partition",
     "cfs.permissiongroup",
@@ -708,6 +734,7 @@ DETAIL_KINDS = {
 }
 
 API_VERSIONS = {
+    "tdmq": "2020-02-17",
     "monitor": "2018-07-24",
     "cls": "2020-10-16",
     "cloudaudit": "2019-03-19",

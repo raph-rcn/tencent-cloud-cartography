@@ -377,16 +377,16 @@
     {
       "aws_collector": "sns",
       "source_enabled": true,
-      "tencent_counterpart": "TDMQ event/pubsub services",
+      "tencent_counterpart": "TDMQ for CMQ topics/subscriptions",
       "status": "incomplete",
-      "evidence_or_gap": "Not implemented."
+      "evidence_or_gap": "CMQ topic lists/details and paginated subscriptions implemented with filter tags/binding keys, retry/content format configuration, queue links and HTTP destination origins. IDs bind to topic/account/region; TopicOwner remains AppId metadata. HTTP paths/query/userinfo omitted as potentially secret-bearing. AWS encryption/confirmation-state/delivery-policy correspondence, effective permissions, wider protocol support and live validation remain incomplete."
     },
     {
       "aws_collector": "sqs",
       "source_enabled": true,
-      "tencent_counterpart": "TDMQ queues",
+      "tencent_counterpart": "TDMQ for CMQ queues",
       "status": "incomplete",
-      "evidence_or_gap": "Not implemented."
+      "evidence_or_gap": "CMQ regional queue lists/details, retention, visibility, polling, capacity, transaction and redrive configuration, with uniquely scoped dead-letter links now implemented. AWS resource policy, KMS encryption, FIFO/deduplication feature correspondence, broader messaging product coverage and live validation remain incomplete."
     },
     {
       "aws_collector": "ssm",

@@ -418,6 +418,31 @@
       "api_version": "2019-09-24"
     },
     {
+      "service": "tdmq",
+      "action": "DescribeCmqQueueDetail",
+      "api_version": "2020-02-17"
+    },
+    {
+      "service": "tdmq",
+      "action": "DescribeCmqQueues",
+      "api_version": "2020-02-17"
+    },
+    {
+      "service": "tdmq",
+      "action": "DescribeCmqSubscriptionDetail",
+      "api_version": "2020-02-17"
+    },
+    {
+      "service": "tdmq",
+      "action": "DescribeCmqTopicDetail",
+      "api_version": "2020-02-17"
+    },
+    {
+      "service": "tdmq",
+      "action": "DescribeCmqTopics",
+      "api_version": "2020-02-17"
+    },
+    {
       "service": "tke",
       "action": "DescribeClusterInstances",
       "api_version": "2018-05-25"

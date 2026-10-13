@@ -137,11 +137,21 @@ class CollectorRunner:
             cls_alarm_ids = set()
             scheduled_sql_ids = set()
             cfs_ids = set()
+            cmq_ids, cmq_names = set(), set()
             kafka_ids, kafka_names = set(), set()
             for items, request_id in pages(self.transport, spec, region, params):
                 if request_id:
                     record["request_ids"].append(request_id)
                 for item in items:
+                    if spec.kind.startswith("tdmq.cmq"):
+                        from .cmq import prepare
+
+                        item = prepare(spec.kind, item, params or {}, self.graph.nodes.get(parent))
+                        rid, name = first(item, spec.ids), first(item, spec.names)
+                        if rid in cmq_ids or name in cmq_names:
+                            raise CollectionError("DuplicateCmqResource")
+                        cmq_ids.add(rid)
+                        cmq_names.add(name)
                     if spec.service == "ckafka":
                         from .ckafka import prepare
 
@@ -327,6 +337,11 @@ class CollectorRunner:
                     collect_keys(self, spec, region)
                     continue
                 collected = self.native(spec, region)
+                if spec.kind in {"tdmq.cmqqueue", "tdmq.cmqtopic"}:
+                    from .cmq import collect_resource
+
+                    for nid, item in collected:
+                        collect_resource(self, nid)
                 if spec.kind == "ckafka.instance":
                     from .ckafka import collect_instance
 
@@ -473,6 +488,9 @@ def collect(
     from .observability import link_destinations
 
     link_destinations(graph)
+    from .cmq import link_destinations as link_cmq_destinations
+
+    link_cmq_destinations(graph)
     from .monitor import link_bindings
 
     link_bindings(graph)
