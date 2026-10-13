@@ -32,3 +32,9 @@ github_config.json
 # Track the .claude/skills symlink so Claude Code can autodiscover skills
 # from .agents/skills/ without each contributor having to create it.
 !.claude/skills
+.local/
+.env
+*.credential
+*.configure
+playwright-report/
+test-results/

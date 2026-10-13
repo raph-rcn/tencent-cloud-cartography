@@ -1,44 +1,18 @@
-default_language_version:
-    # force all unspecified python hooks to run python3
-    python: python3
 repos:
--   repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.9.18
+  - repo: local
     hooks:
-    -   id: uv-lock
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
-    hooks:
-    -   id: check-docstring-first
-    -   id: check-executables-have-shebangs
-    -   id: check-merge-conflict
-    -   id: check-vcs-permalinks
-    -   id: check-yaml
-    -   id: debug-statements
-    -   id: end-of-file-fixer
-    -   id: trailing-whitespace
--   repo: https://github.com/pycqa/isort
-    rev: 6.0.1
-    hooks:
-      - id: isort
--   repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 25.1.0
-    hooks:
-      - id: black
--   repo: https://github.com/pycqa/flake8
-    rev: 7.2.0
-    hooks:
-    -   id: flake8
--   repo: https://github.com/asottile/pyupgrade
-    rev: v3.19.1
-    hooks:
-    -   id: pyupgrade
-        args: [--py36-plus]
--   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.15.0
-    hooks:
-    -   id: mypy
-        additional_dependencies:
-        -   types-requests
-        -   types-PyYAML
-        -   types-python-dateutil
+      - id: ruff-check
+        name: Ruff check
+        entry: uv run ruff check
+        language: system
+        types: [python]
+      - id: ruff-format
+        name: Ruff format
+        entry: uv run ruff format --check
+        language: system
+        types: [python]
+      - id: icon-integrity
+        name: Tencent icon integrity
+        entry: uv run python scripts/update_tencent_icons.py --check
+        language: system
+        pass_filenames: false

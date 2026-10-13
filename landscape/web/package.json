@@ -1,5 +1,5 @@
 {
-  "name": "aws-cartography-landscape",
+  "name": "tencent-cloud-cartography",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -18,6 +18,6 @@
   },
   "devDependencies": {
     "vite": "7.3.6",
-    "vitest": "4.1.10"
+    "vitest": "4.1.11"
   }
 }

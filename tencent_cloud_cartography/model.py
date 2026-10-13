@@ -1,0 +1,210 @@
+"""A small, provider-specific graph with explicit provenance and no raw payloads."""
+
+import hashlib
+import json
+from datetime import UTC, datetime
+
+from .transport import path_value
+
+
+def stable_id(*parts):
+    return hashlib.sha256("\0".join(str(p) for p in parts).encode()).hexdigest()[:32]
+
+
+def resource_kind(value):
+    parts = [p for p in str(value).replace(".", "::").split("::") if p and p != "qcs"]
+    return ".".join(parts).lower()
+
+
+def first(data, keys, default=""):
+    return next(
+        (path_value(data, k) for k in keys if path_value(data, k) not in (None, "")), default
+    )
+
+
+def walk_values(data, keys):
+    if isinstance(data, dict):
+        for k, v in data.items():
+            if k in keys and isinstance(v, (str, int)) and str(v) not in ("", "0", "-1"):
+                yield str(v)
+            elif k in keys and isinstance(v, list):
+                yield from (str(x) for x in v if isinstance(x, (str, int)) and x)
+            if isinstance(v, (dict, list)):
+                yield from walk_values(v, keys)
+    elif isinstance(data, list):
+        for v in data:
+            yield from walk_values(v, keys)
+
+
+SAFE_FIELDS = {
+    "CidrBlock",
+    "InstanceType",
+    "EngineVersion",
+    "Engine",
+    "ClusterVersion",
+    "DiskSize",
+    "DiskType",
+    "Runtime",
+    "Protocol",
+    "Port",
+    "TargetPort",
+    "DestinationCidrBlock",
+    "Action",
+    "PolicyIndex",
+    "PolicyDescription",
+    "CidrBlock",
+    "Ipv6CidrBlock",
+    "SecurityGroupId",
+    "LoadBalancerType",
+    "Domain",
+    "CreatedTime",
+    "CreateTime",
+    "Namespace",
+}
+REFERENCES = (
+    ({"VpcId", "UniqVpcId", "UnVpcId"}, "vpc.vpc", "IN_VPC", "vpc-"),
+    ({"SubnetId", "UniqSubnetId", "SubnetIds"}, "vpc.subnet", "IN_SUBNET", "subnet-"),
+    (
+        {"SecurityGroupId", "SecurityGroupIds", "GroupSet", "SecurityGroupSet"},
+        "vpc.securitygroup",
+        "USES_SECURITY_GROUP",
+        "sg-",
+    ),
+    ({"RouteTableId"}, "vpc.routetable", "USES_ROUTE_TABLE", "rtb-"),
+    ({"NatGatewayId"}, "vpc.nat", "USES_NAT", "nat-"),
+    ({"DiskId"}, "cbs.disk", "USES_DISK", "disk-"),
+    ({"InstanceId"}, "cvm.instance", "ATTACHED_TO", "ins-"),
+    ({"NetworkInterfaceId"}, "vpc.networkinterface", "USES_INTERFACE", "eni-"),
+)
+
+
+class Graph:
+    def __init__(self, mode="live"):
+        self.nodes, self.edges, self.accounts, self.coverage = {}, {}, {}, []
+        self.created_at = datetime.now(UTC).isoformat()
+        self.mode = mode
+
+    def add(self, account, region, kind, rid, name=None, raw=None, source="", status="enriched"):
+        if not rid:
+            raise ValueError(f"Missing resource ID for {kind}")
+        account, region, rid = str(account), region or "global", str(rid)
+        nid = stable_id(account, region, kind, rid)
+        raw = raw or {}
+        existing = self.nodes.get(nid)
+        props = {
+            k: v
+            for k, v in raw.items()
+            if k in SAFE_FIELDS and isinstance(v, (str, int, float, bool))
+        }
+        props["zone"] = str(first(raw, ("ZoneCode", "Zone", "Placement.Zone", "ZoneName")))
+        props["state"] = str(
+            first(
+                raw,
+                ("InstanceState", "State", "Status", "ClusterStatus", "DiskState", "AddressStatus"),
+            )
+        )
+        ips = list(
+            walk_values(
+                raw,
+                {
+                    "PrivateIpAddresses",
+                    "PrivateIpAddress",
+                    "PublicIpAddresses",
+                    "PublicIpAddress",
+                    "AddressIp",
+                    "Vip",
+                },
+            )
+        )
+        if ips:
+            props["ip_addresses"] = ", ".join(sorted(set(ips)))
+        if existing:
+            if status == "reference" or (
+                status == "inventory-only" and existing["status"] == "enriched"
+            ):
+                return nid
+            existing["properties"].update({k: v for k, v in props.items() if v != ""})
+            if name:
+                existing["name"] = str(name)
+            existing["status"] = status
+            existing["sources"] = sorted(set(existing["sources"] + [source]))
+        else:
+            self.nodes[nid] = dict(
+                id=nid,
+                account=account,
+                region=region,
+                kind=kind,
+                resource_id=rid,
+                name=str(name or rid),
+                status=status,
+                properties=props,
+                sources=[source] if source else [],
+            )
+        return nid
+
+    def edge(self, source, target, relation, provenance=""):
+        if source == target:
+            return
+        eid = stable_id(source, target, relation)
+        self.edges[eid] = dict(
+            id=eid, source=source, target=target, relationship=relation, provenance=provenance
+        )
+
+    def native(self, account, region, spec, raw, source):
+        rid = first(raw, spec.ids)
+        nid = self.add(account, region, spec.kind, rid, first(raw, spec.names), raw, source)
+        for keys, kind, relation, prefix in REFERENCES:
+            for value in set(walk_values(raw, keys)):
+                if not value.startswith(prefix):
+                    continue
+                other = self.add(account, region, kind, value, status="reference")
+                self.edge(nid, other, relation, source)
+        if spec.kind == "clb.clb" and raw.get("ListenerId"):
+            listener = str(rid) + "/" + raw["ListenerId"]
+            if raw.get("LocationId"):
+                listener += "/" + raw["LocationId"]
+            lid = self.add(
+                account,
+                region,
+                "clb.listener",
+                listener,
+                f"{raw.get('Protocol', '')}:{raw.get('Port', '')}",
+                raw,
+                source,
+            )
+            self.edge(nid, lid, "HAS_LISTENER", source)
+            if raw.get("TargetId") or raw.get("TargetAddress"):
+                target = raw.get("TargetId")
+                if target and target.startswith("ins-"):
+                    tid = self.add(account, region, "cvm.instance", target, status="reference")
+                else:
+                    target = f"{rid}/{raw.get('TargetAddress', target)}:{raw.get('TargetPort', '')}"
+                    tid = self.add(
+                        account,
+                        region,
+                        "clb.target",
+                        target,
+                        raw.get("TargetAddress") or target,
+                        raw,
+                        source,
+                    )
+                self.edge(lid, tid, "FORWARDS_TO", source)
+        return nid
+
+    def snapshot(self):
+        coverage_bad = any(c["status"] not in {"complete", "empty"} for c in self.coverage)
+        unresolved = sum(n["status"] != "enriched" for n in self.nodes.values())
+        return dict(
+            schema_version=1,
+            created_at=self.created_at,
+            mode=self.mode,
+            status="partial" if coverage_bad or unresolved else "complete",
+            accounts=list(self.accounts.values()),
+            nodes=list(self.nodes.values()),
+            edges=list(self.edges.values()),
+            coverage=self.coverage,
+            unresolved=unresolved,
+        )
+
+    def dump(self):
+        return json.dumps(self.snapshot(), ensure_ascii=False, indent=2) + "\n"

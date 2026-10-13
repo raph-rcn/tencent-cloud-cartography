@@ -1,4 +1,4 @@
-name: AWS Landscape checks
+name: Tencent Cloud Cartography checks
 
 on:
   pull_request:
@@ -20,14 +20,14 @@ jobs:
           enable-cache: true
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: npm
           cache-dependency-path: landscape/web/package-lock.json
       - name: Install Python dependencies
         run: uv sync --frozen
       - name: Run Python tests
         run: uv run pytest tests/unit
-      - name: Run lint and type checks
+      - name: Run lint and icon provenance checks
         run: uv run pre-commit run --all-files
       - name: Install web dependencies
         working-directory: landscape/web

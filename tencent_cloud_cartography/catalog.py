@@ -1,0 +1,330 @@
+"""Tencent resource types and audited, metadata-only collection operations."""
+
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class Collector:
+    service: str
+    action: str
+    result: str
+    kind: str
+    ids: tuple[str, ...]
+    names: tuple[str, ...] = ()
+    total: str | None = "TotalCount"
+    paging: str = "offset"
+    regional: bool = True
+
+
+COLLECTORS = (
+    Collector("vpc", "DescribeVpcs", "VpcSet", "vpc.vpc", ("VpcId",), ("VpcName",)),
+    Collector("vpc", "DescribeSubnets", "SubnetSet", "vpc.subnet", ("SubnetId",), ("SubnetName",)),
+    Collector(
+        "vpc",
+        "DescribeSecurityGroups",
+        "SecurityGroupSet",
+        "vpc.securitygroup",
+        ("SecurityGroupId",),
+        ("SecurityGroupName",),
+    ),
+    Collector(
+        "vpc",
+        "DescribeRouteTables",
+        "RouteTableSet",
+        "vpc.routetable",
+        ("RouteTableId",),
+        ("RouteTableName",),
+    ),
+    Collector(
+        "vpc",
+        "DescribeNatGateways",
+        "NatGatewaySet",
+        "vpc.nat",
+        ("NatGatewayId",),
+        ("NatGatewayName",),
+    ),
+    Collector(
+        "vpc", "DescribeAddresses", "AddressSet", "vpc.eip", ("AddressId",), ("AddressName",)
+    ),
+    Collector(
+        "vpc",
+        "DescribeNetworkInterfaces",
+        "NetworkInterfaceSet",
+        "vpc.networkinterface",
+        ("NetworkInterfaceId",),
+        ("NetworkInterfaceName",),
+    ),
+    Collector(
+        "cvm",
+        "DescribeInstances",
+        "InstanceSet",
+        "cvm.instance",
+        ("InstanceId",),
+        ("InstanceName",),
+    ),
+    Collector("cbs", "DescribeDisks", "DiskSet", "cbs.disk", ("DiskId",), ("DiskName",)),
+    Collector(
+        "clb",
+        "DescribeLoadBalancers",
+        "LoadBalancerSet",
+        "clb.clb",
+        ("LoadBalancerId",),
+        ("LoadBalancerName",),
+    ),
+    Collector(
+        "clb",
+        "DescribeLoadBalancersDetail",
+        "LoadBalancerDetailSet",
+        "clb.clb",
+        ("LoadBalancerId",),
+        ("LoadBalancerName",),
+    ),
+    Collector(
+        "cdb", "DescribeDBInstances", "Items", "cdb.instance", ("InstanceId",), ("InstanceName",)
+    ),
+    Collector(
+        "postgres",
+        "DescribeDBInstances",
+        "DBInstanceSet",
+        "postgres.dbinstanceid",
+        ("DBInstanceId",),
+        ("DBInstanceName",),
+    ),
+    Collector(
+        "redis",
+        "DescribeInstances",
+        "InstanceSet",
+        "redis.instance",
+        ("InstanceId",),
+        ("InstanceName",),
+    ),
+    Collector(
+        "mongodb",
+        "DescribeDBInstances",
+        "InstanceDetails",
+        "mongodb.instance",
+        ("InstanceId",),
+        ("InstanceName",),
+    ),
+    Collector(
+        "tke", "DescribeClusters", "Clusters", "tke.cluster", ("ClusterId",), ("ClusterName",)
+    ),
+    Collector(
+        "lighthouse",
+        "DescribeInstances",
+        "InstanceSet",
+        "lighthouse.instance",
+        ("InstanceId",),
+        ("InstanceName",),
+    ),
+    Collector(
+        "cfs",
+        "DescribeCfsFileSystems",
+        "FileSystems",
+        "cfs.filesystem",
+        ("FileSystemId",),
+        ("FsName",),
+    ),
+    Collector(
+        "es", "DescribeInstances", "InstanceList", "es.instance", ("InstanceId",), ("InstanceName",)
+    ),
+    Collector(
+        "tcr", "DescribeInstances", "Registries", "tcr.instance", ("RegistryId",), ("RegistryName",)
+    ),
+    Collector(
+        "ckafka",
+        "DescribeInstances",
+        "Result.InstanceList",
+        "ckafka.instance",
+        ("InstanceId",),
+        ("InstanceName",),
+        "Result.TotalCount",
+    ),
+    Collector(
+        "apigateway",
+        "DescribeServicesStatus",
+        "Result.ServiceSet",
+        "apigateway.service",
+        ("ServiceId",),
+        ("ServiceName",),
+        "Result.TotalCount",
+    ),
+    Collector(
+        "ssm", "ListSecrets", "SecretMetadatas", "ssm.secret", ("SecretName",), ("SecretName",)
+    ),
+    Collector("kms", "ListKeys", "Keys", "kms.key", ("KeyId",)),
+    Collector(
+        "cdn",
+        "DescribeDomains",
+        "Domains",
+        "cdn.domain",
+        ("Domain",),
+        ("Domain",),
+        "TotalNumber",
+        regional=False,
+    ),
+    Collector(
+        "dnspod",
+        "DescribeDomainList",
+        "DomainList",
+        "dnspod.domain",
+        ("DomainId",),
+        ("Name",),
+        "DomainCountInfo.AllTotal",
+        regional=False,
+    ),
+    Collector(
+        "privatedns",
+        "DescribePrivateZoneList",
+        "PrivateZoneSet",
+        "privatedns.zone",
+        ("ZoneId",),
+        ("Domain",),
+        regional=False,
+    ),
+    Collector("cam", "ListUsers", "Data", "cam.user", ("Uin",), ("Name",), None, "none", False),
+    Collector(
+        "cam",
+        "DescribeRoleList",
+        "List",
+        "cam.role",
+        ("RoleId",),
+        ("RoleName",),
+        "TotalNum",
+        "page",
+        False,
+    ),
+    Collector(
+        "cam",
+        "ListPolicies",
+        "List",
+        "cam.policy",
+        ("PolicyId",),
+        ("PolicyName",),
+        "TotalNum",
+        "page",
+        False,
+    ),
+    Collector(
+        "cam",
+        "ListGroups",
+        "GroupInfo",
+        "cam.group",
+        ("GroupId",),
+        ("GroupName",),
+        "TotalNum",
+        "page",
+        False,
+    ),
+)
+CHILDREN = {
+    "tke.cluster": Collector(
+        "tke", "DescribeClusterInstances", "InstanceSet", "cvm.instance", ("InstanceId",)
+    ),
+    "cam.role": Collector(
+        "cam",
+        "ListAttachedRolePolicies",
+        "List",
+        "cam.policy",
+        ("PolicyId",),
+        ("PolicyName",),
+        "TotalNum",
+        "page",
+        False,
+    ),
+    "cam.user": Collector(
+        "cam",
+        "ListAttachedUserPolicies",
+        "List",
+        "cam.policy",
+        ("PolicyId",),
+        ("PolicyName",),
+        "TotalNum",
+        "page",
+        False,
+    ),
+}
+SCF_NAMESPACES = Collector("scf", "ListNamespaces", "Namespaces", "scf.namespace", ("Name",))
+SCF_FUNCTIONS = Collector(
+    "scf",
+    "ListFunctions",
+    "Functions",
+    "scf.function",
+    ("FunctionId", "FunctionName"),
+    ("FunctionName",),
+)
+ALLOWED_ACTIONS = {
+    (s.service, s.action) for s in (*COLLECTORS, *CHILDREN.values(), SCF_NAMESPACES, SCF_FUNCTIONS)
+} | {
+    ("sts", "GetCallerIdentity"),
+    ("cloudrc", "SearchResources"),
+    ("vpc", "DescribeSecurityGroupPolicies"),
+    ("cos", "list_buckets"),
+}
+
+# Official archive titles; all assets are verified by tests against the manifest.
+SERVICE_ICONS = {
+    "cvm": ("Cloud Virtual Machine", "Cloud Virtual Machine"),
+    "cbs": ("Cloud Block Storage", "Cloud Block Storage"),
+    "vpc": ("Virtual Private Cloud", "Virtual Private Cloud"),
+    "clb": ("Cloud Load Balancer", "Cloud Load Balancer"),
+    "cos": ("Cloud Object Storage", "Cloud Object Storage"),
+    "cdb": ("TencentDB for MySQL", "TencentDB for MySQL"),
+    "postgres": ("TencentDB for PostgreSQL", "TencentDB for PostgreSQL"),
+    "redis": ("TencentDB for Redis", "TencentDB for Redis"),
+    "mongodb": ("TencentDB for MongoDB", "TencentDB for MongoDB"),
+    "tke": ("Tencent Kubernetes Engine", "Tencent Kubernetes Engine"),
+    "tcr": ("Tencent Container Registry", "Tencent Container Registry"),
+    "scf": ("Serverless Cloud Function", "Serverless Cloud Function"),
+    "lighthouse": ("Lighthouse", "TencentCloud Lighthouse"),
+    "cfs": ("Cloud File Storage", "Cloud File Storage"),
+    "es": ("Elasticsearch", "Elasticsearch Service"),
+    "ckafka": ("CKafka", "TDMQ for CKafka"),
+    "apigateway": ("API Gateway", "API Gateway"),
+    "cam": ("Cloud Access Management", "Cloud Access Management"),
+    "ssm": ("Secrets Manager", "Secrets Manager"),
+    "kms": ("Key Management Service", "Key Management Service"),
+    "cdn": ("Content Delivery Network", "Content Delivery Network"),
+    "dnspod": ("DNSPod", "云解析 DNS"),
+    "privatedns": ("Private DNS", "Private DNS"),
+}
+KIND_ICONS = {"vpc.eip": "Elastic IP", "vpc.nat": "NAT Gateway"}
+DETAIL_KINDS = {
+    "vpc.securitygroup",
+    "vpc.routetable",
+    "vpc.networkinterface",
+    "vpc.securitygrouprule",
+    "cam.user",
+    "cam.role",
+    "cam.policy",
+    "cam.group",
+    "ssm.secret",
+    "kms.key",
+}
+
+API_VERSIONS = {
+    "vpc": "2017-03-12",
+    "cvm": "2017-03-12",
+    "cbs": "2017-03-12",
+    "clb": "2018-03-17",
+    "cdb": "2017-03-20",
+    "postgres": "2017-03-12",
+    "redis": "2018-04-12",
+    "mongodb": "2019-07-25",
+    "tke": "2018-05-25",
+    "lighthouse": "2020-03-24",
+    "cfs": "2019-07-19",
+    "es": "2018-04-16",
+    "tcr": "2019-09-24",
+    "ckafka": "2019-08-19",
+    "apigateway": "2018-08-08",
+    "ssm": "2019-09-23",
+    "kms": "2019-01-18",
+    "cdn": "2018-06-06",
+    "dnspod": "2021-03-23",
+    "privatedns": "2020-10-28",
+    "cam": "2019-01-16",
+    "scf": "2018-04-16",
+    "sts": "2018-08-13",
+    "cloudrc": "2024-06-06",
+}

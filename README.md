@@ -1,152 +1,135 @@
-# AWS Cartography Landscape
+# Tencent Cloud Cartography
 
-An AWS-only, local-first fork of
-[Cartography](https://github.com/cartography-cncf/cartography) that discovers
-AWS resources and relationships and turns them into editable architecture
-diagrams.
+Local Tencent Cloud inventory, relationship exploration, and editable architecture diagrams.
+A derivative of [raph-rcn/aws-cartography](https://github.com/raph-rcn/aws-cartography), retaining its Git history and adapting its Landscape interface to Tencent Cloud.
 
-This repository is intentionally not the general-purpose upstream Cartography
-project. Non-AWS collectors, models, rules, documentation, dependencies, and
-tests have been removed. The remaining codebase has one job:
+- **Frankfurt by default:** `eu-frankfurt` (Tencent's region code).
+- **Read-only collection:** existing TCCLI profiles, an exact API allowlist, pagination, account identity checks, and per-operation coverage.
+- **Architecture and full graph views:** account → region → VPC → availability zone → subnet, based on returned resource IDs. Search, service/account/region filters, inspector, three layouts, collapse/expand.
+- **Exports:** PNG and editable draw.io diagrams with embedded Tencent SVGs.
+- **All 896 official product icons:** 441 English and 455 Chinese SVGs, searchable gallery, original bytes, checksums, and source attribution.
+- **Private local snapshots:** mode `0600`, atomic replacement, optional isolated Neo4j mirror. The viewer makes no Tencent API calls.
 
-> Read AWS metadata, build a local relationship graph, and render a useful
-> Workload Discovery-style AWS architecture landscape.
-
-## What it provides
-
-- Local AWS inventory and relationship collection backed by Neo4j
-- Architecture and full-relationship views
-- AWS Cloud → Region → VPC → Availability Zone → Subnet containment
-- Correct VPC-level placement for resources spanning multiple subnets
-- Click-to-highlight resource relationships
-- Search, filtering, fit, layout, and expand/collapse controls
-- Local PNG download
-- Editable draw.io export
-- 305 official saturated AWS Architecture service icons
-- Automatic coverage checks for every AWS node type modeled by this fork
-
-Examples include EC2, EBS, VPCs, subnets, internet and NAT gateways, ELB/ALB/NLB,
-API Gateway, Lambda, ECS, EKS, ECR, S3, DynamoDB, RDS, EFS, ElastiCache,
-OpenSearch, Redshift, SQS, SNS, EventBridge, CloudFront, IAM, KMS, Secrets
-Manager, Route 53, and the other AWS collectors inherited from Cartography.
-
-## Safety model
-
-This fork is designed for metadata-only operation:
-
-- The CLI always enables `CARTOGRAPHY_AWS_READ_ONLY=true`.
-- A botocore `before-call` guard blocks non-read AWS API operations before they
-  are sent.
-- The default landscape sync enables 65 AWS metadata collectors.
-- SSM parameter-value collection is excluded.
-- Secrets Manager collection lists metadata and versions; it never retrieves a
-  secret value.
-- Neo4j and the web application bind to `127.0.0.1`.
-- The web API executes read-only Cypher and exposes only allowlisted properties.
-- PNG and draw.io files are generated locally.
-
-Use an AWS principal with `ReadOnlyAccess`, `SecurityAudit`, or a tighter custom
-policy. The application guard is defense in depth, not a replacement for IAM.
+![Synthetic Frankfurt demo](docs/preview.jpg)
 
 ## Quick start
 
-Requirements:
-
-- macOS or Linux
-- Docker
-- Node.js 20+
-- npm
-- [uv](https://docs.astral.sh/uv/)
-- working read-only AWS credentials or profile
+Requires Python 3.11+, [uv](https://docs.astral.sh/uv/), Node.js 22+, and a current [Tencent Cloud CLI](https://github.com/TencentCloud/tencentcloud-cli) for live collection. Development verified against TCCLI 3.1.181.1. Use this source checkout; standalone wheel distribution with UI assets is not supported yet.
 
 ```bash
-git clone https://github.com/raph-rcn/aws-cartography.git
-cd aws-cartography
-git switch agent/local-aws-landscape
-
+git clone https://github.com/raph-rcn/tencent-cloud-cartography.git
+cd tencent-cloud-cartography
 ./landscape/local.sh install
-./landscape/local.sh start
-AWS_PROFILE=default ./landscape/local.sh sync
+./landscape/local.sh demo
+```
+
+Open **http://127.0.0.1:8787**. The demo is clearly marked synthetic and includes a denied operation and an inventory-only resource to demonstrate incomplete coverage. No Tencent login or Docker is required for the demo.
+
+## Collect your account
+
+Authenticate locally, using your usual TCCLI profile. Do not put keys in repository files or command history.
+
+```bash
+tccli auth login
+tccli sts GetCallerIdentity --profile default
+./landscape/local.sh sync --profile default --regions eu-frankfurt
 ./landscape/local.sh serve
 ```
 
-Open <http://127.0.0.1:8765>.
+`sync` writes `.local/inventory.json`. **Exit code 2 means a usable but partial snapshot was saved**; 1 means collection stopped, such as missing authentication or a changed account identity. Exit code 0 means all selected operations completed and all discovered resources were enriched; it does **not** promise Tencent-wide service coverage.
 
-Limit collection to particular regions when needed:
+The viewer loads a fixed snapshot at startup. Restart `serve` after syncing. Collection never replaces a live snapshot with demo data.
+
+More options:
 
 ```bash
-AWS_PROFILE=default \
-  CARTOGRAPHY_AWS_REGIONS=eu-central-1,eu-west-1 \
-  ./landscape/local.sh sync
+# Multiple regions and accounts (repeat --profile; each must resolve to a different account)
+./landscape/local.sh sync --profile production --profile development --regions eu-frankfurt,ap-singapore
+
+# Faster focused enrichment; Cloud Resource Center baseline still runs
+./landscape/local.sh sync --services vpc,cvm,cbs,clb,cos --regions eu-frankfurt
+
+# Keep multiple snapshots
+./landscape/local.sh sync --output .local/frankfurt.json
+./landscape/local.sh serve --input .local/frankfurt.json --port 8788
 ```
 
-Stop Neo4j without deleting the graph:
+## What is collected
+
+The **Cloud Resource Center** `SearchResources` API supplies a baseline of supported resource types. Native collectors enrich the services below and derive relationships from returned identifiers. Baseline-only products remain visible with `inventory-only` status. Referenced resources that could not be enumerated remain `reference` nodes. Unknown products use a clearly generic question-mark icon; every registered native service maps to an official product asset.
+
+| Area | Native services and relationships |
+|---|---|
+| Network | VPC, subnets, security groups and rules, route tables, NAT, EIP, network interfaces; returned VPC/subnet/group/route/NAT/interface references |
+| Compute | CVM, Lighthouse, CBS disks and CVM attachments |
+| Load balancing | CLB, listeners/rules and returned backend target IDs or endpoint addresses |
+| Containers | TKE clusters and CVM worker references, TCR registries |
+| Databases | TencentDB MySQL, PostgreSQL, Redis, MongoDB, Elasticsearch |
+| Storage | COS bucket names/regions; CFS file systems |
+| Serverless and integration | SCF namespaces/functions (metadata only), API Gateway services, CKafka instances |
+| Identity and keys | CAM users/groups/roles/policies and directly attached user/role policies; KMS key IDs; Secrets Manager metadata |
+| Edge and DNS | CDN domains, DNSPod domains, Private DNS zones |
+
+See [the exact API catalog](tencent_cloud_cartography/catalog.py). API versions are pinned. Global services are queried once per account, regional services once per selected region. The global CloudRC pass queries the account inventory but only retains resources whose region is global. COS lists bucket metadata account-wide and retains the selected regions.
+
+### Coverage and limits
+
+- Cloud Resource Center covers [supported resource types](https://cloud.tencent.com/document/product/1791/115765), can lag, and is not a complete cloud asset census. [Tencent FAQ](https://cloud.tencent.com/document/product/1791/115771).
+- Denied, unsupported, failed, excluded, empty and completed queries are distinguishable in **Collection coverage**. Pagination detects stalled pages, count changes, missing arrays, and premature EOF. Request IDs are retained when the API supplies them.
+- The graph shows collected configuration relationships. It does not calculate IAM effective permissions, public reachability, routing outcomes, application dependencies, or exploitable attack paths.
+- Multi-subnet resources remain at their common returned VPC/region with explicit subnet edges. References may be incomplete when APIs omit IDs or use unsupported formats.
+- COS uses TCCLI's current table-format plugin because it ignores `--output json`. Unexpected output fails visibly. Mixed environment credentials plus a profile credential file are rejected for COS to avoid differing credential precedence. COS does not supply successful request IDs in this output.
+- Native collectors are schema-checked against the installed Tencent SDK and covered by offline tests. **Live account validation requires your own authenticated profile.** API availability and permissions can differ between accounts and regions.
+- The frontend defaults to 2,500 selected resources with a visible truncation notice. Containment parents may add a small number of nodes. PNG dimensions are bounded; large graphs are better explored with filters.
+
+## Permissions and data handling
+
+Grant metadata list/describe permissions for the APIs in the catalog, plus `sts:GetCallerIdentity`, CloudRC `SearchResources`, and COS bucket listing if used. Use your organization's existing read-only role; unavailable privileges appear as coverage gaps. A generated [action inventory](docs/api-actions.json) is provided for policy review, **not as a deployable universal CAM policy** (resource scope and condition support vary).
+
+No collector retrieves COS objects, secret values, SCF source, database contents, or decrypts keys. The saved property allowlist excludes credentials, policy documents, function environment variables and user data. Resource names, identifiers, IP addresses and network rules are still infrastructure-sensitive. Keep `.local/` private. APIs can return more metadata than is retained, so normal read permissions are still needed.
+
+The HTTP viewer and optional Neo4j bind to loopback. HTTP Host/Origin checks reject foreign browser origins. Do not expose the unauthenticated local services through a tunnel or reverse proxy.
+
+## Optional Neo4j
+
+Docker must already be running. This uses different ports and a separate volume from the original AWS project.
 
 ```bash
+./landscape/local.sh start
+./landscape/local.sh sync --neo4j-uri bolt://127.0.0.1:7688
+# Browser: http://127.0.0.1:7475
 ./landscape/local.sh stop
 ```
 
-The complete command reference, architecture behavior, icon update procedure,
-and safety details are in [landscape/README.md](landscape/README.md).
+Each sync atomically replaces only `:TencentCartography` nodes in the mirror. The mirror represents the last supplied snapshot, not an accumulated fleet history. Other graph labels are retained. Nodes are `:TencentResource`; edges use `:TENCENT_RELATIONSHIP {kind: ...}`. The UI reads the JSON snapshot and does not require Neo4j.
 
-## Repository map
+## Icons and attribution
 
-| Path | Purpose |
-| --- | --- |
-| `cartography/intel/aws/` | AWS API collection and graph loading |
-| `cartography/models/aws/` | AWS graph schemas and relationships |
-| `cartography/analysis/aws/` | AWS-specific relationship and exposure analysis |
-| `cartography/landscape/` | Read-only topology API and exporters |
-| `landscape/web/` | Local Cytoscape architecture interface |
-| `landscape/compose.yaml` | Loopback-only Neo4j service |
-| `tests/unit/cartography/intel/aws/` | AWS collector tests |
-| `tests/integration/cartography/intel/aws/` | AWS/Neo4j integration tests |
+Open [/icons.html](http://127.0.0.1:8787/icons.html) in the local viewer. Click an asset to download its original SVG. The [manifest](landscape/web/public/icons/tencent/manifest.json) records source archive, filenames, SHA-256 hashes and retrieval date.
 
-The shared `client`, `graph`, `data`, and ontology-label code is retained only
-because the AWS ingestion pipeline depends on it.
+```bash
+uv run python scripts/update_tencent_icons.py --check
+# Re-import the pinned official archive:
+uv run python scripts/update_tencent_icons.py
+```
 
-## What “complete” means
-
-The landscape includes every resource and relationship that the AWS collectors
-in this fork can retrieve with the supplied credentials. It is not an
-account-specific allowlist: the service registry and tests scan the entire AWS
-model catalog, and unfamiliar future labels receive a deliberate AWS Resource
-Explorer fallback icon.
-
-There is still an honest technical boundary: an AWS service with no Cartography
-collector cannot acquire configuration or relationships merely from Resource
-Explorer. Missing IAM permissions can also produce an incomplete account view.
+Tencent assets come from the [official icon library](https://cloud.tencent.com/act/event/icons). They remain Tencent's intellectual property and are not relicensed under the repository's Apache license. See [NOTICE](NOTICE). This project is independent of Tencent.
 
 ## Development
 
 ```bash
-uv sync
-uv run pytest tests/unit
+uv sync --frozen
+uv run pytest
 uv run pre-commit run --all-files
-
 cd landscape/web
 npm ci
-npm test -- --run
+npm test
 npm run build
 npm audit --audit-level=high
 ```
 
-Update the pinned official AWS icon package with:
+Tests cover pagination negative controls, blocked operations, identity changes, scoped collection, graph reconciliation, property redaction, icon mappings, hierarchy, draw.io embedding, local HTTP boundaries, and frontend filtering/exports. CI runs these checks. Browser smoke validation is documented in [VALIDATION.md](docs/VALIDATION.md).
 
-```bash
-uv run python scripts/update_aws_architecture_icons.py
-```
+## Source history
 
-The script verifies the downloaded archive checksum and regenerates the icon
-manifest.
-
-## Origin and license
-
-This is an opinionated fork, not an official Cartography CNCF release.
-Cartography remains available at
-[cartography-cncf/cartography](https://github.com/cartography-cncf/cartography).
-The architecture interaction was influenced by
-[Workload Discovery on AWS](https://github.com/aws-solutions/workload-discovery-on-aws).
-
-Code remains licensed under Apache-2.0; see [LICENSE](LICENSE). AWS Architecture
-Icons remain subject to the AWS Architecture Icons terms.
+Started from committed AWS fork revision `48780ef5`; uncommitted changes in the original local checkout were not copied or modified. The AWS-specific backend and asset pack were replaced. The original Cytoscape Landscape interaction model and Apache attribution are retained. `upstream-aws` points to the source repository.

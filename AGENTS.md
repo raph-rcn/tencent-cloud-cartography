@@ -1,26 +1,15 @@
-# AWS Cartography Landscape contributor guide
+# Tencent Cloud Cartography contributor guide
 
-This fork is AWS-only. Do not add non-AWS providers, generic compliance
-products, or integrations unrelated to AWS discovery and diagramming.
+This derivative implements Tencent Cloud inventory and local architecture diagrams.
+The user explicitly requested adapting the AWS-only source into this separate project.
 
-## Product invariants
-
-- AWS access is metadata-only and read-only.
-- Never add an AWS API call that retrieves a secret value or workload payload.
-- Keep Neo4j and the HTTP server loopback-bound by default.
-- Every AWS model label must resolve to an intentional service family and an
-  existing official saturated icon.
-- Architecture containment must be factual: account → region → VPC →
-  availability zone → subnet.
-- Preserve every collected edge in the full relationship graph even when the
-  presentation-focused architecture view suppresses low-level detail.
-- draw.io and PNG exports must remain local.
-
-## Changes
-
-- Use `uv` for Python dependencies and `npm ci` for the web application.
-- Add Arrange/Act/Assert tests for behavior changes.
-- Run `uv run pytest tests/unit`, `uv run pre-commit run --all-files`, frontend
-  tests/build, and `npm audit --audit-level=high`.
-- Sign commits with `git commit -s`.
-- Retain Apache-2.0 attribution to upstream Cartography.
+- Cloud collection is metadata-only. Allowlist exact API operations; never retrieve
+  object bodies, function source, secret values, passwords, or workload payloads.
+- Keep the UI and Neo4j bound to loopback. Preserve all collected relationships in
+  the full graph and make partial coverage visible.
+- Account, region, VPC, zone, and subnet placement must follow collected resource IDs.
+- Every registered resource type must map to an existing Tencent icon. Bundle the
+  full official icon archive, with source URL, checksums, and attribution.
+- Retain Apache-2.0 attribution to Cartography and the AWS Landscape fork.
+- Use uv and npm ci. Run pytest, pre-commit, frontend tests/build, npm audit, and
+  a browser smoke test for behavior changes. Sign commits with git commit -s.

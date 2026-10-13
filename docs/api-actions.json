@@ -1,0 +1,205 @@
+{
+  "purpose": "Permission review inventory; not a deployable CAM policy",
+  "actions": [
+    {
+      "service": "apigateway",
+      "action": "DescribeServicesStatus",
+      "api_version": "2018-08-08"
+    },
+    {
+      "service": "cam",
+      "action": "DescribeRoleList",
+      "api_version": "2019-01-16"
+    },
+    {
+      "service": "cam",
+      "action": "ListAttachedRolePolicies",
+      "api_version": "2019-01-16"
+    },
+    {
+      "service": "cam",
+      "action": "ListAttachedUserPolicies",
+      "api_version": "2019-01-16"
+    },
+    {
+      "service": "cam",
+      "action": "ListGroups",
+      "api_version": "2019-01-16"
+    },
+    {
+      "service": "cam",
+      "action": "ListPolicies",
+      "api_version": "2019-01-16"
+    },
+    {
+      "service": "cam",
+      "action": "ListUsers",
+      "api_version": "2019-01-16"
+    },
+    {
+      "service": "cbs",
+      "action": "DescribeDisks",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "cdb",
+      "action": "DescribeDBInstances",
+      "api_version": "2017-03-20"
+    },
+    {
+      "service": "cdn",
+      "action": "DescribeDomains",
+      "api_version": "2018-06-06"
+    },
+    {
+      "service": "cfs",
+      "action": "DescribeCfsFileSystems",
+      "api_version": "2019-07-19"
+    },
+    {
+      "service": "ckafka",
+      "action": "DescribeInstances",
+      "api_version": "2019-08-19"
+    },
+    {
+      "service": "clb",
+      "action": "DescribeLoadBalancers",
+      "api_version": "2018-03-17"
+    },
+    {
+      "service": "clb",
+      "action": "DescribeLoadBalancersDetail",
+      "api_version": "2018-03-17"
+    },
+    {
+      "service": "cloudrc",
+      "action": "SearchResources",
+      "api_version": "2024-06-06"
+    },
+    {
+      "service": "cos",
+      "action": "list_buckets",
+      "api_version": "COS plugin"
+    },
+    {
+      "service": "cvm",
+      "action": "DescribeInstances",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "dnspod",
+      "action": "DescribeDomainList",
+      "api_version": "2021-03-23"
+    },
+    {
+      "service": "es",
+      "action": "DescribeInstances",
+      "api_version": "2018-04-16"
+    },
+    {
+      "service": "kms",
+      "action": "ListKeys",
+      "api_version": "2019-01-18"
+    },
+    {
+      "service": "lighthouse",
+      "action": "DescribeInstances",
+      "api_version": "2020-03-24"
+    },
+    {
+      "service": "mongodb",
+      "action": "DescribeDBInstances",
+      "api_version": "2019-07-25"
+    },
+    {
+      "service": "postgres",
+      "action": "DescribeDBInstances",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "privatedns",
+      "action": "DescribePrivateZoneList",
+      "api_version": "2020-10-28"
+    },
+    {
+      "service": "redis",
+      "action": "DescribeInstances",
+      "api_version": "2018-04-12"
+    },
+    {
+      "service": "scf",
+      "action": "ListFunctions",
+      "api_version": "2018-04-16"
+    },
+    {
+      "service": "scf",
+      "action": "ListNamespaces",
+      "api_version": "2018-04-16"
+    },
+    {
+      "service": "ssm",
+      "action": "ListSecrets",
+      "api_version": "2019-09-23"
+    },
+    {
+      "service": "sts",
+      "action": "GetCallerIdentity",
+      "api_version": "2018-08-13"
+    },
+    {
+      "service": "tcr",
+      "action": "DescribeInstances",
+      "api_version": "2019-09-24"
+    },
+    {
+      "service": "tke",
+      "action": "DescribeClusterInstances",
+      "api_version": "2018-05-25"
+    },
+    {
+      "service": "tke",
+      "action": "DescribeClusters",
+      "api_version": "2018-05-25"
+    },
+    {
+      "service": "vpc",
+      "action": "DescribeAddresses",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
+      "action": "DescribeNatGateways",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
+      "action": "DescribeNetworkInterfaces",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
+      "action": "DescribeRouteTables",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
+      "action": "DescribeSecurityGroupPolicies",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
+      "action": "DescribeSecurityGroups",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
+      "action": "DescribeSubnets",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
+      "action": "DescribeVpcs",
+      "api_version": "2017-03-12"
+    }
+  ]
+}

@@ -1,92 +1,36 @@
 [build-system]
-requires = [
-  "setuptools",
-  "setuptools-scm",
-  "wheel"
-]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools_scm]
-# See configuration details in https://github.com/pypa/setuptools_scm
-write_to = "cartography/_version.py"
-fallback_version = "0.0.0"
-
 [project]
-name = "aws-cartography-landscape"
-description = "Read-only local AWS inventory and architecture diagrams backed by Cartography."
+name = "tencent-cloud-cartography"
+version = "0.1.0"
+description = "Local Tencent Cloud inventory, relationships, and editable architecture diagrams."
 readme = "README.md"
+requires-python = ">=3.11"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
-maintainers = [{ name = "Raphaël Curien Odin" }]
-classifiers = [
-  'Development Status :: 4 - Beta',
-  'Intended Audience :: Developers',
-  'Natural Language :: English',
-  'Programming Language :: Python',
-  'Programming Language :: Python :: 3',
-  'Programming Language :: Python :: 3.10',
-  'Programming Language :: Python :: 3.11',
-  'Programming Language :: Python :: 3.12',
-  'Programming Language :: Python :: 3.13',
-  'Topic :: Security',
-  'Topic :: Software Development :: Libraries',
-  'Topic :: Software Development :: Libraries :: Python Modules',
-]
-requires-python = ">=3.10"
-# By convention (per pip/uv recommendations), dependencies should use a loose
-# lower bound and no upper bound unless explicitly needed. Exact pinning is
-# handled by the lockfile (uv.lock).
-dependencies = [
-    "backoff>=2.1.2",
-    "boto3>=1.15.1",
-    "aioboto3>=15.0.0",
-    "botocore>=1.18.1",
-    "dnspython>=2.0.0",
-    "httpx>=0.24.0",
-    "neo4j>=6.0.0",
-    "policyuniverse>=1.1.0.0",
-    "marshmallow>=4.0.0",
-    "pyyaml>=5.3.1",
-    "requests>=2.22.0",
-    "statsd>=4.0.0",
-    "packaging>=26.0.0",
-    "python-dateutil>=2.9.0",
-    "types-aiobotocore-ecr>=3.1.0",
-    "typer>=0.9.0",
-]
-# Comes from Git tag
-dynamic = [ "version" ]
-
-[dependency-groups]
-dev = [
-    "moto>=5.0.0",
-    "pre-commit>=4.0.0",
-    "pytest>=6.2.4",
-    "pytest-mock>=3.15.0",
-    "pytest-cov>=7.0.0",
-    "pytest-rerunfailures>=16.0.0",
-    "pytest-asyncio>=1.0.0",
-    "testcontainers>=4.14.0",
-    "types-PyYAML>=6.0.0",
-    "black>=26.0.0",
-    "types-requests>=2.32.0",
-]
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["cartography*"]
+dependencies = ["neo4j>=5.26,<7"]
 
 [project.scripts]
-cartography = "cartography.cli:main"
-aws-cartography-landscape = "cartography.cli:main"
-
-[tool.setuptools.package-data]
-"cartography" = ["py.typed"]
-"cartography.data" = ["*.cypher", "*.yaml"]
-"cartography.data.jobs.analysis" = ["*.json"]
-"cartography.data.jobs.scoped_analysis" = ["*.json"]
-"cartography.data.jobs.cleanup" = ["*.json"]
+tencent-cloud-cartography = "tencent_cloud_cartography.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/raph-rcn/aws-cartography"
-Repository = "https://github.com/raph-rcn/aws-cartography"
-Issues = "https://github.com/raph-rcn/aws-cartography/issues"
+Repository = "https://github.com/raph-rcn/tencent-cloud-cartography"
+
+[tool.setuptools.packages.find]
+include = ["tencent_cloud_cartography*"]
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.11", "pre-commit>=4"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests/unit"]

@@ -66,7 +66,7 @@ const graphStyle = [
   {
     selector: 'node',
     style: {
-      'font-family': '"Amazon Ember", Arial, Helvetica, sans-serif',
+      'font-family': 'Arial, Helvetica, sans-serif',
       color: '#16191f',
       label: 'data(label)',
       'text-wrap': 'wrap',
@@ -99,7 +99,7 @@ const graphStyle = [
   {
     selector: '.resource:selected',
     style: {
-      'border-color': '#ec7211',
+      'border-color': '#0052d9',
       'border-width': 3,
       'border-opacity': 1,
       'background-color': '#fffaf0',
@@ -156,7 +156,7 @@ const graphStyle = [
       'text-justification': 'left',
       'text-margin-x': 120,
       'text-margin-y': 18,
-      'text-max-width': '160px',
+      'text-max-width': '480px',
       'font-size': 24,
       'font-weight': 500,
       color: '#16191f',
@@ -210,7 +210,7 @@ const graphStyle = [
       padding: 24,
       'background-color': '#ffffff',
       'background-opacity': 0,
-      'border-color': '#ec7211',
+      'border-color': '#0052d9',
       'border-width': 2,
       'border-style': 'dashed',
       'text-valign': 'top',
@@ -291,8 +291,8 @@ const graphStyle = [
     selector: 'edge:selected',
     style: {
       width: 3,
-      'line-color': '#ec7211',
-      'target-arrow-color': '#ec7211',
+      'line-color': '#0052d9',
+      'target-arrow-color': '#0052d9',
       opacity: 1,
       label: 'data(label)',
       'font-size': 11,
@@ -306,8 +306,8 @@ const graphStyle = [
     selector: 'edge.relationship-path',
     style: {
       width: 4,
-      'line-color': '#ec7211',
-      'target-arrow-color': '#ec7211',
+      'line-color': '#0052d9',
+      'target-arrow-color': '#0052d9',
       'target-arrow-shape': 'triangle',
       'arrow-scale': 1.35,
       opacity: 1,
@@ -318,7 +318,7 @@ const graphStyle = [
       'text-background-color': '#ffffff',
       'text-background-opacity': 1,
       'text-background-padding': 4,
-      'text-border-color': '#ec7211',
+      'text-border-color': '#0052d9',
       'text-border-width': 1,
       'text-border-opacity': 1,
     },
@@ -333,8 +333,8 @@ const graphStyle = [
     selector: 'edge.cy-expand-collapse-meta-edge',
     style: {
       width: 3,
-      'line-color': '#ec7211',
-      'target-arrow-color': '#ec7211',
+      'line-color': '#0052d9',
+      'target-arrow-color': '#0052d9',
       'target-arrow-shape': 'triangle',
     },
   },
@@ -409,13 +409,13 @@ export function createGraph(container, elements, onSelect) {
     expandCollapseCueLineSize: 9,
   });
 
-  cy.on('select', 'node.resource', (event) => {
+  cy.on('select', 'node.inventory-node', (event) => {
     const node = event.target;
     const { connections } = focusRelationships(cy, node);
     onSelect({ ...node.data(), connections });
   });
-  cy.on('unselect', 'node.resource', () => {
-    if (!cy.$('node.resource:selected').length) {
+  cy.on('unselect', 'node.inventory-node', () => {
+    if (!cy.$('node.inventory-node:selected').length) {
       clearRelationshipFocus(cy);
       if (!cy.$('edge:selected').length) onSelect(null);
     }
@@ -446,7 +446,7 @@ export function applySearch(cy, query) {
   if (!query.trim()) return 0;
   const normalized = query.trim().toLowerCase();
   const matches = cy
-    .nodes('.resource')
+    .nodes('.inventory-node')
     .filter((node) =>
       [node.data('label'), node.data('title'), node.data('primaryLabel')]
         .filter(Boolean)
@@ -461,23 +461,19 @@ export function applySearch(cy, query) {
 
 export function filterServices(cy, enabledServices) {
   cy.batch(() => {
-    cy.nodes('.resource').forEach((node) => {
+    cy.nodes('.resource, .inventory-node').forEach((node) => {
       node.toggleClass('filtered', !enabledServices.has(node.data('title')));
-    });
-    cy.edges().forEach((edge) => {
-      edge.toggleClass(
-        'filtered',
-        edge.source().hasClass('filtered') || edge.target().hasClass('filtered'),
-      );
     });
     cy.nodes(':parent')
       .sort((a, b) => b.ancestors().length - a.ancestors().length)
       .forEach((node) => {
-        const visibleChildren = node
-          .children()
-          .some((child) => !child.hasClass('filtered'));
-        node.toggleClass('filtered', !visibleChildren);
+        const visibleChildren = node.children().some((child) => !child.hasClass('filtered'));
+        const ownVisible = node.hasClass('inventory-node') && enabledServices.has(node.data('title'));
+        node.toggleClass('filtered', !visibleChildren && !ownVisible);
       });
+    cy.edges().forEach((edge) => {
+      edge.toggleClass('filtered', edge.source().hasClass('filtered') || edge.target().hasClass('filtered'));
+    });
   });
 }
 
@@ -527,6 +523,7 @@ export function serializeForDrawio(cy) {
         type: node.data('type'),
         icon: node.data('icon'),
         depth: node.ancestors().length,
+        parent: node.data('parent') || null,
         x: box.x1,
         y: box.y1,
         width: box.w,

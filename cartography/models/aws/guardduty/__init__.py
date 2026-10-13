@@ -1,1 +1,0 @@
-# GuardDuty models

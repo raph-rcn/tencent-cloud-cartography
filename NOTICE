@@ -1,0 +1,9 @@
+Tencent Cloud Cartography is derived from raph-rcn/aws-cartography and
+cartography-cncf/cartography. Original Cartography and AWS Landscape code remains
+under Apache License 2.0 (see LICENSE). The inherited Cytoscape interface has been
+adapted for Tencent Cloud.
+
+Tencent Cloud product icons are supplied by Tencent Cloud's official architecture
+icon library (https://cloud.tencent.com/act/event/icons). They remain Tencent's
+assets and are not relicensed under Apache-2.0. Sources and checksums are recorded
+in landscape/web/public/icons/tencent/manifest.json.

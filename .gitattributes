@@ -1,0 +1,2 @@
+# Preserve original bytes and vendor whitespace for checksum-verified official assets.
+landscape/web/public/icons/tencent/*.svg -text -whitespace

@@ -10,26 +10,9 @@ import {
 } from './graph.js';
 import './styles.css';
 
-const iconModules = import.meta.glob('/public/icons/*.svg', {
-  eager: true,
-  query: '?url',
-  import: 'default',
-});
-const icons = Object.fromEntries(
-  Object.entries(iconModules).map(([path, url]) => [
-    path.split('/').pop().replace('.svg', ''),
-    url,
-  ]),
-);
-const containerIcons = {
-  account: icons['container-account'],
-  region: icons['container-region'],
-  vpc: icons['container-vpc'],
-  subnet: icons['container-subnet'],
-};
-
 const state = {
   graph: null,
+  loadVersion: 0,
   expandApi: null,
   topology: null,
   enabledServices: new Set(),
@@ -39,17 +22,17 @@ document.querySelector('#app').innerHTML = `
   <div class="app-shell">
     <header class="topbar">
       <div class="brand">
-        <span class="aws-mark"><img class="brand-logo" src="/icons/aws-wordmark.svg" alt="" /></span>
+        <span class="tencent-mark">TC</span>
         <div>
-          <h1>AWS Architecture</h1>
-          <div class="brand-subtitle">AWS Cartography Landscape</div>
+          <h1>Tencent Cloud</h1>
+          <div class="brand-subtitle">Tencent Cloud Cartography</div>
         </div>
       </div>
       <div class="connection">
         <span class="status-dot" id="status-dot"></span>
         <div>
           <strong id="status-label">Connecting</strong>
-          <small>Local graph · AWS read-only</small>
+          <small>Local snapshot · metadata only</small>
         </div>
       </div>
     </header>
@@ -64,12 +47,21 @@ document.querySelector('#app').innerHTML = `
           <button id="close-sidebar" class="close-button" aria-label="Close inventory">×</button>
         </div>
         <section>
-          <label class="field-label" for="account">AWS account</label>
+          <label class="field-label" for="account">Tencent Cloud account</label>
           <select id="account" class="select">
             <option value="">All accounts</option>
           </select>
         </section>
 
+        <section>
+          <label class="field-label" for="region">Region</label>
+          <select id="region" class="select"><option value="">All collected regions</option></select>
+        </section>
+        <section>
+          <a href="/icons.html" target="_blank" rel="noopener">Browse all 896 official product icons ↗</a>
+          <button id="coverage-button" class="button secondary">Collection coverage</button>
+          <p id="snapshot-status" class="coverage-summary"></p>
+        </section>
         <section>
           <label class="field-label" for="search">Find a resource</label>
           <div class="search-wrap">
@@ -95,7 +87,7 @@ document.querySelector('#app').innerHTML = `
 
         <footer>
           <span class="shield">✓</span>
-          <span>Local only · no AWS writes</span>
+          <span>Local only · no Tencent Cloud writes</span>
         </footer>
       </aside>
       <div class="panel-scrim" id="panel-scrim"></div>
@@ -124,18 +116,18 @@ document.querySelector('#app').innerHTML = `
           </div>
         </div>
 
-        <div id="graph" role="application" aria-label="AWS architecture landscape"></div>
+        <div id="graph" role="application" aria-label="Tencent Cloud architecture landscape"></div>
         <div class="cloud-key" aria-hidden="true">
-          <span class="aws-mark"><img src="/icons/aws-wordmark.svg" alt="" /></span>
-          <span>AWS Cloud</span>
+          <span class="tencent-mark">TC</span>
+          <span>Tencent Cloud</span>
         </div>
         <div class="loading" id="loading">
           <div class="spinner"></div>
-          <strong>Drawing the AWS architecture</strong>
-          <span>Arranging services, components, VPCs, and directional flows…</span>
+          <strong>Drawing the Tencent Cloud architecture</strong>
+          <span>Arranging services, VPCs, subnets, and relationships…</span>
         </div>
         <div class="legend">
-          <span><i class="legend-box component"></i>Component</span>
+          <span>Collected configuration</span>
           <span><i class="legend-box vpc"></i>VPC</span>
           <span><i class="legend-box subnet"></i>Subnet</span>
           <span><i class="legend-line"></i>Relationship</span>
@@ -150,6 +142,7 @@ document.querySelector('#app').innerHTML = `
         </div>
       </aside>
     </div>
+    <dialog id="coverage-dialog"><button id="close-coverage" class="button secondary">Close</button><h2>Collection coverage</h2><p>Complete means this API query finished. It does not mean all Tencent products or relationships are covered. Inventory-only and reference resources remain unresolved.</p><div id="coverage-content"></div></dialog>
     <div id="toast" class="toast" role="status"></div>
   </div>
 `;
@@ -176,26 +169,17 @@ async function request(path, options) {
 
 function setHealth(health) {
   $('#status-dot').classList.add('online');
-  $('#status-label').textContent = 'Connected';
+  $('#status-label').textContent = health.mode === 'demo' ? 'SYNTHETIC DEMO' : `Snapshot · ${health.status}`;
+  $('#snapshot-status').textContent = `${health.unresolved} unresolved resources · ${new Date(health.created_at).toLocaleString()}`;
+  health.regions.forEach((region) => { const option = new Option(region, region); $('#region').add(option); });
   $('#status-label').title = `${health.accounts} account(s), ${health.resources} resources`;
 }
 
 function enrichIcons(elements) {
   return elements.map((element) => {
-    const icon =
-      element.data?.kind === 'resource'
-        ? `/icons/aws/${encodeURIComponent(
-            element.data.icon || 'aws-resource-explorer',
-          )}.svg`
-        : containerIcons[element.data?.type];
-    if (!icon) return element;
-    return {
-      ...element,
-      data: {
-        ...element.data,
-        image: icon,
-      },
-    };
+    if (!element.data?.icon) return element;
+    const name = element.data.icon;
+    return { ...element, data: { ...element.data, image: name === 'unmapped.svg' ? '/icons/unmapped.svg' : `/icons/tencent/${encodeURIComponent(name)}` } };
   });
 }
 
@@ -317,13 +301,17 @@ function bindInspectorClose() {
 
 async function loadTopology() {
   $('#loading').classList.remove('hidden');
-  if (state.graph) state.graph.destroy();
+  const loadVersion = ++state.loadVersion;
   const account = $('#account').value;
   const query = new URLSearchParams({ limit: '2500' });
   if (account) query.set('account', account);
+  if ($('#region').value) query.set('region', $('#region').value);
   query.set('view', $('#view').value);
   const response = await request(`/api/topology?${query}`);
-  state.topology = await response.json();
+  const topology = await response.json();
+  if (loadVersion !== state.loadVersion) return;
+  if (state.graph) state.graph.destroy();
+  state.topology = topology;
   const elements = enrichIcons(state.topology.elements);
   const graph = createGraph($('#graph'), elements, renderInspector);
   state.graph = graph.cy;
@@ -372,6 +360,7 @@ async function init() {
 }
 
 $('#account').addEventListener('change', loadTopology);
+$('#region').addEventListener('change', loadTopology);
 $('#view').addEventListener('change', loadTopology);
 $('#relayout').addEventListener('click', () =>
   runLayout(state.graph, $('#layout').value),
@@ -419,7 +408,7 @@ $('#export-png').addEventListener('click', async () => {
   button.disabled = true;
   try {
     const { blob, width, height } = await createPngBlob(state.graph);
-    saveAs(blob, 'cartography-aws-landscape.png');
+    saveAs(blob, 'tencent-cloud-cartography.png');
     showToast(
       `PNG exported locally · ${width.toLocaleString()} × ${height.toLocaleString()}`,
     );
@@ -437,11 +426,19 @@ $('#export-drawio').addEventListener('click', async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    saveAs(await response.blob(), 'cartography-aws-landscape.drawio');
+    saveAs(await response.blob(), 'tencent-cloud-cartography.drawio');
     showToast('Editable draw.io file exported locally');
   } catch (error) {
     showToast(error.message, 'error');
   }
 });
 
+$('#coverage-button').addEventListener('click', async () => {
+  try {
+    const { coverage } = await (await request('/api/coverage')).json();
+    $('#coverage-content').innerHTML = '<table><thead><tr><th>Account / region</th><th>API</th><th>Status</th><th>Resources</th></tr></thead><tbody>' + coverage.map((r) => `<tr><td>${escapeHtml(r.account)}<br>${escapeHtml(r.region)}</td><td>${escapeHtml(r.service + '.' + r.action)}<br><small>${escapeHtml(r.detail || '')}</small></td><td>${escapeHtml(r.status)}<br><small>${escapeHtml(r.error || '')}</small></td><td>${escapeHtml(r.count)}</td></tr>`).join('') + '</tbody></table>';
+    $('#coverage-dialog').showModal();
+  } catch (error) { showToast(error.message, 'error'); }
+});
+$('#close-coverage').addEventListener('click', () => $('#coverage-dialog').close());
 init();

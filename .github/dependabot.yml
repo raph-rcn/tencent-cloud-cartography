@@ -7,7 +7,7 @@ updates:
       interval: "weekly"
     cooldown:
       default-days: 7
-    target-branch: "master"
+    target-branch: "main"
     commit-message:
       # Prefix all commit messages with "chore: "
       prefix: "chore: "
@@ -28,7 +28,7 @@ updates:
       semver-minor-days: 7
       semver-patch-days: 4
       default-days: 7
-    target-branch: "master"
+    target-branch: "main"
     commit-message:
       # Prefix all commit messages with "chore: "
       prefix: "chore: "
@@ -46,7 +46,7 @@ updates:
       interval: "weekly"
     cooldown:
       default-days: 7
-    target-branch: "master"
+    target-branch: "main"
     commit-message:
       # Prefix all commit messages with "chore: "
       prefix: "chore: "
