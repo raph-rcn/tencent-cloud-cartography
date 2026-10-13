@@ -117,11 +117,6 @@
       "api_version": "2017-03-20"
     },
     {
-      "service": "cdn",
-      "action": "DescribeDomains",
-      "api_version": "2018-06-06"
-    },
-    {
       "service": "cfs",
       "action": "DescribeCfsFileSystems",
       "api_version": "2019-07-19"
@@ -222,6 +217,26 @@
       "api_version": "2020-10-16"
     },
     {
+      "service": "config",
+      "action": "DescribeConfigDeliver",
+      "api_version": "2022-08-02"
+    },
+    {
+      "service": "config",
+      "action": "DescribeConfigRecorder",
+      "api_version": "2022-08-02"
+    },
+    {
+      "service": "config",
+      "action": "DescribeConfigRule",
+      "api_version": "2022-08-02"
+    },
+    {
+      "service": "config",
+      "action": "ListConfigRules",
+      "api_version": "2022-08-02"
+    },
+    {
       "service": "cos",
       "action": "get_bucket_acl",
       "api_version": "COS XML API",
@@ -318,6 +333,16 @@
       "api_version": "2021-04-16"
     },
     {
+      "service": "emr",
+      "action": "DescribeClusterNodes",
+      "api_version": "2019-01-03"
+    },
+    {
+      "service": "emr",
+      "action": "DescribeInstancesList",
+      "api_version": "2019-01-03"
+    },
+    {
       "service": "es",
       "action": "DescribeInstances",
       "api_version": "2018-04-16"
@@ -408,9 +433,34 @@
       "api_version": "2018-04-16"
     },
     {
+      "service": "ses",
+      "action": "GetEmailIdentity",
+      "api_version": "2020-10-02"
+    },
+    {
+      "service": "ses",
+      "action": "ListEmailIdentities",
+      "api_version": "2020-10-02"
+    },
+    {
       "service": "ssl",
       "action": "DescribeCertificates",
       "api_version": "2019-12-05"
+    },
+    {
+      "service": "ssl",
+      "action": "DescribeHostCdnInstanceList",
+      "api_version": "2019-12-05"
+    },
+    {
+      "service": "ssm",
+      "action": "DescribeRotationDetail",
+      "api_version": "2019-09-23"
+    },
+    {
+      "service": "ssm",
+      "action": "ListSecretVersionIds",
+      "api_version": "2019-09-23"
     },
     {
       "service": "ssm",
@@ -420,6 +470,11 @@
     {
       "service": "sts",
       "action": "GetCallerIdentity",
+      "api_version": "2018-08-13"
+    },
+    {
+      "service": "tag",
+      "action": "GetResources",
       "api_version": "2018-08-13"
     },
     {

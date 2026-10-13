@@ -531,3 +531,24 @@ Sources: [ListSecrets](https://cloud.tencent.com/document/product/1140/40519),
 [rotation metadata](https://cloud.tencent.com/document/product/1140/58264),
 [data types](https://cloud.tencent.com/document/product/1140/40530),
 [QCS identity](https://cloud.tencent.com/document/product/598/70019).
+
+## CDN certificate deployment metadata
+
+CDN selection now uses SSL `DescribeHostCdnInstanceList` with fresh, synchronous
+requests, validated totals and offset pagination. Global domain nodes retain
+provider status and the HTTPS billing flag; deployed `CertId` creates an explicit
+`USES_CERTIFICATE` edge. Billing is not interpreted as HTTPS enablement, and
+certificate name/SAN matches are not deployment evidence.
+
+The previous CDN `DescribeDomains` operation is disabled: its response schema
+includes `Origin.AdvanceHttps.CertInfo.PrivateKey`. `DescribeDomainsConfig` is
+also outside the exact metadata allowlist. No sensitive response is fetched
+for subsequent filtering. An unsupported CDN inventory scope stays visible even
+when the SSL deployment view succeeds or is empty. API documentation permits
+empty/zero values when unavailable, so those results cannot prove the absence
+of CDN domains. Complete domain/origin inventory, CloudFront configuration
+equivalence, EdgeOne and live selection semantics remain gaps.
+
+Sources: [CDN schemas](https://cloud.tencent.com/document/api/228/30987),
+[SSL CDN deployment inventory](https://cloud.tencent.com/document/product/400/91663),
+[deployed certificate field](https://cloud.tencent.com/document/api/400/41679).

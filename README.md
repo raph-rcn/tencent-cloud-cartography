@@ -76,7 +76,7 @@ The **Cloud Resource Center** `SearchResources` API supplies a baseline of suppo
 | Big data | EMR standard/TKE clusters, host/database/isolated nodes, explicit network and CVM/TKE relationships |
 | Configuration audit | CloudConfig recorder and resource-type scope, rules/parameters/triggers, delivery settings and explicit COS/CLS destinations |
 | Monitoring | Cloud Monitor policies, metric/event rules, notices and object bindings with explicit CVM links; CLS alarms, query/topic links, schedules, notice channels and escalation configuration; scheduled SQL tasks and declared metric outputs |
-| Edge and DNS | CDN domains; owned DNSPod domains and Private DNS zones with records, nameservers, subzones and explicit VPC bindings |
+| Edge and DNS | CDN certificate-deployment domain metadata and deployed certificate links (partial coverage); owned DNSPod domains and Private DNS zones with records, nameservers, subzones and explicit VPC bindings |
 
 See [the exact API catalog](tencent_cloud_cartography/catalog.py). API versions are pinned. Global services are queried once per account, regional services once per selected region. The global CloudRC pass queries the account inventory but only retains global or unknown-region resources. COS lists bucket metadata account-wide and retains the selected regions.
 

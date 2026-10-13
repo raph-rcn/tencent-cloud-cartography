@@ -437,3 +437,23 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
   synthetic; live API availability/filter behavior, version stages and historical
   per-version encryption metadata remain unverified or unsupported by the
   collected schema.
+
+## 2026-10-13 — CDN deployment metadata and sensitive API exclusion
+
+- Backend: **589 tests passed**, including **19** new checks covering CDN domain
+  normalization, deployed certificate references, global scope, billing semantics,
+  offset pagination, duplicates, invalid responses, denial, sensitive API blocking
+  before subprocess execution and permission inventory consistency.
+- Full synthetic collector: **84 coverage rows**. CDN has an explicit unsupported
+  complete-inventory scope and a separate SSL deployment metadata scope.
+- Frontend: **7 tests passed**, production build succeeded and dependency audit
+  reported **0 vulnerabilities**. The existing bundle-size advisory remains.
+- Synthetic `.local/cdn-demo.json`: **3 resources / 2 relationships** in the full
+  graph. Inspector showed the exact deployed certificate edge and provider source;
+  the coverage dialog displayed the inventory/origin limitation.
+- Browser export `Downloads/tencent-cloud-cartography (23).drawio` and screenshot
+  `.local/cdn-preview.png` verified the official CDN and SSL icons.
+- The permission inventory now matches the exact action allowlist, including
+  recently added services; existing COS API/CAM mappings are retained.
+- No live Tencent collection occurred. Complete domain inventory, origin/cache/TLS
+  configuration, EdgeOne and account-specific SSL API behavior remain unverified.

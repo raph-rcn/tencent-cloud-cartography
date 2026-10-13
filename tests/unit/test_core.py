@@ -365,6 +365,8 @@ def test_end_to_end_collection_all_scopes_and_clb_field_selection():
                 if action == "get_bucket_policy":
                     raise CollectionError("AccessDenied")
                 return {}
+            if action == "DescribeHostCdnInstanceList":
+                return dict(InstanceList=[], TotalCount=0)
             if service == "tag":
                 return dict(ResourceTagMappingList=[], PaginationToken="", RequestId="tags")
             spec = specs[service, action]
@@ -412,7 +414,7 @@ def test_end_to_end_collection_all_scopes_and_clb_field_selection():
     )
     assert data["status"] == "partial"
     assert len(data["nodes"]) == 5
-    assert len(data["coverage"]) == 83
+    assert len(data["coverage"]) == 84
     assert {"DescribeCmqQueues", "DescribeCmqTopics"} <= {c["action"] for c in data["coverage"]}
     assert any(c["action"] == "ListLayers" and c["status"] == "empty" for c in data["coverage"])
     assert any(e["relationship"] == "FORWARDS_TO" for e in data["edges"])
@@ -422,6 +424,7 @@ def test_end_to_end_collection_all_scopes_and_clb_field_selection():
     )
     assert [c["action"] for c in data["coverage"] if c["status"] not in {"empty", "complete"}] == [
         "ListEmailIdentities",
+        "DescribeDomains",
         "get_bucket_policy",
     ]
     ses_scope = next(c for c in data["coverage"] if c["action"] == "ListEmailIdentities")

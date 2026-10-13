@@ -351,6 +351,11 @@ class CollectorRunner:
             if services and spec.service not in services:
                 continue
             for region in self.regions if spec.regional else ["global"]:
+                if spec.kind == "cdn.domain":
+                    from .cdn import collect_domains
+
+                    collect_domains(self)
+                    continue
                 if spec.kind == "ssm.secret":
                     from .secrets import collect_secrets
 

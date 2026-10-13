@@ -330,7 +330,7 @@
       "source_enabled": true,
       "tencent_counterpart": "CDN / EdgeOne",
       "status": "incomplete",
-      "evidence_or_gap": "CDN domain list only; origin relationships and EdgeOne pending."
+      "evidence_or_gap": "CDN certificate-deployment domain/status/billing metadata and explicit deployed SSL certificate edges implemented via ssl.DescribeHostCdnInstanceList. Sensitive cdn.DescribeDomains/DescribeDomainsConfig excluded because their schemas contain TLS private keys. Complete domain inventory, origins, cache/TLS/WAF settings, EdgeOne and live API validation remain gaps; collection explicitly partial."
     },
     {
       "aws_collector": "secretsmanager",
