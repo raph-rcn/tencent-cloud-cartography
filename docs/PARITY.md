@@ -759,3 +759,35 @@ Sources: [network response schemas](https://cloud.tencent.com/document/api/215/1
 [address templates](https://intl.cloud.tencent.com/document/product/215/16717),
 [service templates](https://intl.cloud.tencent.com/document/product/215/16719),
 [service template groups](https://intl.cloud.tencent.com/document/api/215/16718).
+
+## Route-table associations and next-hop reconciliation
+
+Route tables retain Main, creation and local-CIDR publication metadata. Explicit
+subnet associations now have table/subnet identity nodes, while the existing
+subnet-to-table link remains. No provider association ID or state is invented.
+Embedded routes are preserved and each table independently queries the paginated
+DescribeRouteList API with explicit table/VPC filters and required totals.
+Conflicting, disappearing or duplicate route rows leave visible incomplete scopes.
+A denied listing cannot erase embedded inventory.
+
+Routes retain descriptions, type, enabled/publication flags and creation/CDC
+metadata. RouteItemId is preferred; the fallback includes destination and next
+hop rather than using the nonunique IPv6 RouteId zero. Local gateways and GWLB
+endpoints now have typed references. EIP sentinel zero, unrecognized gateway
+identifiers and INTRANAT identifiers without an established mapping remain
+metadata. CCN route responses lack an owner UIN, so owner links require a unique
+collected global CCN with the exact identifier, including foreign-account CCNs.
+
+NORMAL_CVM next hops contain IP addresses. They match only a unique collected ENI
+address in the route's account, region and VPC. A CVM link additionally requires a
+collected ENI attachment and a collected instance in the same scope. Disabled
+routes remain configuration records; these relationships do not establish packet
+forwarding or effective reachability.
+
+AWS association state/IDs, route origin and blackhole-state equivalents, broader
+private-NAT identity mapping and effective path evaluation remain incomplete.
+Live Tencent API behavior, including IPv6 coverage, is not yet verified.
+
+Sources: [route tables](https://cloud.tencent.com/document/product/215/15763),
+[paginated route list](https://cloud.tencent.com/document/product/215/115754),
+[route and gateway schemas](https://cloud.tencent.com/document/api/215/15824).

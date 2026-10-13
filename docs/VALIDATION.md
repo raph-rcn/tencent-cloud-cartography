@@ -600,3 +600,24 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
 - Four metadata API actions were added to the permission inventory. All 896
   bundled official icons remain intact. No cloud mutation or live collection
   occurred; source/provider scoping and effective-access semantics remain open.
+
+## 2026-10-13 — Route pagination, association identities and next hops
+
+- Backend **792 tests passed**, including **29** new cases covering route metadata,
+  disabled routes, association parents, IPv6 fallback identity, typed gateways,
+  pagination, missing totals, independent denial, inventory changes and scoped
+  IP next-hop resolution. CCN tests cover foreign and ambiguous owners.
+- Embedded route inventory survives denied paginated listing. Conflicting gateway
+  changes cannot silently add a second stale next-hop edge.
+- Frontend **7 tests passed**, production build succeeded and dependency audit
+  reported **0 vulnerabilities**; the existing bundle-size advisory remains.
+- Synthetic `.local/routes-demo.json` rendered **10 resources / 18 relationships**.
+  Inspector confirmed an appliance route's address/instance matches, source APIs,
+  enabled/publication metadata and `reachability_verified=false`. Supporting ENI,
+  address, CVM and subnet inventory is synthetic.
+- Browser export `Downloads/tencent-cloud-cartography (31).drawio` preserved all
+  eighteen edges with official VPC/ENI/NAT/CVM SVGs; preview `.local/routes-preview.png`.
+  The unresolved NAT reference correctly leaves the fixture partial.
+- DescribeRouteList was added to the metadata permission inventory. No cloud
+  mutation, probe or live collection occurred. Source-state/provider equivalence
+  and live IPv6 route coverage remain explicit gaps.

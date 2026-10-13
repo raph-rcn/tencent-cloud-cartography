@@ -309,6 +309,11 @@ class CollectorRunner:
             if services and spec.service not in services:
                 continue
             for region in self.regions if spec.regional else ["global"]:
+                if spec.kind == "vpc.routetable":
+                    from .routes import collect as collect_routes
+
+                    collect_routes(self, spec, region)
+                    continue
                 if spec.kind in {
                     "vpc.securitygroup",
                     "vpc.addresstemplate",
@@ -546,6 +551,9 @@ def collect(
     from .network_addresses import link as link_network_addresses
 
     link_network_addresses(graph)
+    from .routes import link_next_hops
+
+    link_next_hops(graph)
     from .privatelink import link as link_privatelink
 
     link_privatelink(graph)

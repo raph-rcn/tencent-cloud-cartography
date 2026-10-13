@@ -719,6 +719,7 @@ ALLOWED_ACTIONS = {
     ("sts", "GetCallerIdentity"),
     ("cloudrc", "SearchResources"),
     ("vpc", "DescribeSecurityGroupPolicies"),
+    ("vpc", "DescribeRouteList"),
     ("cos", "list_buckets"),
     ("cos", "get_bucket_acl"),
     ("cos", "get_bucket_policy"),
@@ -776,6 +777,8 @@ SERVICE_ICONS = {
     "privatedns": ("Private DNS", "Private DNS"),
 }
 KIND_ICONS = {
+    "vpc.localgateway": "Virtual Private Cloud",
+    "vpc.routeassociation": "Virtual Private Cloud",
     "vpc.serviceselector": "Virtual Private Cloud",
     "vpc.ruleaddress": "Virtual Private Cloud",
     "vpc.servicetemplategroup": "Virtual Private Cloud",
@@ -795,6 +798,7 @@ KIND_ICONS = {
     "vpc.peeringconnection": "Peering Connection",
 }
 DETAIL_KINDS = {
+    "vpc.routeassociation",
     "vpc.serviceselector",
     "vpc.ruleaddress",
     "vpc.servicetemplategroup",

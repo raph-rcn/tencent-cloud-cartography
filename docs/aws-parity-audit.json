@@ -162,7 +162,7 @@
       "source_enabled": true,
       "tencent_counterpart": "VPC routes",
       "status": "incomplete",
-      "evidence_or_gap": "Tables, routes, associations and typed next-hop edges added. Unsupported gateway types retained as properties."
+      "evidence_or_gap": "Typed main/table/local-publication metadata, explicit subnet association nodes and paginated DescribeRouteList implemented. Embedded routes survive denied listing; conflicting/disappearing rows mark partial coverage. Routes preserve descriptions, enabled/type/publication state and stable IPv6 identity. CCN owner matching uses uniquely collected global CCNs; LOCAL_GATEWAY/GWLB_ENDPOINT are typed. NORMAL_CVM IPs resolve only to unique collected ENI addresses and corroborated CVMs within the route account/region/VPC. AWS association IDs/state and route origin/blackhole-state equivalents, INTRANAT gateway identity, effective route evaluation and live validation remain incomplete."
     },
     {
       "aws_collector": "ec2:vpc_peering",
