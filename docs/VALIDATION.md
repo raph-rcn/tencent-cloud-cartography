@@ -335,3 +335,29 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
 - This was synthetic metadata. No live Tencent request, DNS lookup, email access or
   send operation occurred. Full AWS parity and live validation remain incomplete;
   see PARITY.md for the domain/address and DKIM semantic distinctions.
+
+## 2026-10-13 — CloudConfig recorder, delivery and rule definitions
+
+- `uv run pytest -q`: **475 passed**. Forty-one new CloudConfig cases cover
+  required totals, 101-rule pagination, duplicate IDs, multi-account/global scope,
+  rule detail identity/owner changes, exact scope-edge replacement, malformed
+  definitions, unavailable recorder scope, independent denials and missing delivery,
+  disabled settings, COS AppId/region/ambiguity controls and explicit CLS references.
+- The full synthetic collector now checks **73 coverage rows**. CloudConfig
+  recorder, delivery and rule discovery run once per account across selected regions.
+  Rule annotations and unexpected nested fields are excluded from persisted data;
+  only the four audited configuration actions are allowed.
+- Ruff and all **896 official icon** integrity checks passed. `npm ci`, **7 frontend
+  tests**, production build and npm audit passed with **0 vulnerabilities**; the
+  existing bundle-size warning remains.
+- `.local/cloudconfig-demo.json` rendered **5 resources / 3 relationships** on
+  loopback 8788. Recorder, delivery, rule and resource-type definition stay global;
+  the configured COS archive stays in Frankfurt. The rule inspector showed disabled
+  state, region/tag/exclusion scope, parameters, condition/trigger fields and the
+  explicit `compliance_independently_verified: false` property.
+- Preview: `.local/cloudconfig-preview.png`. Browser export
+  `tencent-cloud-cartography (19).drawio` read back as **10 vertices, 3 edges and
+  5 embedded official SVGs**. No frontend changes were needed.
+- These were synthetic checks. No live Tencent query, resource snapshot retrieval,
+  evaluation, remediation, log or object read occurred. Full AWS parity and live
+  validation remain incomplete; provider-specific limitations are in PARITY.md.

@@ -226,7 +226,7 @@ class Graph:
         # Dedicated selectors own persisted configuration and links for these kinds;
         # nested configuration must not feed recursive network inference.
         explicit_configuration = spec.kind.startswith(
-            ("ckafka.", "tdmq.", "eb.", "ses.")
+            ("ckafka.", "tdmq.", "eb.", "ses.", "config.")
         ) or spec.kind in {
             "cls.alarm",
             "cls.alarmnotice",

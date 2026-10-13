@@ -139,11 +139,19 @@ class CollectorRunner:
             cmq_ids, cmq_names = set(), set()
             eb_ids = set()
             ses_ids = set()
+            config_ids = set()
             kafka_ids, kafka_names = set(), set()
             for items, request_id in pages(self.transport, spec, region, params):
                 if request_id:
                     record["request_ids"].append(request_id)
                 for item in items:
+                    if spec.service == "config":
+                        from .cloudconfig import prepare
+
+                        item = prepare(item)
+                        if item["ConfigRuleId"] in config_ids:
+                            raise CollectionError("DuplicateConfigRule")
+                        config_ids.add(item["ConfigRuleId"])
                     if spec.service == "ses":
                         from .ses import prepare
 
@@ -343,6 +351,12 @@ class CollectorRunner:
             if services and spec.service not in services:
                 continue
             for region in self.regions if spec.regional else ["global"]:
+                if spec.kind == "config.rule":
+                    from .cloudconfig import collect_rule_details, collect_settings
+
+                    collect_settings(self)
+                    collect_rule_details(self, self.native(spec, region))
+                    continue
                 if spec.kind == "ses.domain":
                     from .ses import collect_domains
 
@@ -526,6 +540,9 @@ def collect(
     from .eventbridge import link_targets
 
     link_targets(graph)
+    from .cloudconfig import link_delivery
+
+    link_delivery(graph)
     from .monitor import link_bindings
 
     link_bindings(graph)

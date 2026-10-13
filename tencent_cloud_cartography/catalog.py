@@ -27,6 +27,17 @@ SES_ENDPOINTS = {
 
 COLLECTORS = (
     Collector(
+        "config",
+        "ListConfigRules",
+        "Items",
+        "config.rule",
+        ("ConfigRuleId",),
+        ("RuleName",),
+        total="Total",
+        require_total=True,
+        regional=False,
+    ),
+    Collector(
         "ses",
         "ListEmailIdentities",
         "EmailIdentities",
@@ -624,6 +635,9 @@ ALLOWED_ACTIONS = {
         SCF_FUNCTIONS,
     )
 } | {
+    ("config", "DescribeConfigRule"),
+    ("config", "DescribeConfigRecorder"),
+    ("config", "DescribeConfigDeliver"),
     ("ses", "GetEmailIdentity"),
     ("eb", "GetEventBus"),
     ("eb", "ListRules"),
@@ -657,6 +671,7 @@ ALLOWED_ACTIONS = {
 
 # Official archive titles; all assets are verified by tests against the manifest.
 SERVICE_ICONS = {
+    "config": ("CloudConfig", "CloudConfig"),
     "ses": ("Simple Email Service", "Simple Email Service"),
     "eb": ("EventBridge", "Event Bridge"),
     "tdmq": ("TDMQ for CMQ", "TDMQ for CMQ"),
@@ -701,6 +716,7 @@ KIND_ICONS = {
     "vpc.peeringconnection": "Peering Connection",
 }
 DETAIL_KINDS = {
+    "config.resourcetype",
     "ses.dnscheck",
     "eb.rule",
     "eb.target",
@@ -770,6 +786,7 @@ DETAIL_KINDS = {
 }
 
 API_VERSIONS = {
+    "config": "2022-08-02",
     "ses": "2020-10-02",
     "eb": "2021-04-16",
     "tdmq": "2020-02-17",

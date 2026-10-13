@@ -413,7 +413,7 @@
       "source_enabled": true,
       "tencent_counterpart": "CloudConfig",
       "status": "incomplete",
-      "evidence_or_gap": "Not implemented."
+      "evidence_or_gap": "Account-scoped CloudConfig recorder/resource-type scope, delivery settings, paginated rules/details, parameter/condition/trigger definitions and explicit COS/CLS destination links implemented. Rule region/tag/exclusion scopes and provider compliance state are preserved without effective evaluation claims; no resource snapshots or remediation operations. Recorder CAM-role, delivery encryption/frequency, organization aggregators, custom function binding semantics and live validation remain incomplete."
     },
     {
       "aws_collector": "identitycenter",

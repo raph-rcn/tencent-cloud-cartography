@@ -347,6 +347,10 @@ def test_end_to_end_collection_all_scopes_and_clb_field_selection():
                 return dict(AccountId="12345", PrincipalId="reader")
             if service == "cloudrc":
                 return dict(Resources=[], RequestId="baseline")
+            if service == "config" and action == "DescribeConfigRecorder":
+                return dict(Status=0, Items=[])
+            if service == "config" and action == "DescribeConfigDeliver":
+                raise CollectionError("ResourceNotFound.DeliverIsNotExist")
             if service == "clb" and action == "DescribeListeners":
                 return dict(Listeners=[], TotalCount=0)
             if service == "cos":
@@ -405,12 +409,15 @@ def test_end_to_end_collection_all_scopes_and_clb_field_selection():
         transport_factory=lambda _: InventoryTransport(),
     )
     assert data["status"] == "partial"
-    assert len(data["nodes"]) == 4
-    assert len(data["coverage"]) == 70
+    assert len(data["nodes"]) == 5
+    assert len(data["coverage"]) == 73
     assert {"DescribeCmqQueues", "DescribeCmqTopics"} <= {c["action"] for c in data["coverage"]}
     assert any(c["action"] == "ListLayers" and c["status"] == "empty" for c in data["coverage"])
     assert any(e["relationship"] == "FORWARDS_TO" for e in data["edges"])
-    assert all(n["region"] == "eu-frankfurt" for n in data["nodes"])
+    assert all(
+        n["region"] == ("global" if n["kind"].startswith("config.") else "eu-frankfurt")
+        for n in data["nodes"]
+    )
     assert [c["action"] for c in data["coverage"] if c["status"] not in {"empty", "complete"}] == [
         "ListEmailIdentities",
         "get_bucket_policy",

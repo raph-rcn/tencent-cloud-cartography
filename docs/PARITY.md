@@ -349,3 +349,44 @@ Sources: [domain list](https://cloud.tencent.com/document/api/1288/51045),
 [domain details](https://cloud.tencent.com/document/api/1288/51046),
 [international endpoint and region](https://www.tencentcloud.com/document/product/1084/39411),
 [data types](https://cloud.tencent.com/document/api/1288/51053).
+
+
+## CloudConfig recorder, delivery and rules
+
+The source AWS Config collector models recorders, delivery channels and rule
+configuration. Tencent now collects the account recorder, its selected resource
+types, account delivery settings, and paginated rules with independent detail
+checks. Current API pages make Region optional, and the product aggregates across
+regions: nodes are account/global objects, while `RegionsScope` remains rule
+configuration. Recorder/delivery IDs are explicit account-singleton graph IDs,
+not invented provider IDs. Rule author/owner and account-group metadata do not
+reassign account scope or infer cross-account permissions.
+
+Resource types are definition nodes, not discovered resource instances. Rule
+type/region/tag/exclusion scopes, conditions, input parameters and trigger periods
+are retained. Detail changes replace rule type edges without changing recorder
+scope. Provider compliance results and evaluation time remain reported metadata;
+no independent evaluation is claimed. Numeric RiskLevel is retained without a
+severity label because list-filter documentation and SDK descriptions disagree.
+
+COS destination matching accepts documented QCS forms and requires a uniquely
+collected full bucket name in the explicit region. AppId constrains the bucket
+name and never becomes an account UIN. CLS references require an explicit UIN,
+region and topic ID. Disabled delivery configuration stays visible. Unknown QCS
+forms, mismatched product types and ambiguous buckets do not produce guessed links.
+The public delivery example contains inconsistent type/QCS fields; it is not used
+as a mapping contract. The exact documented missing-delivery error is empty;
+other errors and unavailable recorder scope remain partial.
+
+Recorder CAM-role bindings, delivery encryption/frequency correspondence,
+organization aggregators, custom function binding semantics and live validation
+remain incomplete. The collector never invokes resource-snapshot, evaluation-history or remediation
+APIs. Returned rule annotations
+are omitted; configuration queries do not prove recording, delivery or compliance.
+
+Sources: [rule list](https://cloud.tencent.com/document/api/1579/101781),
+[rule detail](https://cloud.tencent.com/document/api/1579/129718),
+[recorder](https://cloud.tencent.com/document/api/1579/129700),
+[delivery](https://cloud.tencent.com/document/api/1579/129733),
+[cross-region product scope](https://cloud.tencent.com/product/config),
+[COS identifiers](https://cloud.tencent.com/document/product/651/133239).
