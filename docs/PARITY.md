@@ -141,3 +141,27 @@ expansion and live account validation remain open. References:
 [alarms](https://cloud.tencent.com/document/api/614/56461),
 [notification groups](https://cloud.tencent.com/document/product/614/56462),
 [data types](https://cloud.tencent.com/document/api/614/56471).
+
+### CLS scheduled SQL and declared metric outputs
+
+`DescribeScheduledSqlInfo` now collects regional scheduled SQL tasks with validated
+pagination and duplicate task detection. Task properties retain query text, enable
+and reported status, start/end/window/delay settings, syntax, service-log flags and
+both schedule period and its unit (minutes or seconds). Queries are never executed.
+
+Explicit source/destination topic IDs and regions create configuration edges;
+missing or malformed region data fails visibly instead of using the CLI region.
+Both log and metric destinations are supported. For metric outputs, nonempty
+`MetricNames` takes precedence over legacy `MetricName`, following the SDK contract.
+Metric nodes are keyed by account, destination region/topic and metric name.
+Each producer retains its own metric labels, static labels and timestamp mapping,
+so shared metric names do not overwrite different task configurations. These are
+**declared metric outputs**, not evidence of samples or successful execution.
+
+This provides the configured log-to-metric mapping counterpart to AWS log metric
+filters. It does not claim equal runtime behavior, expand SQL into inferred metric
+values, or close the entire CloudWatch audit. Current alarm-state equivalence,
+legacy/template rules, broader Cloud Monitor resource mapping, action execution and
+live Tencent validation remain open. Sources:
+[task API](https://cloud.tencent.com/document/api/614/95519) and
+[output schemas](https://cloud.tencent.com/document/api/614/56471).

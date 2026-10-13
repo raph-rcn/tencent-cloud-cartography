@@ -222,23 +222,23 @@ class Graph:
 
     def native(self, account, region, spec, raw, source):
         rid = first(raw, spec.ids)
-        # Alarm callbacks may contain credentials and arbitrary template fields.
-        # Their dedicated selector owns every persisted property and relationship.
-        explicit_alarm = spec.kind in {"cls.alarm", "cls.alarmnotice"}
+        # Dedicated CLS selectors own all persisted configuration and links;
+        # callback/template fields must not feed recursive network inference.
+        explicit_configuration = spec.kind in {"cls.alarm", "cls.alarmnotice", "cls.scheduledsql"}
         nid = self.add(
             account,
             region,
             spec.kind,
             rid,
             first(raw, spec.names),
-            {} if explicit_alarm else raw,
+            {} if explicit_configuration else raw,
             source,
         )
         for keys, kind, relation, prefix in REFERENCES:
             # Associations in these responses describe peers/children, not where
             # the resource itself lives. Handle them with typed relationship code.
             if (
-                explicit_alarm
+                explicit_configuration
                 or spec.kind in {"vpc.ccnattachment", "privatedns.zone", "monitor.policy"}
                 or (spec.kind == "cbs.snapshot" and relation == "USES_DISK")
             ):

@@ -178,6 +178,11 @@
     },
     {
       "service": "cls",
+      "action": "DescribeScheduledSqlInfo",
+      "api_version": "2020-10-16"
+    },
+    {
+      "service": "cls",
       "action": "DescribeShippers",
       "api_version": "2020-10-16"
     },

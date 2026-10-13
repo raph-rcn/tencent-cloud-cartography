@@ -135,10 +135,18 @@ class CollectorRunner:
         def operation(record):
             monitor_ids = set()
             cls_alarm_ids = set()
+            scheduled_sql_ids = set()
             for items, request_id in pages(self.transport, spec, region, params):
                 if request_id:
                     record["request_ids"].append(request_id)
                 for item in items:
+                    if spec.kind == "cls.scheduledsql":
+                        from .observability import string
+
+                        rid = string(item.get("TaskId"))
+                        if rid in scheduled_sql_ids:
+                            raise CollectionError("DuplicateScheduledSqlTask")
+                        scheduled_sql_ids.add(rid)
                     if spec.kind in {"cls.alarm", "cls.alarmnotice"}:
                         from .cls_alarms import identity
 

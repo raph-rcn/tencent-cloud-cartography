@@ -181,3 +181,25 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
   vertices, 6 edges and 7 embedded SVG icons**. No frontend changes were needed.
 - All data above is synthetic. No live Tencent API calls, query execution or
   notification delivery were performed; complete AWS parity remains incomplete.
+
+## 2026-10-13 — CLS scheduled SQL metric mappings
+
+- `uv run pytest -q`: **262 passed**. Sixteen new tests cover multi-metric
+  precedence, legacy single-metric and log destinations, producer-specific labels,
+  explicit source/destination regions, account isolation, disabled/error status,
+  schedule units, pagination/duplicates/truncation, malformed configuration and
+  independent regional denial. Unrecognized payload fields cannot fabricate
+  network relationships or persist arbitrary nested data.
+- Ruff and **896 official icon** integrity checks passed. `npm ci`, **5 frontend
+  tests**, production build and npm audit passed with **0 vulnerabilities**. The
+  existing bundle-size warning remains.
+- `.local/cls-metrics-demo.json` rendered **5 resources / 6 relationships** in the
+  browser full graph with official CLS icons. The prior observability fixture
+  server on loopback 8788 was verified by process identity and stopped; that port
+  now serves this metric fixture. Its prior snapshot/preview files remain intact.
+- Browser draw.io export `tencent-cloud-cartography (12).drawio` read back as
+  **8 vertices, 6 edges, 5 embedded SVGs**. Preview:
+  `.local/cls-metrics-preview.png`.
+- These checks use synthetic metadata. No SQL query was executed, no metric
+  samples were retrieved, and no successful task execution is claimed. Live
+  Tencent validation and complete AWS parity remain incomplete.

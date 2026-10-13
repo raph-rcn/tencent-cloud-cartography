@@ -20,6 +20,15 @@ class Collector:
 COLLECTORS = (
     Collector(
         "cls",
+        "DescribeScheduledSqlInfo",
+        "ScheduledSqlTaskInfos",
+        "cls.scheduledsql",
+        ("TaskId",),
+        ("Name",),
+        require_total=True,
+    ),
+    Collector(
+        "cls",
         "DescribeAlarms",
         "Alarms",
         "cls.alarm",
@@ -598,6 +607,8 @@ KIND_ICONS = {
     "vpc.peeringconnection": "Peering Connection",
 }
 DETAIL_KINDS = {
+    "cls.scheduledsql",
+    "cls.metric",
     "cls.alarm",
     "cls.alarmquery",
     "cls.alarmnotice",

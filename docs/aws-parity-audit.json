@@ -434,7 +434,7 @@
       "source_enabled": true,
       "tencent_counterpart": "Cloud Monitor / CLS",
       "status": "incomplete",
-      "evidence_or_gap": "CLS logsets, log/metric topics, retention/index/web-tracking flags, KMS, COS shippers, regional alarms with queries/schedules/conditions, CLS notification groups with selected channel/escalation configuration and explicit cross-region delivery-topic references implemented. Cloud Monitor account-scoped policies, metric/event rules, embedded notice metadata, instance groups and object bindings are implemented, with strict CVM account/region links. CLS metric extraction, other monitored-product dimension mappings, current alarm-state equivalence, legacy/template rule expansion, detailed action delivery and live validation remain incomplete. No log contents, metric samples or effective evaluation/delivery claims."
+      "evidence_or_gap": "CLS logsets, log/metric topics, retention/index/web-tracking flags, KMS, COS shippers, regional alarms with queries/schedules/conditions, CLS notification groups with selected channel/escalation configuration and explicit cross-region delivery-topic references implemented. Cloud Monitor account-scoped policies, metric/event rules, embedded notice metadata, instance groups and object bindings are implemented, with strict CVM account/region links. CLS scheduled SQL tasks now retain query/schedule/output mappings with explicit topic-region links and declared metric nodes. Other monitored-product dimension mappings, current alarm-state equivalence, legacy/template rule expansion, detailed action delivery and live validation remain incomplete. No log contents, metric samples or effective evaluation/delivery claims."
     },
     {
       "aws_collector": "efs",
