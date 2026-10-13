@@ -155,7 +155,7 @@
       "source_enabled": true,
       "tencent_counterpart": "Private Link",
       "status": "incomplete",
-      "evidence_or_gap": "Endpoints and services added. Shared endpoint-to-service reconciliation pending."
+      "evidence_or_gap": "Typed endpoint/service metadata and explicit VPC/subnet/security-group links implemented. All three IP-family scopes and four documented backend service types are queried; dual-stack uses token pagination. Exact authorized service lookups require returned ServiceUin, never APPID conversion. Cross-account collected services reconcile by region/service ID with VPC consistency; CLB/CDB/CRS/GWLB backend references are typed. AWS endpoint policy/private-DNS/requester-managed/ENI/route-table counterparts, GWLB backend enrichment and live validation remain incomplete."
     },
     {
       "aws_collector": "ec2:route_table",

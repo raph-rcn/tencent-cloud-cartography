@@ -672,3 +672,36 @@ Sources: [CCN inventory](https://cloud.tencent.com/document/product/215/19199),
 [attachment API](https://intl.cloud.tencent.com/zh/document/api/215/34789),
 [network response schemas](https://cloud.tencent.com/document/product/215/15824),
 [cross-account workflow](https://intl.cloud.tencent.com/zh/document/product/1003/31985).
+
+## Private Link inventory and shared service relationships
+
+Endpoint and service collection now explicitly queries IPv4, IPv6 and dual-stack
+scopes. Dual-stack uses MaxResults/NextToken, preserving the request filters and
+following nonempty tokens even after short pages. Totals, repeated tokens, duplicate
+identities and malformed pages produce visible scope failures. Service inventory
+queries CLB, CDB, CRS and GWLB independently because the API defaults to CLB.
+
+Endpoints retain lifecycle, VIP, AppId, service identifiers and consumer VPC, subnet
+and security-group links. ServiceVpcId is metadata about the remote service, never
+consumer-account containment. Services retain selected creation, auto-accept,
+backend and count metadata, plus explicit CLB/MySQL/Redis/GWLB references. Nested
+consumer endpoint rows expose AppIds; their counts are retained without assigning
+those consumers to the service owner's UIN. The official Private Link icon covers
+endpoint/service nodes; GWLB references use the official Cloud Load Balancer icon.
+
+Referenced services absent from owned inventory receive exact authorized-ID
+lookups. These require a returned ServiceUin; ServiceOwner and EndPointOwner are
+AppIds and are never converted into UINs. After all profiles finish, an endpoint
+links to a unique collected service in the same region with the exact service ID,
+provided its ServiceVpcId agrees. Missing, ambiguous or inconsistent matches stay
+unresolved. Reported associations do not prove connectivity or authorization.
+
+Source AWS endpoint policy, private-DNS, requester-managed, ENI and gateway route
+table fields do not have established equivalents in these Tencent responses.
+Those semantics, native GWLB enrichment and live account/API verification remain
+incomplete. This change adds no API operation to the allowlist.
+
+Sources: [endpoint API](https://cloud.tencent.com/document/api/215/54679),
+[service API](https://cloud.tencent.com/document/product/215/54678),
+[response schemas](https://cloud.tencent.com/document/product/215/15824),
+[GWLB identifiers](https://cloud.tencent.com/document/product/1782/111701).

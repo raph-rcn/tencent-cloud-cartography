@@ -351,6 +351,11 @@ class CollectorRunner:
             if services and spec.service not in services:
                 continue
             for region in self.regions if spec.regional else ["global"]:
+                if spec.kind in {"vpc.endpoint", "vpc.endpointservice"}:
+                    from .privatelink import collect as collect_privatelink
+
+                    collect_privatelink(self, spec, region)
+                    continue
                 if spec.kind == "vpc.ccn":
                     from .ccn import collect as collect_ccn
 
@@ -567,6 +572,9 @@ def collect(
     from .network_addresses import link as link_network_addresses
 
     link_network_addresses(graph)
+    from .privatelink import link as link_privatelink
+
+    link_privatelink(graph)
     from .dns import link_dns
 
     link_dns(graph)

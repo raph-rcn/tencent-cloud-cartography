@@ -746,6 +746,7 @@ KIND_ICONS = {
     "vpc.interfaceaddress": "Elastic Network Interface",
     "vpc.ccn": "Cloud Connect Network",
     "vpc.ccnattachment": "Cloud Connect Network",
+    "clb.gatewayloadbalancer": "Cloud Load Balancer",
     "vpc.endpoint": "Private Link",
     "vpc.endpointservice": "Private Link",
     "vpc.peeringconnection": "Peering Connection",

@@ -535,3 +535,25 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
 - No live Tencent collection occurred. Discovery of shared CCNs absent from the
   queried inventory, source ownership/SHARED_WITH correspondence and provider
   subnet semantics remain open gaps. No additional API operation was allowed.
+
+## 2026-10-13 — Private Link family/type coverage and shared services
+
+- Backend **713 tests passed**, including **33** new cases covering authorized
+  foreign-owner resolution, AppId preservation, typed CLB/CDB/CRS/GWLB references,
+  IPv4/dual-stack pagination, short pages with continuation tokens, malformed
+  pages, duplicates, incorrect lookup results, owner mismatch and denied scopes.
+- Tests verify that consumer resources are not placed in the provider account,
+  remote ServiceVpcId does not become local containment, and ambiguous, wrong-
+  region or contradictory-VPC service matches do not produce a connection edge.
+- Frontend **7 tests passed**, production build succeeded, dependency audit
+  reported **0 vulnerabilities**. The existing bundle-size advisory remains.
+- Synthetic `.local/privatelink-demo.json` rendered **7 resources / 8 relationships**
+  across consumer/provider accounts in Frankfurt. Supporting VPC/subnet/CLB
+  inventory is explicitly synthetic; this is not a live API collection.
+- Inspector showed consumer containment, security-group membership, the shared
+  service edge, original AppId and `connectivity_verified=false`.
+- Browser export `Downloads/tencent-cloud-cartography (28).drawio` retained all
+  eight edges and official Private Link/network/CLB SVGs; preview saved to
+  `.local/privatelink-preview.png`. All 896 official assets remain bundled.
+- Live Tencent validation, AWS-specific endpoint policy/DNS/ENI/route semantics
+  and native GWLB backend enrichment remain incomplete.
