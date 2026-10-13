@@ -136,10 +136,19 @@ class CollectorRunner:
             monitor_ids = set()
             cls_alarm_ids = set()
             scheduled_sql_ids = set()
+            cfs_ids = set()
             for items, request_id in pages(self.transport, spec, region, params):
                 if request_id:
                     record["request_ids"].append(request_id)
                 for item in items:
+                    if spec.service == "cfs":
+                        from .cfs import prepare
+
+                        item = prepare(spec.kind, item, params or {})
+                        rid = first(item, spec.ids)
+                        if rid in cfs_ids:
+                            raise CollectionError("DuplicateCfsResource")
+                        cfs_ids.add(rid)
                     if spec.kind == "cls.scheduledsql":
                         from .observability import string
 
@@ -335,6 +344,8 @@ class CollectorRunner:
                 child = CHILDREN.get(spec.kind)
                 if child:
                     key = {
+                        "cfs.filesystem": "FileSystemId",
+                        "cfs.permissiongroup": "PGroupId",
                         "tke.cluster": "ClusterId",
                         "cam.role": "RoleId",
                         "cam.user": "TargetUin",
@@ -349,6 +360,8 @@ class CollectorRunner:
                             {key: first(item, spec.ids)},
                             nid,
                             {
+                                "cfs.filesystem": "HAS_MOUNT_TARGET",
+                                "cfs.permissiongroup": "HAS_ACCESS_RULE",
                                 "tke.cluster": "HAS_NODE",
                                 "cvm.launchtemplate": "HAS_VERSION",
                                 "vpc.ccn": "HAS_ATTACHMENT",

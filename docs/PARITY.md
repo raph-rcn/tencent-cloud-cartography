@@ -165,3 +165,33 @@ legacy/template rules, broader Cloud Monitor resource mapping, action execution 
 live Tencent validation remain open. Sources:
 [task API](https://cloud.tencent.com/document/api/614/95519) and
 [output schemas](https://cloud.tencent.com/document/api/614/56471).
+
+### CFS mount targets and export permissions
+
+CFS file-system collection now requires complete totals and retains lifecycle,
+protocol/storage, capacity/throughput, encryption and snapshot-policy metadata.
+Explicit UUID KMS IDs link within the collected account/region; a key returned for
+an explicitly unencrypted file system is marked conflicting instead. Unsupported
+key formats remain unresolved. `AppId` never becomes an account UIN.
+
+`DescribeMountTargets` runs separately for each file system, verifies its total,
+checks returned parent identity, and scopes mount IDs to that file system. Mount
+metadata includes endpoint IP, root FSID, lifecycle, network type and the returned
+server-IP list/truncation flag. VPC/subnet placement uses explicit VPC mount fields;
+Turbo CCN mounts link to the global CCN reference without accepting stale VPC fields.
+The schema's uppercase network values and API examples' lowercase values are
+supported. Unknown network types remain visible without guessed placement.
+
+`DescribeCfsPGroups` and `DescribeCfsRules` are non-paginated APIs. The default
+`pgroupbasic` is supported. Rules are scoped to their group and retain the client
+selector, read/write mode, UID/GID squash configuration and priority. Permission
+failures on one mount/group do not prevent collection of the others. Neither rule
+presence nor a configured endpoint proves that a share can be mounted or read.
+
+The AWS source also collects access-point POSIX identity and root-directory
+configuration. Equivalence for that behavior, KMS ARN resolution, deeper
+lifecycle/snapshot configuration and live validation remain incomplete. Sources:
+[mount targets](https://cloud.tencent.com/document/product/582/38169),
+[groups](https://cloud.tencent.com/document/product/582/38157),
+[rules](https://cloud.tencent.com/document/product/582/38156),
+[data types](https://cloud.tencent.com/document/api/582/38175).

@@ -124,10 +124,6 @@ document.querySelector('#app').innerHTML = `
         </div>
 
         <div id="graph" role="application" aria-label="Tencent Cloud architecture landscape"></div>
-        <div class="cloud-key" aria-hidden="true">
-          <span class="tencent-mark">TC</span>
-          <span>Tencent Cloud</span>
-        </div>
         <div class="loading" id="loading">
           <div class="spinner"></div>
           <strong>Drawing the Tencent Cloud architecture</strong>

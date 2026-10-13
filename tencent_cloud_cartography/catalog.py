@@ -283,7 +283,18 @@ COLLECTORS = (
         "FileSystems",
         "cfs.filesystem",
         ("FileSystemId",),
-        ("FsName",),
+        ("FsName", "CreationToken"),
+        require_total=True,
+    ),
+    Collector(
+        "cfs",
+        "DescribeCfsPGroups",
+        "PGroupList",
+        "cfs.permissiongroup",
+        ("PGroupId",),
+        ("Name",),
+        total=None,
+        paging="none",
     ),
     Collector(
         "es", "DescribeInstances", "InstanceList", "es.instance", ("InstanceId",), ("InstanceName",)
@@ -378,6 +389,27 @@ COLLECTORS = (
     ),
 )
 CHILDREN = {
+    "cfs.filesystem": Collector(
+        "cfs",
+        "DescribeMountTargets",
+        "MountTargets",
+        "cfs.mounttarget",
+        ("MountResourceId",),
+        ("MountTargetId",),
+        total="NumberOfMountTargets",
+        paging="none",
+        require_total=True,
+    ),
+    "cfs.permissiongroup": Collector(
+        "cfs",
+        "DescribeCfsRules",
+        "RuleList",
+        "cfs.permissionrule",
+        ("RuleResourceId",),
+        ("RuleId",),
+        total=None,
+        paging="none",
+    ),
     "cam.group": Collector(
         "cam",
         "ListAttachedGroupPolicies",
@@ -607,6 +639,8 @@ KIND_ICONS = {
     "vpc.peeringconnection": "Peering Connection",
 }
 DETAIL_KINDS = {
+    "cfs.permissiongroup",
+    "cfs.permissionrule",
     "cls.scheduledsql",
     "cls.metric",
     "cls.alarm",

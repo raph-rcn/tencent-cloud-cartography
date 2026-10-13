@@ -239,6 +239,7 @@ class Graph:
             # the resource itself lives. Handle them with typed relationship code.
             if (
                 explicit_configuration
+                or spec.kind.startswith("cfs.")
                 or spec.kind in {"vpc.ccnattachment", "privatedns.zone", "monitor.policy"}
                 or (spec.kind == "cbs.snapshot" and relation == "USES_DISK")
             ):

@@ -127,6 +127,21 @@
       "api_version": "2019-07-19"
     },
     {
+      "service": "cfs",
+      "action": "DescribeCfsPGroups",
+      "api_version": "2019-07-19"
+    },
+    {
+      "service": "cfs",
+      "action": "DescribeCfsRules",
+      "api_version": "2019-07-19"
+    },
+    {
+      "service": "cfs",
+      "action": "DescribeMountTargets",
+      "api_version": "2019-07-19"
+    },
+    {
       "service": "ckafka",
       "action": "DescribeInstances",
       "api_version": "2019-08-19"

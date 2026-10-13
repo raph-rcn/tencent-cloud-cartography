@@ -441,7 +441,7 @@
       "source_enabled": true,
       "tencent_counterpart": "CFS",
       "status": "incomplete",
-      "evidence_or_gap": "File systems only; mount targets and access-rule depth pending."
+      "evidence_or_gap": "CFS file-system lifecycle/capacity/protocol/encryption metadata, explicit UUID KMS links, per-file-system mount targets with VPC/subnet or Turbo CCN links, permission groups and export rules now implemented. Mounts preserve endpoint/root/state and truncated allocated-IP metadata; rules preserve client selectors, read/write mode, user squash and priority. AWS access-point POSIX/root-directory equivalence, KMS ARN resolution, wider lifecycle/snapshot policy detail and live validation remain incomplete; no mounted-client or effective-access claims."
     },
     {
       "aws_collector": "guardduty",

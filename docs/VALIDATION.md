@@ -203,3 +203,23 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
 - These checks use synthetic metadata. No SQL query was executed, no metric
   samples were retrieved, and no successful task execution is claimed. Live
   Tencent validation and complete AWS parity remain incomplete.
+
+## 2026-10-13 — CFS mount and permission configuration
+
+- `uv run pytest -q`: **280 passed**, including 18 CFS cases covering file-system
+  pagination, parent-scoped mount/rule IDs, independent child denials, totals and
+  duplicate controls, rule semantics, VPC/CCN separation, truncated IP lists,
+  encryption conflicts, `pgroupbasic` and lowercase network types.
+- Ruff and all **896 official icon** integrity checks passed. `npm ci`, **5 frontend
+  tests**, production build and npm audit passed with **0 vulnerabilities**. The
+  existing bundle-size warning remains.
+- Synthetic `.local/cfs-demo.json` on loopback 8788 rendered **7 resources / 7
+  relationships**. The mount appears inside its explicit VPC/subnet while the file
+  system, permission group/rule and key remain at their collected scopes.
+- Browser review identified a floating duplicate Tencent label covering the account
+  title. Removing that overlay preserved header branding and service icons; browser
+  readback confirmed the account title is visible. Preview: `.local/cfs-preview.png`.
+- Browser export `tencent-cloud-cartography (13).drawio` read back as **13 vertices,
+  7 edges and 5 embedded service SVGs**, with VPC/subnet represented as containers.
+- No live Tencent request, share mount or file access occurred. AWS access-point
+  equivalence and other documented parity/validation gaps remain incomplete.

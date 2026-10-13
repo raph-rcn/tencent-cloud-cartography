@@ -242,27 +242,6 @@ h1 {
   background: #ffffff;
 }
 
-.cloud-key {
-  position: absolute;
-  top: 132px;
-  left: 62px;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 2px 8px 2px 2px;
-  background: rgba(255, 255, 255, 0.9);
-  color: #16191f;
-  font-size: 15px;
-  font-weight: 500;
-  pointer-events: none;
-}
-
-.cloud-key .tencent-mark {
-  width: 40px;
-  height: 40px;
-}
-
 .sidebar {
   position: absolute;
   z-index: 30;

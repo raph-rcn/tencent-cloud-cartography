@@ -94,8 +94,10 @@ def configured_key(graph, nid, raw, source):
     if not KEY_ID.fullmatch(key_id):
         node["properties"]["kms_reference_status"] = "unresolved-format"
         return
-    if (node["kind"] == "cbs.disk" and raw.get("Encrypt") is False) or (
-        node["kind"] == "ssm.secret" and raw.get("EncryptType") == 1
+    if (
+        (node["kind"] == "cbs.disk" and raw.get("Encrypt") is False)
+        or (node["kind"] == "ssm.secret" and raw.get("EncryptType") == 1)
+        or (node["kind"] == "cfs.filesystem" and raw.get("Encrypted") is False)
     ):
         node["properties"]["kms_reference_status"] = "conflicting-metadata"
         return

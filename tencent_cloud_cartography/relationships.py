@@ -4,6 +4,10 @@ from .model import first, stable_id, walk_values
 
 
 def enrich(graph, account, region, kind, nid, raw, source):
+    if kind.startswith("cfs."):
+        from .cfs import configuration
+
+        configuration(graph, nid, raw, source)
     if kind == "monitor.policy":
         from .monitor import configuration
 
@@ -167,7 +171,7 @@ def enrich(graph, account, region, kind, nid, raw, source):
     if kind == "cbs.snapshot":
         reference(raw.get("DiskId"), "cbs.disk", "SNAPSHOT_OF")
 
-    if kind in {"cbs.disk", "ssm.secret"}:
+    if kind in {"cbs.disk", "ssm.secret", "cfs.filesystem"}:
         from .kms import configured_key
 
         configured_key(graph, nid, raw, source)
