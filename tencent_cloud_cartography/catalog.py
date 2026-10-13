@@ -369,6 +369,21 @@ TCR_CHILDREN = {
         require_total=True,
     ),
 }
+SCF_DETAILS = {
+    "version": Collector("scf", "ListVersionByFunction", "Versions", "scf.version", ("Version",)),
+    "alias": Collector("scf", "ListAliases", "Aliases", "scf.alias", ("Name",)),
+    "trigger": Collector("scf", "ListTriggers", "Triggers", "scf.trigger", ("TriggerName",)),
+    "layer": Collector("scf", "ListLayers", "Layers", "scf.layer", ("LayerName",)),
+    "layerversion": Collector(
+        "scf",
+        "ListLayerVersions",
+        "LayerVersions",
+        "scf.layerversion",
+        ("LayerVersion",),
+        total=None,
+        paging="none",
+    ),
+}
 SCF_NAMESPACES = Collector("scf", "ListNamespaces", "Namespaces", "scf.namespace", ("Name",))
 DNS_RECORDS = {
     "dnspod.domain": Collector(
@@ -404,6 +419,7 @@ ALLOWED_ACTIONS = {
         *CHILDREN.values(),
         *DNS_RECORDS.values(),
         *TCR_CHILDREN.values(),
+        *SCF_DETAILS.values(),
         SCF_NAMESPACES,
         SCF_FUNCTIONS,
     )
@@ -457,6 +473,11 @@ KIND_ICONS = {
     "vpc.peeringconnection": "Peering Connection",
 }
 DETAIL_KINDS = {
+    "scf.version",
+    "scf.alias",
+    "scf.trigger",
+    "scf.layer",
+    "scf.layerversion",
     "tcr.namespace",
     "tcr.repository",
     "tcr.image",

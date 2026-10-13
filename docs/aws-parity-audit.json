@@ -253,7 +253,7 @@
       "source_enabled": true,
       "tencent_counterpart": "SCF",
       "status": "incomplete",
-      "evidence_or_gap": "Namespaces/function list only; triggers, roles and integration relationships pending."
+      "evidence_or_gap": "SCF namespaces/functions, versions, aliases with weighted/rule routing, trigger metadata and layer version inventory implemented. Selected COS/CKafka/API Gateway source links require collected resource identity. GetFunction remains excluded under metadata policy; role/VPC/image configuration, function-layer usage, full trigger integrations, permission analysis and live validation remain incomplete."
     },
     {
       "aws_collector": "rds",

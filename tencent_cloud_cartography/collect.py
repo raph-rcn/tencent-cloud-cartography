@@ -161,11 +161,15 @@ class CollectorRunner:
                                 item["InstanceId"],
                             ),
                         }
-                    # ListFunctions IDs are namespace scoped when FunctionId is unavailable.
-                    if spec.kind == "scf.function" and not item.get("FunctionId"):
+                    if spec.kind == "scf.function":
+                        namespace = (params or {}).get("Namespace", "default")
+                        if item.get("Namespace") not in (None, namespace):
+                            raise CollectionError("ScfNamespaceMismatch")
                         item = {
                             **item,
-                            "FunctionId": f"{(params or {}).get('Namespace', 'default')}/{item['FunctionName']}",
+                            "Namespace": namespace,
+                            "FunctionId": item.get("FunctionId")
+                            or f"{namespace}/{item['FunctionName']}",
                         }
                     nid = self.graph.native(self.account, region, spec, item, source)
                     collected.append((nid, item))
@@ -294,10 +298,17 @@ class CollectorRunner:
 
             collect_details(self)
         if not services or "scf" in services:
+            from .scf import collect_function, collect_layers
+
             for region in self.regions:
                 namespaces = self.native(SCF_NAMESPACES, region)
                 for nid, ns in namespaces:
-                    self.native(SCF_FUNCTIONS, region, {"Namespace": ns["Name"]}, nid, "CONTAINS")
+                    functions = self.native(
+                        SCF_FUNCTIONS, region, {"Namespace": ns["Name"]}, nid, "CONTAINS"
+                    )
+                    for fid, item in functions:
+                        collect_function(self, fid, item)
+                collect_layers(self, region)
         if not services or "cos" in services:
             self.buckets()
         # Explicit exclusions remain visible, rather than being represented as zero resources.
@@ -356,4 +367,7 @@ def collect(
     from .dns import link_dns
 
     link_dns(graph)
+    from .scf import link_trigger_sources
+
+    link_trigger_sources(graph)
     return graph.snapshot()

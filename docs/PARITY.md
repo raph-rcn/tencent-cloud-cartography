@@ -49,6 +49,12 @@ TCR Enterprise now collects namespaces, repositories, tag references and image d
 
 Image and repository pagination uses `Offset` as a one-based page number. Namespace collection requests `All=true` and checks the returned total; a truncated response remains explicitly incomplete. The source ECR collector also models multi-platform manifest members, architecture and attestations. These capabilities, image-layer analysis, Personal Edition, workload links, registry policy analysis, proxy/cache rules and authenticated runtime validation remain gaps.
 
+## Serverless configuration
+
+SCF now adds function versions, aliases, weighted and rule-based version routing, triggers and layer version inventory. Qualifiers distinguish versions and aliases, including unresolved references when a detail API is denied. Triggers retain selected configuration and enabled state. COS bucket hostnames, CKafka instance/topic names and explicit API Gateway service IDs link only to matching collected resources in the same account and region.
+
+`GetFunction` remains excluded under the repository metadata policy: its response includes environment values and can include function source. Consequently execution-role, VPC, image and function-layer configuration still need an approved metadata collection design. Listing layers does not establish that a function uses them. Full event integration coverage, permissions/public invocation analysis and live runtime validation also remain incomplete. Trigger snapshots omit custom event arguments, CKafka credential fields and URL query/fragment values.
+
 ## Completion rule
 
 A registered action, mapping row, green unit test, or icon does not on its own establish parity. Each audit item must have corresponding native collection, model/relationship behavior, tests for failure and negative controls, and runtime evidence appropriate to that capability. Keep this audit incomplete until those checks hold for the original scope.

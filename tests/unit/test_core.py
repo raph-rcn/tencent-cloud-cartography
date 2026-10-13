@@ -309,11 +309,22 @@ def test_drawio_rejects_invalid_geometry_or_cycles(mutate):
 
 
 def test_end_to_end_collection_all_scopes_and_clb_field_selection():
-    from tencent_cloud_cartography.catalog import CHILDREN, SCF_FUNCTIONS, SCF_NAMESPACES
+    from tencent_cloud_cartography.catalog import (
+        CHILDREN,
+        SCF_DETAILS,
+        SCF_FUNCTIONS,
+        SCF_NAMESPACES,
+    )
 
     specs = {
         (s.service, s.action): s
-        for s in (*COLLECTORS, *CHILDREN.values(), SCF_FUNCTIONS, SCF_NAMESPACES)
+        for s in (
+            *COLLECTORS,
+            *CHILDREN.values(),
+            *SCF_DETAILS.values(),
+            SCF_FUNCTIONS,
+            SCF_NAMESPACES,
+        )
     }
 
     class InventoryTransport:
@@ -367,7 +378,8 @@ def test_end_to_end_collection_all_scopes_and_clb_field_selection():
     )
     assert data["status"] == "complete"
     assert len(data["nodes"]) == 4
-    assert len(data["coverage"]) == 48
+    assert len(data["coverage"]) == 49
+    assert any(c["action"] == "ListLayers" and c["status"] == "empty" for c in data["coverage"])
     assert any(e["relationship"] == "FORWARDS_TO" for e in data["edges"])
     assert all(n["region"] == "eu-frankfurt" for n in data["nodes"])
     assert all(c["status"] in {"empty", "complete"} for c in data["coverage"])

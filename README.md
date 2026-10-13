@@ -68,7 +68,7 @@ The **Cloud Resource Center** `SearchResources` API supplies a baseline of suppo
 | Containers | TKE clusters and CVM worker references; TCR Enterprise registries, namespaces, repositories, tags and image digests |
 | Databases | TencentDB MySQL, PostgreSQL, Redis, MongoDB, Elasticsearch |
 | Storage | COS bucket names/regions; CFS file systems |
-| Serverless and integration | SCF namespaces/functions (metadata only), API Gateway services, CKafka instances |
+| Serverless and integration | SCF namespaces/functions, versions, aliases, triggers and layer versions; API Gateway services; CKafka instances |
 | Identity and keys | CAM users/groups/roles, memberships, policy attachments and conditional statements; KMS metadata and aliases; Secrets Manager metadata and explicit key relationships |
 | Edge and DNS | CDN domains; owned DNSPod domains and Private DNS zones with records, nameservers, subzones and explicit VPC bindings |
 
@@ -97,6 +97,8 @@ KMS collection queries both customer-created and service-created keys, then reta
 DNS collection retains record values, TTL, weight, routing line and enabled state. Public names, private zone views and VPC address scopes remain separate. Subzone links require an enabled NS record matching the child zone's assigned nameserver. IP matches use collected resource addresses and explicit network scope. These links describe configuration; they do not establish DNS resolution or network reachability. Shared public domains, cross-zone private resolver precedence and additional managed-service aliases remain incomplete.
 
 TCR collection keeps repository/tag identities scoped to each registry and separates mutable tags from content digests. Namespace and repository public flags, registry anonymous-access configuration, image size and artifact kind remain visible; they do not alone establish effective anonymous access. Repository collection continues if namespace metadata is denied. Multi-platform manifests, attestations, workload image links and image-layer analysis remain incomplete.
+
+SCF collects version and alias routing, trigger configuration and layer version metadata. Trigger targets distinguish numeric versions from aliases; weighted and rule-based routes retain their conditions. Selected COS, CKafka and API Gateway source links require matching collected resources in the same account and the correct region. Disabled triggers remain configuration nodes. Custom event arguments, credential-bearing trigger fields and unfiltered function configuration are excluded. Function-to-layer usage, execution-role/VPC/image details and effective invocation permissions remain incomplete.
 
 The HTTP viewer and optional Neo4j bind to loopback. HTTP Host/Origin checks reject foreign browser origins. Do not expose the unauthenticated local services through a tunnel or reverse proxy.
 
