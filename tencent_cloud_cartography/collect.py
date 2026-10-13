@@ -135,6 +135,8 @@ class CollectorRunner:
                 if request_id:
                     record["request_ids"].append(request_id)
                 for item in items:
+                    if spec.kind == "ssl.certificate" and str(item.get("OwnerUin")) != self.account:
+                        raise CollectionError("AccountMismatch")
                     if spec.kind == "privatedns.zone" and str(item.get("OwnerUin")) != self.account:
                         raise CollectionError("AccountMismatch")
                     if spec.kind == "cvm.launchtemplateversion":
@@ -305,6 +307,10 @@ class CollectorRunner:
                                 "vpc.ccn": "HAS_ATTACHMENT",
                             }.get(spec.kind, "HAS_POLICY"),
                         )
+        if not services or "clb" in services:
+            from .clb import collect_listeners
+
+            collect_listeners(self)
         if not services or "cam" in services:
             from .cam import collect_details
 
@@ -385,4 +391,7 @@ def collect(
     from .gateway import link_backends
 
     link_backends(graph)
+    from .cam import link_compute_roles
+
+    link_compute_roles(graph)
     return graph.snapshot()

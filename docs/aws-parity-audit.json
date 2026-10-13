@@ -29,7 +29,7 @@
       "source_enabled": true,
       "tencent_counterpart": "CVM CAM roles",
       "status": "incomplete",
-      "evidence_or_gap": "Not implemented."
+      "evidence_or_gap": "CVM CamRoleName configuration now resolves to a unique collected same-account CAM role. Missing or ambiguous roles remain named references; no effective role assumption is inferred. Tencent attaches roles directly rather than using AWS instance-profile resources. Template/scaling role configuration and live validation remain incomplete."
     },
     {
       "aws_collector": "kms",
@@ -106,14 +106,14 @@
       "source_enabled": true,
       "tencent_counterpart": "CLB",
       "status": "incomplete",
-      "evidence_or_gap": "Load balancers/listeners/targets implemented; listener/certificate/rule depth review pending."
+      "evidence_or_gap": "Load balancers, distinct listeners/rules, targets and server/client certificate links implemented. Classic CLB differences, health-check/target-group depth and live validation remain incomplete."
     },
     {
       "aws_collector": "ec2:load_balancer_v2",
       "source_enabled": true,
       "tencent_counterpart": "CLB",
       "status": "incomplete",
-      "evidence_or_gap": "Load balancers/listeners/targets implemented; listener/certificate/rule depth review pending."
+      "evidence_or_gap": "Load balancers, distinct listeners/rules, targets and server/client certificate links implemented. Target groups, rewrite rules, health-check depth and live validation remain incomplete."
     },
     {
       "aws_collector": "ec2:network_acls",
@@ -399,7 +399,7 @@
       "source_enabled": true,
       "tencent_counterpart": "SSL Certificates",
       "status": "incomplete",
-      "evidence_or_gap": "Not implemented."
+      "evidence_or_gap": "Global SSL certificate list metadata, domain/SANs, lifecycle dates/status, algorithm and renewal flags implemented. Explicit CLB listener/rule server and client-CA certificate links plus API Gateway certificate references reconcile with inventory. DescribeCertificateDetail is excluded because it can return private keys. Signature algorithm, other consumers and live verification remain incomplete."
     },
     {
       "aws_collector": "inspector",

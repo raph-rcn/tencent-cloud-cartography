@@ -132,6 +132,48 @@ def _request(runner, record, action, **params):
     return response
 
 
+def link_compute_roles(graph):
+    """Resolve CVM role names only against unique, collected same-account CAM roles."""
+    roles = {}
+    for node in graph.nodes.values():
+        name = node["properties"].get("RoleName")
+        if (
+            node["kind"] == "cam.role"
+            and node["region"] == "global"
+            and node["status"] == "enriched"
+            and isinstance(name, str)
+            and name
+        ):
+            roles.setdefault((node["account"], name), []).append(node["id"])
+    for node in list(graph.nodes.values()):
+        name = node["properties"].get("CamRoleName")
+        if (
+            node["kind"] != "cvm.instance"
+            or node["status"] != "enriched"
+            or not isinstance(name, str)
+            or not name
+        ):
+            continue
+        matches = roles.get((node["account"], name), [])
+        source = "cvm.DescribeInstances.CamRoleName"
+        if len(matches) == 1:
+            rid = matches[0]
+        else:
+            rid = graph.add(
+                node["account"],
+                "global",
+                "cam.rolereference",
+                name,
+                name,
+                source=source,
+                status="reference",
+            )
+            graph.nodes[rid]["properties"].update(
+                RoleName=name, resolution="ambiguous" if matches else "unresolved"
+            )
+        graph.edge(node["id"], rid, "CONFIGURED_CAM_ROLE", source)
+
+
 def collect_details(runner):
     graph, owner = runner.graph, runner.account
     # Freeze input sets before trust principals create external references. Never

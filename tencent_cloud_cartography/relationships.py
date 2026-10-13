@@ -4,6 +4,11 @@ from .model import first, stable_id, walk_values
 
 
 def enrich(graph, account, region, kind, nid, raw, source):
+    if kind == "ssl.certificate":
+        from .certificates import enrich_certificate
+
+        enrich_certificate(graph.nodes[nid], raw)
+
     def reference(rid, target_kind, relation, owner=account, location=region):
         if rid:
             target = graph.add(owner, location, target_kind, rid, status="reference")

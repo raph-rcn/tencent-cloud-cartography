@@ -37,6 +37,8 @@ def walk_values(data, keys):
 
 
 SAFE_FIELDS = {
+    "CamRoleName",
+    "RoleName",
     "KmsKeyId",
     "KmsKeyType",
     "EncryptType",
@@ -239,19 +241,9 @@ class Graph:
                 other = self.add(account, region, kind, value, status="reference")
                 self.edge(nid, other, relation, source)
         if spec.kind == "clb.clb" and raw.get("ListenerId"):
-            listener = str(rid) + "/" + raw["ListenerId"]
-            if raw.get("LocationId"):
-                listener += "/" + raw["LocationId"]
-            lid = self.add(
-                account,
-                region,
-                "clb.listener",
-                listener,
-                f"{raw.get('Protocol', '')}:{raw.get('Port', '')}",
-                raw,
-                source,
-            )
-            self.edge(nid, lid, "HAS_LISTENER", source)
+            from .clb import flat_listener
+
+            lid = flat_listener(self, self.nodes[nid], raw, source)
             if raw.get("TargetId") or raw.get("TargetAddress"):
                 target = raw.get("TargetId")
                 if target and target.startswith("ins-"):

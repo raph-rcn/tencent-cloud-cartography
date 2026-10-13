@@ -41,7 +41,7 @@ def test_pagination_crosses_page_and_preserves_request_ids():
             dict(VpcSet=[{"VpcId": "100"}], TotalCount=101, RequestId="r2"),
         ]
     )
-    result = list(pages(f, COLLECTORS[0], "eu-frankfurt"))
+    result = list(pages(f, next(s for s in COLLECTORS if s.kind == "vpc.vpc"), "eu-frankfurt"))
     assert sum(len(p[0]) for p in result) == 101
     assert [p[1] for p in result] == ["r1", "r2"]
     assert f.calls[1][1]["Offset"] == 100
@@ -66,7 +66,11 @@ def test_pagination_crosses_page_and_preserves_request_ids():
 )
 def test_pagination_negative_controls(responses, code):
     with pytest.raises(CollectionError) as e:
-        list(pages(Fake(responses), COLLECTORS[0], "eu-frankfurt"))
+        list(
+            pages(
+                Fake(responses), next(s for s in COLLECTORS if s.kind == "vpc.vpc"), "eu-frankfurt"
+            )
+        )
     assert e.value.code == code
 
 
@@ -75,6 +79,8 @@ def test_pagination_negative_controls(responses, code):
     [
         ("cvm", "TerminateInstances"),
         ("ssm", "GetSecretValue"),
+        ("ssl", "DescribeCertificateDetail"),
+        ("ssl", "DownloadCertificate"),
         ("cos", "get_object"),
         ("scf", "GetFunction"),
         ("kms", "GetDataKeyPlaintext"),
@@ -333,6 +339,8 @@ def test_end_to_end_collection_all_scopes_and_clb_field_selection():
                 return dict(AccountId="12345", PrincipalId="reader")
             if service == "cloudrc":
                 return dict(Resources=[], RequestId="baseline")
+            if service == "clb" and action == "DescribeListeners":
+                return dict(Listeners=[], TotalCount=0)
             if service == "cos":
                 if action == "get_bucket_acl":
                     return dict(
@@ -390,7 +398,7 @@ def test_end_to_end_collection_all_scopes_and_clb_field_selection():
     )
     assert data["status"] == "partial"
     assert len(data["nodes"]) == 4
-    assert len(data["coverage"]) == 54
+    assert len(data["coverage"]) == 56
     assert any(c["action"] == "ListLayers" and c["status"] == "empty" for c in data["coverage"])
     assert any(e["relationship"] == "FORWARDS_TO" for e in data["edges"])
     assert all(n["region"] == "eu-frankfurt" for n in data["nodes"])

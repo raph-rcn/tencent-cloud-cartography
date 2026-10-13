@@ -18,6 +18,16 @@ class Collector:
 
 
 COLLECTORS = (
+    Collector(
+        "ssl",
+        "DescribeCertificates",
+        "Certificates",
+        "ssl.certificate",
+        ("CertificateId",),
+        ("Alias", "Domain"),
+        regional=False,
+        require_total=True,
+    ),
     Collector("vpc", "DescribeVpcs", "VpcSet", "vpc.vpc", ("VpcId",), ("VpcName",)),
     Collector("vpc", "DescribeSubnets", "SubnetSet", "vpc.subnet", ("SubnetId",), ("SubnetName",)),
     Collector(
@@ -474,6 +484,7 @@ ALLOWED_ACTIONS = {
     ("kms", "DescribeKey"),
     ("apigateway", "DescribeService"),
     ("apigateway", "DescribeApi"),
+    ("clb", "DescribeListeners"),
 }
 
 # Official archive titles; all assets are verified by tests against the manifest.
@@ -516,6 +527,7 @@ KIND_ICONS = {
     "vpc.peeringconnection": "Peering Connection",
 }
 DETAIL_KINDS = {
+    "cam.rolereference",
     "cos.aclgrant",
     "apigateway.api",
     "apigateway.environment",
@@ -564,6 +576,7 @@ DETAIL_KINDS = {
 }
 
 API_VERSIONS = {
+    "ssl": "2019-12-05",
     "autoscaling": "2018-04-19",
     "vpc": "2017-03-12",
     "cvm": "2017-03-12",

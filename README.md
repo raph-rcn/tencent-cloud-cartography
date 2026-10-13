@@ -163,3 +163,9 @@ Other tests cover pagination negative controls, blocked operations, identity cha
 ## Source history
 
 Started from committed AWS fork revision `48780ef5`; uncommitted changes in the original local checkout were not copied or modified. The AWS-specific backend and asset pack were replaced. The original Cytoscape Landscape interaction model and Apache attribution are retained. `upstream-aws` points to the source repository.
+
+### Certificates, CLB rules and compute roles
+
+SSL certificate inventory retains domains/SANs, issuer source, type, status, algorithms and lifecycle metadata. Tencent certificate timestamps retain their documented Asia/Shanghai timezone. Private-key detail/download endpoints remain outside the allowlist. CLB listeners and routing rules are distinct nodes; server certificates, additional server certificates and client CA certificates use separate configured relationships. A configured client CA does not imply client verification is enabled. API Gateway certificate references reconcile with the same global account-scoped inventory.
+
+CVM CAM role names resolve only against unique collected roles in the same account. Unknown or ambiguous role names remain visible reference nodes. These are configured role bindings, not proof of effective permissions or successful role assumption.

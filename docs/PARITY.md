@@ -67,6 +67,12 @@ COS adds ACL grant nodes, validated policy statements with conditions and explic
 
 The official COS SDK is used for XML configuration; TCCLI remains the bucket-listing and other-service transport. Static profile credentials or unmixed environment credentials are supported. Dynamic credential refresh, notification configuration, ownership/public-access-block equivalents, effective public access and live account validation remain incomplete. Unknown missing-configuration error codes remain errors rather than being interpreted as disabled settings.
 
+## Certificate and compute-role extension
+
+SSL DescribeCertificates adds global metadata and reconciles previously unresolved API Gateway and CLB certificate references. CLB DescribeListeners retains listener and rule configuration, separate server/client-CA certificate links and additional server certificates. Flat CLB inventory now models routing rules separately from listeners while preserving forwarding relationships. Certificate detail/download operations remain excluded because they can return private keys. Signature algorithm, full consumer discovery, classic CLB coverage, target-group/rewrite/health-check depth and live verification remain gaps.
+
+CVM CamRoleName now resolves to unique, collected CAM RoleName within the same account; missing/ambiguous names remain references. Tencent directly attaches a role rather than using an AWS instance-profile resource. Template/scaling role bindings and effective permission analysis remain incomplete.
+
 ## Completion rule
 
 A registered action, mapping row, green unit test, or icon does not on its own establish parity. Each audit item must have corresponding native collection, model/relationship behavior, tests for failure and negative controls, and runtime evidence appropriate to that capability. Keep this audit incomplete until those checks hold for the original scope.
