@@ -315,3 +315,19 @@ def test_common_vpc_is_inferred_only_when_all_subnets_agree():
     other = graph.add("1", "eu-frankfurt", "vpc.vpc", "vpc-two")
     graph.edge(subnet, other, "IN_VPC", "contradictory-fixture")
     assert projected()["locationParent"].startswith("region-")
+
+
+def test_auxiliary_membership_preserves_cvm_state_and_snapshot_semantics():
+    graph = Graph()
+    vm = native(graph, "DescribeInstances", dict(InstanceId="ins-1", InstanceState="RUNNING"))
+    native(
+        graph,
+        "DescribeAutoScalingInstances",
+        dict(InstanceId="ins-1", LifeCycleState="IN_SERVICE", AutoScalingGroupId="asg-1"),
+    )
+    assert graph.nodes[vm]["properties"]["state"] == "RUNNING"
+    assert graph.nodes[vm]["properties"]["LifeCycleState"] == "IN_SERVICE"
+    snapshot = native(graph, "DescribeSnapshots", dict(SnapshotId="snap-1", DiskId="disk-1"))
+    assert [e["relationship"] for e in graph.edges.values() if e["source"] == snapshot] == [
+        "SNAPSHOT_OF"
+    ]
