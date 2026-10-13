@@ -740,6 +740,7 @@ SERVICE_ICONS = {
     "privatedns": ("Private DNS", "Private DNS"),
 }
 KIND_ICONS = {
+    "vpc.cidr": "Virtual Private Cloud",
     "vpc.eip": "Elastic IP",
     "vpc.nat": "NAT Gateway",
     "vpc.networkinterface": "Elastic Network Interface",
@@ -752,6 +753,7 @@ KIND_ICONS = {
     "vpc.peeringconnection": "Peering Connection",
 }
 DETAIL_KINDS = {
+    "vpc.cidr",
     "tag.tag",
     "tag.resource",
     "emr.node",

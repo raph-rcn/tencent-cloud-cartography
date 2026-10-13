@@ -705,3 +705,28 @@ Sources: [endpoint API](https://cloud.tencent.com/document/api/215/54679),
 [service API](https://cloud.tencent.com/document/product/215/54678),
 [response schemas](https://cloud.tencent.com/document/product/215/15824),
 [GWLB identifiers](https://cloud.tencent.com/document/product/1782/111701).
+
+## VPC CIDR associations and subnet metadata
+
+AWS VPC collection models primary/associated IPv4 and IPv6 ranges as graph nodes.
+Tencent now preserves VPC-scoped CIDR nodes for primary IPv4, auxiliary IPv4,
+legacy IPv6 and provider IPv6 arrays. Repeated legacy/provider IPv6 ranges merge
+while retaining roles, ISP and address type. Auxiliary type and explicit subnet
+references are retained; subnet parent IDs and CIDR membership must agree.
+These nodes use the official VPC icon and appear in the full relationship graph.
+
+VPC metadata now includes default, multicast, DHCP/DNS/domain, stack and route-
+publication settings. DNS order and explicit false values are preserved. Subnets
+retain IPv4/IPv6 ranges, default/broadcast/SNAT flags, available/total IPv4 counts,
+CDC/stack fields and explicit VPC/AZ/route-table/ACL references. Nested subnet
+records do not produce reverse VPC containment. Invalid pages, parent mismatches,
+duplicate identities and missing pagination totals are visible failures.
+
+AWS VPC tenancy/state and CIDR association IDs/state messages are absent from
+these collected schemas. Subnet public/customer-owned-IP launch defaults, IPv6
+auto-assignment and AWS default-for-AZ semantics have not been established as
+equivalent. No such values are fabricated; live Tencent validation remains open.
+
+Sources: [VPC inventory](https://cloud.tencent.com/document/product/215/15778),
+[subnet inventory](https://cloud.tencent.com/document/product/215/15784),
+[network response schemas](https://cloud.tencent.com/document/api/215/15824).

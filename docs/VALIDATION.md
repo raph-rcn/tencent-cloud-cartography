@@ -557,3 +557,24 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
   `.local/privatelink-preview.png`. All 896 official assets remain bundled.
 - Live Tencent validation, AWS-specific endpoint policy/DNS/ENI/route semantics
   and native GWLB backend enrichment remain incomplete.
+
+## 2026-10-13 — VPC address-space associations and subnet metadata
+
+- Backend **738 tests passed**, including **25** new cases for CIDR family/host-bit
+  validation, legacy/provider IPv6 reconciliation, overlapping ranges in separate
+  VPCs, auxiliary subnet membership, malformed parents, pagination/duplicates,
+  invalid zones and independent denied scopes.
+- Full/architecture graph tests verify CIDR detail visibility and retention of
+  every relationship. Default false flags, zero available addresses and DNS
+  resolver order survive collection.
+- Frontend **7 tests passed**, production build succeeded, dependency audit
+  reported **0 vulnerabilities**; the existing bundle-size advisory remains.
+- Synthetic `.local/vpc-cidr-demo.json` rendered **7 resources / 10 relationships**.
+  The subnet appears in Frankfurt zone 1, inside the VPC; all three CIDR nodes
+  remain inside the VPC without placing the VPC inside its nested subnet.
+- Inspector confirmed canonical IPv6, BGP/ULA and both primary/provider roles.
+  Two route/ACL references remain unresolved, correctly making the fixture partial.
+- Browser export `Downloads/tencent-cloud-cartography (29).drawio` preserved all
+  ten edges and the official VPC SVGs; preview `.local/vpc-cidr-preview.png`.
+- No live Tencent collection occurred. Provider-specific source-field equivalence
+  gaps remain documented in the parity audit. No API permission was added.

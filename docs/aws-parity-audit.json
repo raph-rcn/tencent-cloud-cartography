@@ -99,7 +99,7 @@
       "source_enabled": true,
       "tencent_counterpart": "VPC subnets",
       "status": "incomplete",
-      "evidence_or_gap": "Inventory, VPC/AZ membership and route/ACL references implemented."
+      "evidence_or_gap": "Typed IPv4/IPv6, default/broadcast/SNAT, address-capacity, CDC and stack metadata implemented, with explicit VPC, AZ, route-table and network-ACL relationships. Zone/region mismatch and malformed identifiers fail before page mutation. AWS launch-time public/customer-owned-IP and IPv6 auto-assignment, subnet lifecycle state and default-for-AZ semantic equivalence remain unverified, along with live collection."
     },
     {
       "aws_collector": "ec2:load_balancer",
@@ -148,7 +148,7 @@
       "source_enabled": true,
       "tencent_counterpart": "VPC",
       "status": "incomplete",
-      "evidence_or_gap": "VPC inventory and CIDRs implemented; property completeness review pending."
+      "evidence_or_gap": "Typed VPC default/multicast/DHCP/DNS/route-publication metadata and VPC-scoped primary/auxiliary IPv4 and multi-provider IPv6 CIDR nodes implemented. Legacy/provider IPv6 aliases merge without duplicate nodes; auxiliary subnet references follow explicit parent IDs and verified CIDR membership. Recursive nested-subnet placement removed. AWS tenancy/state and CIDR association ID/state/message equivalents are not present in these Tencent schemas; live validation remains incomplete."
     },
     {
       "aws_collector": "ec2:vpc_endpoint",
