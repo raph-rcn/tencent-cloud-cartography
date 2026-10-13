@@ -61,6 +61,12 @@ Classic API Gateway now includes service detail, APIs/method paths, selected bac
 
 Published environment status controls release edges; API `Environments` is retained separately. Conflicting API/environment publication metadata is flagged. Current API detail does not establish the contents of an older deployed release. Upstream/TSF details, custom domain path mappings, certificate inventory, historical deployment API contents, broader policies/permissions, Cloud Native API Gateway equivalence and live validation remain gaps.
 
+## COS bucket configuration extension
+
+COS adds ACL grant nodes, validated policy statements with conditions and explicit denies, default encryption settings/KMS key references, versioning and configured logging destinations. All five detail checks run independently, preserving denials and malformed responses as partial coverage. AppId in bucket names/ACL identities is never treated as a CAM account UIN. Opaque encryption key references remain properties; only a bare UUID creates a key reference in the bucket account/region.
+
+The official COS SDK is used for XML configuration; TCCLI remains the bucket-listing and other-service transport. Static profile credentials or unmixed environment credentials are supported. Dynamic credential refresh, notification configuration, ownership/public-access-block equivalents, effective public access and live account validation remain incomplete. Unknown missing-configuration error codes remain errors rather than being interpreted as disabled settings.
+
 ## Completion rule
 
 A registered action, mapping row, green unit test, or icon does not on its own establish parity. Each audit item must have corresponding native collection, model/relationship behavior, tests for failure and negative controls, and runtime evidence appropriate to that capability. Keep this audit incomplete until those checks hold for the original scope.

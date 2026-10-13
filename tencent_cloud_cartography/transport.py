@@ -1,4 +1,4 @@
-"""Use installed TCCLI authentication without handling credential material."""
+"""TCCLI metadata transport, with a dedicated official SDK adapter for COS XML."""
 
 import json
 import re
@@ -91,6 +91,10 @@ class TccliTransport:
         return parse_buckets(self._run("cos", "list_buckets", None, {}))
 
     def call(self, service, action, region=None, **params):
+        if service == "cos":
+            from .cos_transport import call
+
+            return call(self.profile, action, region, params, self.timeout)
         for attempt in range(4):
             try:
                 raw = self._run(service, action, region, params)

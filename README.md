@@ -67,7 +67,7 @@ The **Cloud Resource Center** `SearchResources` API supplies a baseline of suppo
 | Load balancing | CLB, listeners/rules and returned backend target IDs or endpoint addresses |
 | Containers | TKE clusters and CVM worker references; TCR Enterprise registries, namespaces, repositories, tags and image digests |
 | Databases | TencentDB MySQL, PostgreSQL, Redis, MongoDB, Elasticsearch |
-| Storage | COS bucket names/regions; CFS file systems |
+| Storage | COS buckets, ACL/policy, encryption/KMS, versioning and logging; CFS file systems |
 | Serverless and integration | SCF namespaces/functions, versions, aliases, triggers and layer versions; API Gateway services/APIs/environments/releases/domains and selected backend links; CKafka instances |
 | Identity and keys | CAM users/groups/roles, memberships, policy attachments and conditional statements; KMS metadata and aliases; Secrets Manager metadata and explicit key relationships |
 | Edge and DNS | CDN domains; owned DNSPod domains and Private DNS zones with records, nameservers, subzones and explicit VPC bindings |
@@ -80,7 +80,7 @@ See [the exact API catalog](tencent_cloud_cartography/catalog.py). API versions 
 - Denied, unsupported, failed, excluded, empty and completed queries are distinguishable in **Collection coverage**. Pagination detects stalled pages, count changes, missing arrays, and premature EOF. Request IDs are retained when the API supplies them.
 - The graph shows collected configuration relationships. It does not calculate IAM effective permissions, public reachability, routing outcomes, application dependencies, or exploitable attack paths.
 - Multi-subnet resources remain at their common returned VPC/region with explicit subnet edges. References may be incomplete when APIs omit IDs or use unsupported formats.
-- COS uses TCCLI's current table-format plugin because it ignores `--output json`. Unexpected output fails visibly. Mixed environment credentials plus a profile credential file are rejected for COS to avoid differing credential precedence. COS does not supply successful request IDs in this output.
+- COS listing uses TCCLI's current table-format plugin because it ignores `--output json`; unexpected output fails visibly. Five bucket configuration operations use the bundled official COS Python SDK over verified HTTPS. The SDK reads the selected static TCCLI profile credential or a complete environment credential pair/token in memory. Mixed sources are rejected; SSO/OAuth/role refresh is not yet supported for these COS checks. Credentials and raw SDK errors are never saved. These SDK methods and the listing plugin do not expose successful request IDs.
 - Native collectors are schema-checked against the installed Tencent SDK and covered by offline tests. **Live account validation requires your own authenticated profile.** API availability and permissions can differ between accounts and regions.
 - The frontend defaults to 2,500 selected resources with a visible truncation notice. Containment parents may add a small number of nodes. PNG dimensions are bounded; large graphs are better explored with filters.
 

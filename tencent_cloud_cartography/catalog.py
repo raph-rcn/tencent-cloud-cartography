@@ -463,6 +463,11 @@ ALLOWED_ACTIONS = {
     ("cloudrc", "SearchResources"),
     ("vpc", "DescribeSecurityGroupPolicies"),
     ("cos", "list_buckets"),
+    ("cos", "get_bucket_acl"),
+    ("cos", "get_bucket_policy"),
+    ("cos", "get_bucket_encryption"),
+    ("cos", "get_bucket_versioning"),
+    ("cos", "get_bucket_logging"),
     ("cam", "GetGroup"),
     ("cam", "GetPolicy"),
     ("cam", "GetRole"),
@@ -511,6 +516,7 @@ KIND_ICONS = {
     "vpc.peeringconnection": "Peering Connection",
 }
 DETAIL_KINDS = {
+    "cos.aclgrant",
     "apigateway.api",
     "apigateway.environment",
     "apigateway.release",

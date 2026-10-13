@@ -9,7 +9,7 @@ from .transport import CollectionError, TccliTransport, pages
 
 def status_for(code):
     low = code.lower()
-    if low.startswith(("unauthorized", "authfailure", "operationdenied")):
+    if low.startswith(("unauthorized", "authfailure", "operationdenied", "accessdenied")):
         return "denied"
     if low.startswith(("invalidaction", "unsupported")):
         return "unsupported"
@@ -230,20 +230,27 @@ class CollectorRunner:
             )
 
     def buckets(self):
+        from .cos import collect_bucket
+
+        selected = []
+
         def operation(record):
             for bucket in self.transport.buckets():
                 if bucket["region"] not in self.regions:
                     continue
-                self.graph.add(
+                nid = self.graph.add(
                     self.account,
                     bucket["region"],
                     "cos.bucket",
                     bucket["name"],
                     source="cos.list_buckets",
                 )
+                selected.append(nid)
                 record["count"] += 1
 
         self.scope("cos", "list_buckets", "global", operation)
+        for nid in selected:
+            collect_bucket(self, nid)
 
     def run(self, services=None):
         # Baseline is always retained, including unresolved supported product types.

@@ -10,7 +10,10 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
-dependencies = ["neo4j>=5.26,<7"]
+dependencies = [
+    "cos-python-sdk-v5>=1.9,<2",
+    "neo4j>=5.26,<7",
+]
 
 [project.scripts]
 tencent-cloud-cartography = "tencent_cloud_cartography.cli:main"

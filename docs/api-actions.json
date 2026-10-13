@@ -148,8 +148,39 @@
     },
     {
       "service": "cos",
+      "action": "get_bucket_acl",
+      "api_version": "COS XML API",
+      "cam_action": "cos:GetBucketACL"
+    },
+    {
+      "service": "cos",
+      "action": "get_bucket_encryption",
+      "api_version": "COS XML API",
+      "cam_action": "cos:GetBucketEncryption"
+    },
+    {
+      "service": "cos",
+      "action": "get_bucket_logging",
+      "api_version": "COS XML API",
+      "cam_action": "cos:GetBucketLogging"
+    },
+    {
+      "service": "cos",
+      "action": "get_bucket_policy",
+      "api_version": "COS XML API",
+      "cam_action": "cos:GetBucketPolicy"
+    },
+    {
+      "service": "cos",
+      "action": "get_bucket_versioning",
+      "api_version": "COS XML API",
+      "cam_action": "cos:GetBucketVersioning"
+    },
+    {
+      "service": "cos",
       "action": "list_buckets",
-      "api_version": "COS plugin"
+      "api_version": "COS plugin",
+      "cam_action": "cos:GetService"
     },
     {
       "service": "cvm",

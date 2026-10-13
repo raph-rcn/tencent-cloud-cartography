@@ -115,3 +115,13 @@ Sources: [ListTriggers](https://cloud.tencent.com/document/product/583/44268), [
 - Upstream/TSF details, custom domain path mappings, certificate inventory, historical deployment API contents, broader policy/permission analysis, Cloud Native API Gateway equivalence and authenticated runtime validation remain incomplete.
 
 Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659), [environments](https://cloud.tencent.com/document/api/628/45198), [API Gateway data structures](https://cloud.tencent.com/document/api/628/45244), and [API catalog](https://intl.cloud.tencent.com/zh/document/product/628/36595).
+
+## COS configuration extension (2026-10-13)
+
+- Adds 22 tests for five independently scoped metadata checks, ACL group identity, AppId/UIN separation, policy deny/condition preservation, malformed detail rejection, safe KMS references, logging destinations and COS encryption enums.
+- Exercises the real official SDK XML parser and request construction against mocked transport responses, including empty versioning/logging XML. No cloud request is made by these tests.
+- Credential tests use isolated temporary fixture profiles: mixed sources, incomplete environment pairs and dynamic credential types fail explicitly. SDK dispatch tests verify HTTPS, exact method/parameter scope and exclusion of raw error messages.
+- COS successful request IDs are unavailable through these SDK methods; missing configuration error codes are not silently treated as disabled controls. No live account collection, public-access probe or dynamic credential refresh is claimed.
+- Sources: [official SDK](https://github.com/tencentyun/cos-python-sdk-v5), [bucket operations](https://cloud.tencent.com/document/product/436/35150), [encryption](https://cloud.tencent.com/document/product/436/40137), [versioning](https://cloud.tencent.com/document/api/436/19888), [logging](https://cloud.tencent.com/document/product/436/17053).
+
+- Verification: 171 backend tests, 5 frontend tests, production build, all 896 icon hashes and pre-commit checks passed; npm audit reports zero vulnerabilities. Browser fixture displayed 7 resources / 6 relationships with COS, CAM and KMS icons. The downloaded draw.io file contained 13 vertices, 6 edges and 7 embedded SVGs. Synthetic preview: `.local/cos-preview.png`; fixture: `.local/cos-demo.json`.

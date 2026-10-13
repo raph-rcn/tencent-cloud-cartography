@@ -333,6 +333,18 @@ def test_end_to_end_collection_all_scopes_and_clb_field_selection():
                 return dict(AccountId="12345", PrincipalId="reader")
             if service == "cloudrc":
                 return dict(Resources=[], RequestId="baseline")
+            if service == "cos":
+                if action == "get_bucket_acl":
+                    return dict(
+                        Owner={"ID": "qcs::cam::uin/12345:uin/12345"}, AccessControlList=None
+                    )
+                if action == "get_bucket_encryption":
+                    return {
+                        "Rule": [{"ApplyServerSideEncryptionByDefault": {"SSEAlgorithm": "AES256"}}]
+                    }
+                if action == "get_bucket_policy":
+                    raise CollectionError("AccessDenied")
+                return {}
             spec = specs[service, action]
             result = {}
             current = result
@@ -376,10 +388,12 @@ def test_end_to_end_collection_all_scopes_and_clb_field_selection():
         progress=lambda _: None,
         transport_factory=lambda _: InventoryTransport(),
     )
-    assert data["status"] == "complete"
+    assert data["status"] == "partial"
     assert len(data["nodes"]) == 4
-    assert len(data["coverage"]) == 49
+    assert len(data["coverage"]) == 54
     assert any(c["action"] == "ListLayers" and c["status"] == "empty" for c in data["coverage"])
     assert any(e["relationship"] == "FORWARDS_TO" for e in data["edges"])
     assert all(n["region"] == "eu-frankfurt" for n in data["nodes"])
-    assert all(c["status"] in {"empty", "complete"} for c in data["coverage"])
+    assert [c["action"] for c in data["coverage"] if c["status"] not in {"empty", "complete"}] == [
+        "get_bucket_policy"
+    ]

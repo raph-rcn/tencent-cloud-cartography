@@ -43,7 +43,7 @@
       "source_enabled": true,
       "tencent_counterpart": "COS",
       "status": "incomplete",
-      "evidence_or_gap": "Only bucket list/region. ACL, policy, encryption and public-access modeling remain incomplete."
+      "evidence_or_gap": "Bucket inventory, ACL grants, policy statements/principals/conditions/denies, default encryption/KMS key references, versioning and logging destinations implemented. COS XML metadata uses official SDK with static TCCLI profile or unmixed environment credentials. Effective public access, notification configuration, public-access-block/ownership equivalence, dynamic credential refresh and live validation remain incomplete."
     },
     {
       "aws_collector": "dynamodb",
