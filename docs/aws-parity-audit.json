@@ -57,14 +57,14 @@
       "source_enabled": true,
       "tencent_counterpart": "CVM launch templates / AS launch configurations",
       "status": "incomplete",
-      "evidence_or_gap": "Templates, versions and configurations added. Deeper parity validation pending."
+      "evidence_or_gap": "CVM templates and versions added. Auto Scaling launch configuration IDs/names retained from group/member metadata; DescribeLaunchConfigurations excluded because it returns UserData without a metadata-only projection. Safe launch-configuration detail source and full template schema/property audit remain incomplete."
     },
     {
       "aws_collector": "ec2:autoscalinggroup",
       "source_enabled": true,
       "tencent_counterpart": "Auto Scaling",
       "status": "incomplete",
-      "evidence_or_gap": "Groups, memberships, launch configuration and load-balancer edges added. Scaling policy metadata remains incomplete."
+      "evidence_or_gap": "Typed group cooldown/capacity/health-check/replacement/rebalance settings, explicit multi-subnet and cross-region CLB links, and independent instance membership/protection metadata implemented with required-total pagination. Membership cannot overwrite CVM state or claim CVM enrichment. Source collector does not collect scaling policies; removed that unsupported parity requirement. Launch configuration ID/name references remain, but full details are excluded because DescribeLaunchConfigurations returns UserData without output projection. Source launch-configuration property equivalence and live validation remain incomplete."
     },
     {
       "aws_collector": "ec2:instance",

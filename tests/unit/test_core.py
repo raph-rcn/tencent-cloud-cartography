@@ -424,6 +424,7 @@ def test_end_to_end_collection_all_scopes_and_clb_field_selection():
     )
     assert [c["action"] for c in data["coverage"] if c["status"] not in {"empty", "complete"}] == [
         "ListEmailIdentities",
+        "DescribeLaunchConfigurations",
         "DescribeDomains",
         "get_bucket_policy",
     ]

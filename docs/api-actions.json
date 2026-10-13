@@ -47,11 +47,6 @@
       "api_version": "2018-04-19"
     },
     {
-      "service": "autoscaling",
-      "action": "DescribeLaunchConfigurations",
-      "api_version": "2018-04-19"
-    },
-    {
       "service": "cam",
       "action": "DescribeRoleList",
       "api_version": "2019-01-16"

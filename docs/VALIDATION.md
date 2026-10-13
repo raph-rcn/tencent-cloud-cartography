@@ -457,3 +457,23 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
   recently added services; existing COS API/CAM mappings are retained.
 - No live Tencent collection occurred. Complete domain inventory, origin/cache/TLS
   configuration, EdgeOne and account-specific SSL API behavior remain unverified.
+
+## 2026-10-13 — Auto Scaling source comparison and metadata depth
+
+- Backend **609 tests passed**, including **20** new cases for group settings,
+  multi-subnet placement, explicit CLB regions, zero/false metadata, membership
+  isolation, CVM state preservation, pagination, invalid/duplicate identities,
+  independent denied scopes and launch user-data API blocking before execution.
+- Source comparison confirmed that `ec2/auto_scaling_groups.py` collects group,
+  launch configuration, subnet and instance metadata, not scaling policies.
+- Frontend **7 tests passed**, production build succeeded, dependency audit
+  reported **0 vulnerabilities**; the existing bundle-size advisory remains.
+- Synthetic `.local/autoscaling-demo.json` rendered **6 resources / 9 relationships**.
+  The group sits in the VPC with both subnet associations; the worker sits in its
+  explicit subnet/AZ. The launch configuration remains an unresolved reference.
+  Inspector showed cooldown, min/max/desired capacity, health-check grace period,
+  rebalance flag, replacement settings and all five outgoing group relationships.
+- Browser export `Downloads/tencent-cloud-cartography (24).drawio` and screenshot
+  `.local/autoscaling-preview.png` preserve official Auto Scaling/CVM/network icons.
+- Validation is synthetic; no live Tencent collection or scaling action occurred.
+  Launch configuration details remain excluded because the API includes UserData.

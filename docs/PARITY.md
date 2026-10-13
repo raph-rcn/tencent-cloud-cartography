@@ -552,3 +552,33 @@ equivalence, EdgeOne and live selection semantics remain gaps.
 Sources: [CDN schemas](https://cloud.tencent.com/document/api/228/30987),
 [SSL CDN deployment inventory](https://cloud.tencent.com/document/product/400/91663),
 [deployed certificate field](https://cloud.tencent.com/document/api/400/41679).
+
+## Auto Scaling group settings and membership
+
+Compared directly with the source `ec2/auto_scaling_groups.py`: it collects
+groups, launch configurations, subnet memberships and instance memberships.
+Scaling policy collection is not part of that source collector, so it is not
+a required gap in this mapping.
+
+Group metadata now retains cooldown, health checks and grace period, enabled and
+activity status, desired/min/max capacity, rebalance and mixed-capacity settings,
+termination order, placement choices and replacement-service settings. Explicit
+subnet/VPC/configuration/load-balancer references preserve account and region;
+forward CLB references honor their returned Region. Multiple zone choices do not
+place a group into one invented availability zone.
+
+Instance membership records retain lifecycle, health, warmup, version and
+scale-in protection under `as_` properties. Existing CVM names/state remain intact.
+Membership-only CVMs stay references, keeping denied or unavailable CVM inventory
+visible. Group and membership pagination require totals and reject duplicate IDs.
+
+`DescribeLaunchConfigurations` is now excluded: its response includes UserData
+and its request has no metadata-only projection. Configuration ID/name references
+remain available from group/member metadata. Full launch configuration properties,
+AWS-specific lifetime/default-protection correspondence and live validation remain
+incomplete. No launch payload or scaling mutation is requested.
+
+Sources: [Tencent group API](https://intl.cloud.tencent.com/zh/document/product/377/31013),
+[instance membership API](https://cloud.tencent.com/document/api/377/20437),
+[launch configuration API](https://cloud.tencent.com/document/api/377/20445),
+[response schemas](https://www-sg.tencentcloud.com/document/api/377/31018).

@@ -351,6 +351,11 @@ class CollectorRunner:
             if services and spec.service not in services:
                 continue
             for region in self.regions if spec.regional else ["global"]:
+                if spec.service == "autoscaling":
+                    from .autoscaling import collect as collect_autoscaling
+
+                    collect_autoscaling(self, spec, region)
+                    continue
                 if spec.kind == "cdn.domain":
                     from .cdn import collect_domains
 

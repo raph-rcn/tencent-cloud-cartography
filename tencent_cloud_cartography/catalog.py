@@ -652,8 +652,12 @@ ALLOWED_ACTIONS = {
         SCF_NAMESPACES,
         SCF_FUNCTIONS,
     )
-    # The CDN list schema can return TLS private keys inside Origin.AdvanceHttps.
-    if (s.service, s.action) != ("cdn", "DescribeDomains")
+    # These response schemas can return TLS private keys or workload user data.
+    if (s.service, s.action)
+    not in {
+        ("cdn", "DescribeDomains"),
+        ("autoscaling", "DescribeLaunchConfigurations"),
+    }
 } | {
     ("ssl", "DescribeHostCdnInstanceList"),
     ("ssm", "ListSecretVersionIds"),

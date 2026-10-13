@@ -63,7 +63,7 @@ The **Cloud Resource Center** `SearchResources` API supplies a baseline of suppo
 | Area | Native services and relationships |
 |---|---|
 | Network | VPC, subnets, security groups and rules, route tables and typed next hops, ACL rules, NAT, EIP, network interfaces, Private Link, peering, CCN attachments; returned VPC/subnet/group/route/NAT/interface references |
-| Compute | CVM, Lighthouse, images, key pairs, launch templates/versions, Auto Scaling groups/configurations/members, CBS disks/snapshots and attachments |
+| Compute | CVM, Lighthouse, images, key pairs, launch templates/versions, Auto Scaling group settings and memberships (launch configuration references only; user-data API excluded), CBS disks/snapshots and attachments |
 | Load balancing | CLB, listeners/rules and returned backend target IDs or endpoint addresses |
 | Containers | TKE clusters and CVM worker references; TCR Enterprise registries, namespaces, repositories, tags and image digests |
 | Databases | TencentDB MySQL, PostgreSQL, Redis, MongoDB, Elasticsearch |
