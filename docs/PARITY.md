@@ -390,3 +390,42 @@ Sources: [rule list](https://cloud.tencent.com/document/api/1579/101781),
 [delivery](https://cloud.tencent.com/document/api/1579/129733),
 [cross-region product scope](https://cloud.tencent.com/product/config),
 [COS identifiers](https://cloud.tencent.com/document/product/651/133239).
+
+
+## EMR clusters and nodes
+
+`DescribeInstancesList` collects both standard (`ClusterType=0`) and TKE (`2`)
+clusters, using `DisplayStrategy=clusterList` to include creating and failed
+clusters. The API excludes destroyed clusters. Both this operation and
+`DescribeClusterNodes` use zero-based **page numbers** in `Offset`, not row
+offsets. Required totals, duplicate detection and independent coverage records
+prevent incomplete lists from being reported as exhaustive.
+
+Node inventory covers `all` (excluding CDB), `db` (normal CDB nodes), and Tencent's
+literal `recyle` value (isolated nodes, including CDB). Overlapping views merge
+by cluster-scoped EMR node ID, with a documented serial-number fallback. Each
+view retains its own coverage outcome. Conflicting metadata between overlapping
+views is reported as partial before introducing incompatible links. Node identity, returned parent IDs,
+AppId/region metadata and explicit zone codes are checked before graph mutation.
+AppId never becomes the account UIN.
+
+Selected metadata includes release, status, billing/project, tags, machine
+specifications, deployed-service names and node-level API termination protection.
+Only `UniqVpcId`/`UniqSubnetId` create network links; legacy numeric network IDs
+remain properties. A multi-zone cluster's configured default subnet is a
+configuration relationship, not single-subnet containment. Nodes use their own
+returned subnet and zone. Explicit host instance IDs link to CVM and pod TKE IDs
+link to TKE. Database names/IPs do not invent native CDB identities. All EMR nodes
+use the bundled official Elastic MapReduce logo.
+
+The AWS source models cluster roles, log/KMS settings, security configuration,
+image versions, scale-down policy and termination behavior. These fields still
+need safe Tencent equivalents and live validation. `DescribeInstances` is
+explicitly excluded: its nested `CustomMetaDBInfo` schema contains `MetaDataPass`.
+Filtering after retrieval would violate the repository's metadata-only policy.
+No job data, script bodies, credentials or workload contents are requested.
+Node protection does not establish cluster-level termination-policy equivalence.
+
+Sources: [cluster list](https://cloud.tencent.com/document/api/589/74070),
+[node inventory](https://cloud.tencent.com/document/product/589/41707),
+[official SDK schemas](https://github.com/TencentCloud/tencentcloud-sdk-python/blob/master/tencentcloud/emr/v20190103/models.py).

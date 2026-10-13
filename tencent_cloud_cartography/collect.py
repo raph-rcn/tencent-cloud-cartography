@@ -351,6 +351,11 @@ class CollectorRunner:
             if services and spec.service not in services:
                 continue
             for region in self.regions if spec.regional else ["global"]:
+                if spec.kind == "emr.cluster":
+                    from .emr import collect_clusters
+
+                    collect_clusters(self, spec, region)
+                    continue
                 if spec.kind == "config.rule":
                     from .cloudconfig import collect_rule_details, collect_settings
 

@@ -4,6 +4,10 @@ from .model import first, stable_id, walk_values
 
 
 def enrich(graph, account, region, kind, nid, raw, source):
+    if kind.startswith("emr."):
+        from .emr import configuration
+
+        configuration(graph, nid, raw, source)
     if kind == "config.rule":
         from .cloudconfig import configuration
 

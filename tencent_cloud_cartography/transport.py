@@ -135,7 +135,7 @@ def pages(transport, spec, region, params=None, max_pages=10000):
     base, cursor, seen, count, expected = dict(params or {}), 0, set(), 0, None
     for _ in range(max_pages):
         query = dict(base)
-        if spec.paging == "offset":
+        if spec.paging in {"offset", "zero-offset-page"}:
             query.update(Offset=cursor, Limit=spec.page_size)
         elif spec.paging == "page":
             query.update(Page=cursor + 1, Rp=spec.page_size)
@@ -178,7 +178,7 @@ def pages(transport, spec, region, params=None, max_pages=10000):
             return
         cursor = (
             cursor + 1
-            if spec.paging in {"page", "offset-page", "number-page"}
+            if spec.paging in {"page", "offset-page", "zero-offset-page", "number-page"}
             else cursor + len(items)
         )
     raise CollectionError("PageLimit")

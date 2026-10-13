@@ -27,6 +27,17 @@ SES_ENDPOINTS = {
 
 COLLECTORS = (
     Collector(
+        "emr",
+        "DescribeInstancesList",
+        "InstancesList",
+        "emr.cluster",
+        ("ClusterId",),
+        ("ClusterName",),
+        total="TotalCnt",
+        paging="zero-offset-page",
+        require_total=True,
+    ),
+    Collector(
         "config",
         "ListConfigRules",
         "Items",
@@ -635,6 +646,7 @@ ALLOWED_ACTIONS = {
         SCF_FUNCTIONS,
     )
 } | {
+    ("emr", "DescribeClusterNodes"),
     ("config", "DescribeConfigRule"),
     ("config", "DescribeConfigRecorder"),
     ("config", "DescribeConfigDeliver"),
@@ -671,6 +683,7 @@ ALLOWED_ACTIONS = {
 
 # Official archive titles; all assets are verified by tests against the manifest.
 SERVICE_ICONS = {
+    "emr": ("Elastic MapReduce", "Elastic MapReduce"),
     "config": ("CloudConfig", "CloudConfig"),
     "ses": ("Simple Email Service", "Simple Email Service"),
     "eb": ("EventBridge", "Event Bridge"),
@@ -716,6 +729,7 @@ KIND_ICONS = {
     "vpc.peeringconnection": "Peering Connection",
 }
 DETAIL_KINDS = {
+    "emr.node",
     "config.resourcetype",
     "ses.dnscheck",
     "eb.rule",
@@ -786,6 +800,7 @@ DETAIL_KINDS = {
 }
 
 API_VERSIONS = {
+    "emr": "2019-01-03",
     "config": "2022-08-02",
     "ses": "2020-10-02",
     "eb": "2021-04-16",

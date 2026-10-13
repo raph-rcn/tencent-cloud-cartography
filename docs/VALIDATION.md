@@ -361,3 +361,29 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
 - These were synthetic checks. No live Tencent query, resource snapshot retrieval,
   evaluation, remediation, log or object read occurred. Full AWS parity and live
   validation remain incomplete; provider-specific limitations are in PARITY.md.
+
+
+## 2026-10-13 — EMR cluster and node inventory
+
+- `uv run pytest -q`: **506 passed**. Thirty-one EMR cases cover standard/TKE
+  inventories, zero-based page-number pagination across 101 records, node views,
+  identity and scope mismatches, duplicate detection, changing overlapping views,
+  invalid metadata, missing totals, denied scopes and exact API allowlisting.
+- The synthetic full collector now checks **75 coverage rows**. The two EMR
+  cluster-type passes remain independent; each discovered cluster adds separate
+  all/database/isolated-node coverage records.
+- `uv run pre-commit run --all-files`: lint, formatting and all **896 official
+  icon checksums** passed. EMR clusters and nodes resolve the official EMR SVG.
+- Frontend: **7 tests passed**, production build succeeded, `npm audit
+  --audit-level=high` reported **0 vulnerabilities**. The existing large-bundle
+  advisory remains.
+- Browser fixture `.local/emr-demo.json`: **8 resources / 13 relationships**,
+  synthetic Frankfurt metadata. Full-graph Grid view shows the multi-zone cluster
+  outside its default subnet, worker nodes in their explicit subnet and CVM/TKE
+  links. Inspector verifies node protection, host ID, memory and service metadata.
+- Export `Downloads/tencent-cloud-cartography (20).drawio`: **16 vertices,
+  13 edges, 5 embedded SVGs**; network resources use the export's container shapes.
+  Screenshot: `.local/emr-preview.png`.
+- No live Tencent collection was performed. Cluster role/log/security/image
+  fields and AWS termination-policy equivalence remain gaps; the password-bearing
+  `DescribeInstances` API remains disallowed.

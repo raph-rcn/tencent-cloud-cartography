@@ -246,7 +246,7 @@
       "source_enabled": true,
       "tencent_counterpart": "Elastic MapReduce",
       "status": "incomplete",
-      "evidence_or_gap": "No native collector yet."
+      "evidence_or_gap": "Paginated standard/TKE cluster inventory and host, database and isolated-node views implemented. Selected version/status/billing/tags/node protection metadata and explicit VPC/subnet/CVM/TKE links are collected with strict scope validation. DescribeInstances is excluded because its nested schema includes MetaDataPass. Cluster roles, log/KMS settings, security configuration, image and termination-policy equivalence, destroyed-cluster history and live validation remain incomplete."
     },
     {
       "aws_collector": "lambda_function",
