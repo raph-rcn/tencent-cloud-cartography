@@ -83,6 +83,8 @@ def test_pagination_negative_controls(responses, code):
         ("ssl", "DownloadCertificate"),
         ("cloudaudit", "LookUpEvents"),
         ("cloudaudit", "DescribeEvents"),
+        ("monitor", "DescribeAlarmHistories"),
+        ("monitor", "GetMonitorData"),
         ("cls", "SearchLog"),
         ("cls", "DownloadLog"),
         ("cos", "get_object"),
@@ -402,7 +404,7 @@ def test_end_to_end_collection_all_scopes_and_clb_field_selection():
     )
     assert data["status"] == "partial"
     assert len(data["nodes"]) == 4
-    assert len(data["coverage"]) == 61
+    assert len(data["coverage"]) == 62
     assert any(c["action"] == "ListLayers" and c["status"] == "empty" for c in data["coverage"])
     assert any(e["relationship"] == "FORWARDS_TO" for e in data["edges"])
     assert all(n["region"] == "eu-frankfurt" for n in data["nodes"])

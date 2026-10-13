@@ -273,6 +273,16 @@
       "api_version": "2019-07-25"
     },
     {
+      "service": "monitor",
+      "action": "DescribeAlarmPolicies",
+      "api_version": "2018-07-24"
+    },
+    {
+      "service": "monitor",
+      "action": "DescribeBindingPolicyObjectList",
+      "api_version": "2018-07-24"
+    },
+    {
       "service": "postgres",
       "action": "DescribeDBInstances",
       "api_version": "2017-03-12"

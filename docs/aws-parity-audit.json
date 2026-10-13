@@ -434,7 +434,7 @@
       "source_enabled": true,
       "tencent_counterpart": "Cloud Monitor / CLS",
       "status": "incomplete",
-      "evidence_or_gap": "CLS logsets, separate log/metric topic queries, retention/index/web-tracking flags, custom KMS references and COS shipper configuration implemented. Metric filters, alarm policies/actions and broader Cloud Monitor mappings remain incomplete; no log contents or effective delivery claims."
+      "evidence_or_gap": "CLS logsets, separate log/metric topics, retention/index/web-tracking flags, KMS and COS shippers; Cloud Monitor account-scoped policy lists, metric/event rule configuration, selected embedded notice metadata/references, instance groups and paginated object bindings implemented. CVM links require MT_QCE/cvm_device, explicit unInstanceId and matching account/region. Other product dimension mappings, CLS alarms/metric filters, legacy/template rule expansion, detailed notification/action delivery and live validation remain incomplete; no metric samples, log contents or effective evaluation/delivery claims."
     },
     {
       "aws_collector": "efs",

@@ -98,6 +98,8 @@ class CollectorRunner:
 
     def native(self, spec, region, params=None, parent=None, relation=None):
         collected = []
+        if spec.service == "monitor":
+            params = {**(params or {}), "Module": "monitor"}
         if spec.service == "dnspod" and spec.action == "DescribeDomainList":
             params = {**(params or {}), "Type": "MINE"}
         if spec.action == "ListPolicies":
@@ -131,10 +133,18 @@ class CollectorRunner:
         source = f"{spec.service}.{spec.action}"
 
         def operation(record):
+            monitor_ids = set()
             for items, request_id in pages(self.transport, spec, region, params):
                 if request_id:
                     record["request_ids"].append(request_id)
                 for item in items:
+                    if spec.kind == "monitor.policy":
+                        from .monitor import policy_id
+
+                        policy_id(item.get("PolicyId"))
+                        if item["PolicyId"] in monitor_ids:
+                            raise CollectionError("DuplicateAlarmPolicy")
+                        monitor_ids.add(item["PolicyId"])
                     if spec.kind == "cls.topic" and (
                         type(item.get("BizType")) is not int
                         or item["BizType"] != (params or {}).get("BizType", 0)
@@ -281,6 +291,10 @@ class CollectorRunner:
                     collect_keys(self, spec, region)
                     continue
                 collected = self.native(spec, region)
+                if spec.kind == "monitor.policy":
+                    from .monitor import collect_bindings
+
+                    collect_bindings(self, collected)
                 if spec.kind == "cloudaudit.track":
                     from .observability import collect_track_details
 
@@ -414,4 +428,7 @@ def collect(
     from .observability import link_destinations
 
     link_destinations(graph)
+    from .monitor import link_bindings
+
+    link_bindings(graph)
     return graph.snapshot()

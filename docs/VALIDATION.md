@@ -139,3 +139,25 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
 - Five frontend tests, build, npm audit (zero vulnerabilities), pre-commit and all 896 icon hashes passed. Browser fixture displayed 5 resources / 4 relationships in architecture view and 6 / 5 in full view. Export preserved 6 embedded SVGs and all 5 edges. A stale browser viewport initially prevented activation; viewport reset/reload resolved the export check without application changes. Preview `.local/observability-preview.png`; fixture `.local/observability-demo.json`.
 - CloudAudit details do not echo TrackId; list/detail Name agreement is checked. Status and organization-delivery flags are configuration, not proof of successful delivery or organization inventory. Missing destination resources remain references/unresolved properties. Live account collection remains unverified.
 - Primary sources: [CloudAudit tracks](https://cloud.tencent.com/document/product/629/69204), [track detail](https://cloud.tencent.com/document/api/629/83247), [storage identifiers](https://cloud.tencent.com/document/api/629/35353), [CLS topics](https://cloud.tencent.com/document/api/614/56454), [COS shipping configuration](https://cloud.tencent.com/document/api/614/58744), [CLS structures](https://cloud.tencent.com/document/product/614/56471).
+
+## 2026-10-13 — Cloud Monitor policy and binding configuration
+
+- `uv run pytest -q`: **229 passed**, including 20 new alarm tests and two
+  additional metadata-only API denial tests. Fixtures cover compound metric/event
+  rules, embedded notice filtering, 11-policy pagination, independent binding
+  permission failures, 101-binding pagination, group changes, duplicates, null
+  empty arrays, malformed dimensions and account/region/namespace isolation.
+- `uv run pre-commit run --all-files`: passed Ruff and all **896 icon** checks.
+- `npm ci`, frontend tests (**5 passed**), production build and high-level npm
+  audit passed (**0 vulnerabilities**). The existing bundle-size warning remains.
+- Browser fixture `.local/monitor-demo.json` on loopback port 8789 rendered
+  **5 nodes / 4 edges** with official Cloud Monitor and CVM icons. It demonstrates
+  the account-scoped policy/rule/notice/binding and an explicit Frankfurt CVM link.
+  This is synthetic data, not a live account result.
+- Browser export produced `tencent-cloud-cartography (10).drawio`: **10 vertices,
+  4 edges, 5 embedded SVGs**. The default 897px viewport exposed a toolbar clipping
+  defect; wrapping toolbar groups and an automatic toolbar grid row fixed it.
+  Readback placed the complete export button inside the viewport and the browser
+  confirmed the successful local export. Preview: `.local/monitor-preview.png`.
+- Live Tencent permissions, API availability, metric evaluation, notification
+  delivery and complete AWS CloudWatch parity remain unverified/incomplete.

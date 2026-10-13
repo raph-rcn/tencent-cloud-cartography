@@ -4,6 +4,10 @@ from .model import first, stable_id, walk_values
 
 
 def enrich(graph, account, region, kind, nid, raw, source):
+    if kind == "monitor.policy":
+        from .monitor import configuration
+
+        configuration(graph, nid, raw, source)
     if kind.startswith(("cls.", "cloudaudit.")):
         from .observability import configuration
 

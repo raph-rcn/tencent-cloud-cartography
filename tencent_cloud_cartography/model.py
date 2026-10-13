@@ -226,7 +226,7 @@ class Graph:
         for keys, kind, relation, prefix in REFERENCES:
             # Associations in these responses describe peers/children, not where
             # the resource itself lives. Handle them with typed relationship code.
-            if spec.kind in {"vpc.ccnattachment", "privatedns.zone"} or (
+            if spec.kind in {"vpc.ccnattachment", "privatedns.zone", "monitor.policy"} or (
                 spec.kind == "cbs.snapshot" and relation == "USES_DISK"
             ):
                 continue

@@ -82,3 +82,34 @@ CLS adds log sets, separate log/metric topic inventory, retention/index/web-trac
 ## Completion rule
 
 A registered action, mapping row, green unit test, or icon does not on its own establish parity. Each audit item must have corresponding native collection, model/relationship behavior, tests for failure and negative controls, and runtime evidence appropriate to that capability. Keep this audit incomplete until those checks hold for the original scope.
+
+### Cloud Monitor alarm configuration
+
+Cloud Monitor now queries `DescribeAlarmPolicies` once per account using the
+required `Module=monitor` and one-based page numbers. Policies remain at global
+scope because their configured regions can span locations. Metric/event rules
+retain thresholds, comparison operators, periods, repeat frequency, compound
+condition expressions, rule filters and hierarchical threshold metadata. Enabled
+and disabled policies are both collected. Notification IDs become graph nodes;
+embedded templates retain selected identity/channel metadata and callback counts,
+without callback URLs, validation codes, contact details or opaque task payloads.
+
+`DescribeBindingPolicyObjectList` is paginated separately per policy, with explicit
+zero `GroupId` and the actual `PolicyId`. The graph retains shielded objects and
+instance-group configuration. CVM links require the documented `MT_QCE` /
+`cvm_device` / `unInstanceId` tuple, an explicit recognized region, and an enriched
+CVM in the same account and region. Known dimension-region aliases include
+`de` → `eu-frankfurt`; unsupported aliases and namespaces remain unresolved.
+No region is inferred from a policy's region list. Changed groups, duplicate
+bindings, missing totals and truncated pages produce partial coverage.
+
+These edges describe configured alarm objects, including disabled/shielded
+configurations. They do not prove metric ingestion, active evaluation or successful
+notification. Other namespaces, bind-all/tag expansion, legacy/template rules,
+standalone notice enumeration, detailed scaling actions and CLS alarm/metric-filter
+parity remain open. No live Tencent validation has been performed.
+
+Schema references: [policies](https://cloud.tencent.com/document/product/248/51279),
+[bound objects](https://cloud.tencent.com/document/api/248/40570),
+[data types](https://cloud.tencent.com/document/api/248/30354), and
+[dimension region aliases](https://cloud.tencent.com/document/product/248/50863).

@@ -19,6 +19,17 @@ class Collector:
 
 COLLECTORS = (
     Collector(
+        "monitor",
+        "DescribeAlarmPolicies",
+        "Policies",
+        "monitor.policy",
+        ("PolicyId",),
+        ("PolicyName",),
+        paging="number-page",
+        regional=False,
+        require_total=True,
+    ),
+    Collector(
         "cloudaudit",
         "DescribeAuditTracks",
         "Tracks",
@@ -523,10 +534,12 @@ ALLOWED_ACTIONS = {
     ("apigateway", "DescribeApi"),
     ("clb", "DescribeListeners"),
     ("cloudaudit", "DescribeAuditTrack"),
+    ("monitor", "DescribeBindingPolicyObjectList"),
 }
 
 # Official archive titles; all assets are verified by tests against the manifest.
 SERVICE_ICONS = {
+    "monitor": ("Cloud Monitor", "Cloud Monitor"),
     "cls": ("Cloud Log Service", "Cloud Log Service"),
     "cloudaudit": ("CloudAudit", "CloudAudit"),
     "ssl": ("SSL Certificates", "SSL Certificates"),
@@ -567,6 +580,11 @@ KIND_ICONS = {
     "vpc.peeringconnection": "Peering Connection",
 }
 DETAIL_KINDS = {
+    "monitor.policy",
+    "monitor.rule",
+    "monitor.notice",
+    "monitor.binding",
+    "monitor.instancegroup",
     "cam.rolereference",
     "cos.aclgrant",
     "apigateway.api",
@@ -616,6 +634,7 @@ DETAIL_KINDS = {
 }
 
 API_VERSIONS = {
+    "monitor": "2018-07-24",
     "cls": "2020-10-16",
     "cloudaudit": "2019-03-19",
     "ssl": "2019-12-05",
