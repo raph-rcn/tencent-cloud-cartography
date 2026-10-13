@@ -7,12 +7,13 @@ from urllib.parse import parse_qs, urlparse
 
 from .drawio import export
 from .paths import DIST
+from .repository import SnapshotRepository, SourceError
 from .topology import topology
 
 
 class Handler(SimpleHTTPRequestHandler):
-    def __init__(self, *args, snapshot, **kwargs):
-        self.snapshot = snapshot
+    def __init__(self, *args, repository, **kwargs):
+        self.repository = repository
         super().__init__(*args, directory=str(DIST), **kwargs)
 
     def allowed(self):
@@ -40,10 +41,18 @@ class Handler(SimpleHTTPRequestHandler):
         if not self.allowed():
             return self.respond({"message": "Invalid local origin"}, status=403)
         path = urlparse(self.path)
-        data = self.snapshot
+        if path.path not in {"/api/health", "/api/accounts", "/api/coverage", "/api/topology"}:
+            if path.path.startswith("/api/"):
+                return self.respond({"message": "Not found"}, status=404)
+            return super().do_GET()
+        try:
+            data = self.repository.read_snapshot()
+        except SourceError as exc:
+            return self.respond({"message": str(exc)}, status=503)
         if path.path == "/api/health":
             return self.respond(
                 dict(
+                    backend=self.repository.backend,
                     status=data["status"],
                     mode=data["mode"],
                     created_at=data["created_at"],
@@ -104,18 +113,21 @@ class Handler(SimpleHTTPRequestHandler):
         pass
 
 
-def create_server(snapshot, port=8787):
-    server = ThreadingHTTPServer(("127.0.0.1", port), partial(Handler, snapshot=snapshot))
+def create_server(snapshot=None, port=8787, *, repository=None):
+    repository = repository if repository is not None else SnapshotRepository(snapshot)
+    server = ThreadingHTTPServer(("127.0.0.1", port), partial(Handler, repository=repository))
     server.daemon_threads = True
     return server
 
 
-def serve(snapshot, port=8787):
+def serve(snapshot=None, port=8787, *, repository=None):
     if not (DIST / "index.html").exists():
         raise ValueError("Build the UI first: cd landscape/web && npm ci && npm run build")
-    with create_server(snapshot, port) as server:
+    repository = repository if repository is not None else SnapshotRepository(snapshot)
+    initial = repository.read_snapshot()
+    with create_server(port=port, repository=repository) as server:
         print(
-            f"Tencent Cloud Cartography: http://127.0.0.1:{server.server_port} ({snapshot['mode']}, {snapshot['status']})",
+            f"Tencent Cloud Cartography: http://127.0.0.1:{server.server_port} ({repository.backend}, {initial['mode']}, {initial['status']})",
             flush=True,
         )
         server.serve_forever()

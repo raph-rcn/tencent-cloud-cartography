@@ -4,7 +4,6 @@ import json
 import os
 import tempfile
 from pathlib import Path
-from urllib.parse import urlparse
 
 
 def save(snapshot, path):
@@ -23,51 +22,65 @@ def save(snapshot, path):
             os.unlink(temporary)
 
 
+def validate(data):
+    """Validate graph structure before publication, independently of either backend."""
+    try:
+        if data.get("schema_version") != 1 or not all(
+            isinstance(data.get(k), list) for k in ("nodes", "edges", "accounts", "coverage")
+        ):
+            raise ValueError("Unsupported snapshot schema")
+        if (
+            data.get("mode") not in {"live", "demo"}
+            or data.get("status") not in {"complete", "partial"}
+            or not isinstance(data.get("created_at"), str)
+        ):
+            raise ValueError("Invalid snapshot metadata")
+        ids = [n["id"] for n in data["nodes"]]
+        if len(ids) != len(set(ids)):
+            raise ValueError("Duplicate resource IDs")
+        id_set = set(ids)
+        for node in data["nodes"]:
+            if (
+                not all(
+                    isinstance(node[k], str) and node[k]
+                    for k in ("id", "account", "region", "kind", "resource_id", "name", "status")
+                )
+                or not isinstance(node["properties"], dict)
+                or not isinstance(node["sources"], list)
+            ):
+                raise ValueError("Invalid resource schema")
+        edge_ids = set()
+        for edge in data["edges"]:
+            if edge["source"] not in id_set or edge["target"] not in id_set:
+                raise ValueError("Invalid graph endpoints")
+            if edge["id"] in edge_ids or not all(
+                isinstance(edge[k], str) for k in ("id", "relationship", "provenance")
+            ):
+                raise ValueError("Invalid relationship schema")
+            edge_ids.add(edge["id"])
+        account_ids = [a["id"] for a in data["accounts"]]
+        if len(account_ids) != len(set(account_ids)) or not all(
+            isinstance(a.get("display"), str) for a in data["accounts"]
+        ):
+            raise ValueError("Invalid accounts")
+        if not isinstance(data.get("unresolved"), int):
+            raise ValueError("Invalid coverage metadata")
+        json.dumps(data, allow_nan=False)
+        return data
+    except (KeyError, TypeError, AttributeError) as exc:
+        raise ValueError("Invalid snapshot structure") from exc
+
+
 def load(path):
-    path = Path(path)
-    if path.stat().st_size > 100_000_000:
+    # Read once: an atomic writer may replace the pathname while we are reading.
+    with Path(path).open("rb") as stream:
+        raw = stream.read(100_000_001)
+    if len(raw) > 100_000_000:
         raise ValueError("Snapshot exceeds 100 MB")
-    data = json.loads(path.read_text())
-    if data.get("schema_version") != 1 or not all(
-        isinstance(data.get(k), list) for k in ("nodes", "edges", "accounts", "coverage")
-    ):
-        raise ValueError("Unsupported snapshot schema")
-    ids = [n["id"] for n in data["nodes"]]
-    id_set = set(ids)
-    if len(ids) != len(id_set) or any(
-        e["source"] not in id_set or e["target"] not in id_set for e in data["edges"]
-    ):
-        raise ValueError("Invalid graph endpoints")
-    return data
+    return validate(json.loads(raw))
 
 
-def mirror(snapshot, uri):
-    from neo4j import GraphDatabase
+def mirror(snapshot, uri, user=None, password=None, database=None):
+    from .neo4j import mirror as publish
 
-    if urlparse(uri).hostname not in {"localhost", "127.0.0.1", "::1"}:
-        raise ValueError("Neo4j must be on loopback")
-
-    # One transaction replaces only nodes belonging to this application. AWS
-    # Cartography labels and other graph data are never selected for deletion.
-    def write(tx):
-        tx.run("MATCH (n:TencentCartography) DETACH DELETE n").consume()
-        nodes = [{**n, "properties_json": json.dumps(n["properties"])} for n in snapshot["nodes"]]
-        tx.run(
-            "UNWIND $nodes AS n CREATE (r:TencentCartography:TencentResource {id:n.id, account:n.account, region:n.region, kind:n.kind, resource_id:n.resource_id, name:n.name, status:n.status, properties_json:n.properties_json, sources:n.sources})",
-            nodes=nodes,
-        ).consume()
-        tx.run(
-            "UNWIND $edges AS e MATCH (a:TencentResource {id:e.source}), (b:TencentResource {id:e.target}) CREATE (a)-[:TENCENT_RELATIONSHIP {id:e.id, kind:e.relationship, provenance:e.provenance}]->(b)",
-            edges=snapshot["edges"],
-        ).consume()
-        tx.run(
-            "CREATE (:TencentCartography:TencentScan {created_at:$time, status:$status, coverage_json:$coverage})",
-            time=snapshot["created_at"],
-            status=snapshot["status"],
-            coverage=json.dumps(snapshot["coverage"]),
-        ).consume()
-
-    with GraphDatabase.driver(uri, auth=None) as driver:
-        driver.verify_connectivity()
-        with driver.session() as session:
-            session.execute_write(write)
+    return publish(snapshot, uri, user, password, database)

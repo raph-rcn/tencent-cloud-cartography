@@ -32,7 +32,7 @@ document.querySelector('#app').innerHTML = `
         <span class="status-dot" id="status-dot"></span>
         <div>
           <strong id="status-label">Connecting</strong>
-          <small>Local snapshot · metadata only</small>
+          <small id="source-label">Local data · metadata only</small>
         </div>
       </div>
     </header>
@@ -111,6 +111,7 @@ document.querySelector('#app').innerHTML = `
               <option value="cola">Left-to-right flow</option>
               <option value="grid">Grid</option>
             </select>
+            <button id="refresh" class="button ghost">Refresh</button>
             <button id="relayout" class="button ghost">Arrange</button>
             <button id="fit" class="button ghost" title="Fit landscape" aria-label="Fit landscape">Fit</button>
           </div>
@@ -154,6 +155,7 @@ document.querySelector('#app').innerHTML = `
 `;
 
 const $ = (selector) => document.querySelector(selector);
+const loadingMarkup = $('#loading').innerHTML;
 
 function showToast(message, variant = 'default') {
   const toast = $('#toast');
@@ -173,11 +175,27 @@ async function request(path, options) {
   return response;
 }
 
+function replaceOptions(select, placeholder, values) {
+  const previous = select.value;
+  select.replaceChildren(new Option(placeholder, ''), ...values.map(({value,label}) => new Option(label,value)));
+  if (values.some(({value}) => value === previous)) select.value = previous;
+}
+
+function showFailure(error) {
+  state.loadVersion += 1;
+  $('#loading').classList.remove('hidden');
+  $('#loading').innerHTML = `<div class="error-symbol">!</div><strong>Data unavailable</strong><span>${escapeHtml(error.message)}</span>`;
+  $('#status-label').textContent = 'Disconnected';
+  $('#status-dot').classList.remove('online');
+  showToast(error.message, 'error');
+}
+
 function setHealth(health) {
   $('#status-dot').classList.add('online');
   $('#status-label').textContent = health.mode === 'demo' ? 'SYNTHETIC DEMO' : `Snapshot · ${health.status}`;
   $('#snapshot-status').textContent = `${health.unresolved} unresolved resources · ${new Date(health.created_at).toLocaleString()}`;
-  health.regions.forEach((region) => { const option = new Option(region, region); $('#region').add(option); });
+  $('#source-label').textContent = health.backend === 'neo4j' ? 'Local graph database · read-only' : 'Local snapshot file · metadata only';
+  replaceOptions($('#region'), 'All collected regions', health.regions.map((region) => ({value:region,label:region})));
   $('#status-label').title = `${health.accounts} account(s), ${health.resources} resources`;
 }
 
@@ -307,6 +325,7 @@ function bindInspectorClose() {
 }
 
 async function loadTopology() {
+  $('#loading').innerHTML = loadingMarkup;
   $('#loading').classList.remove('hidden');
   const loadVersion = ++state.loadVersion;
   const account = $('#account').value;
@@ -330,9 +349,9 @@ async function loadTopology() {
     state.topology.stats.resources.toLocaleString();
   $('#relationship-count').textContent =
     state.topology.stats.relationships.toLocaleString();
-  state.graph.one('layoutstop', () => $('#loading').classList.add('hidden'));
+  state.graph.one('layoutstop', () => { if (loadVersion === state.loadVersion) $('#loading').classList.add('hidden'); });
   runLayout(state.graph, $('#layout').value);
-  window.setTimeout(() => $('#loading').classList.add('hidden'), 5000);
+  window.setTimeout(() => { if (loadVersion === state.loadVersion) $('#loading').classList.add('hidden'); }, 5000);
   if (state.topology.truncated) {
     showToast(`Showing the first ${state.topology.limit} graph nodes`, 'warning');
   }
@@ -347,31 +366,24 @@ async function init() {
     const health = await healthResponse.json();
     const { accounts } = await accountsResponse.json();
     setHealth(health);
-    $('#account').insertAdjacentHTML(
-      'beforeend',
-      accounts
-        .map(
-          (account) =>
-            `<option value="${escapeHtml(account.id)}">${escapeHtml(account.display)}</option>`,
-        )
-        .join(''),
-    );
+    replaceOptions($('#account'), 'All accounts', accounts.map((account) => ({value:account.id,label:account.display})));
     await loadTopology();
   } catch (error) {
-    $('#loading').innerHTML = `
-      <div class="error-symbol">!</div>
-      <strong>Landscape could not start</strong>
-      <span>${escapeHtml(error.message)}</span>
-    `;
-    $('#status-label').textContent = 'Disconnected';
-    showToast(error.message, 'error');
+    showFailure(error);
+  } finally {
+    $('#refresh').disabled = false;
   }
 }
 
-$('#account').addEventListener('change', loadTopology);
-$('#region').addEventListener('change', loadTopology);
-$('#view').addEventListener('change', loadTopology);
-$('#show-inventory').addEventListener('change', loadTopology);
+$('#refresh').addEventListener('click', () => {
+  $('#refresh').disabled = true;
+  init();
+});
+const reloadTopology = () => loadTopology().catch(showFailure);
+$('#account').addEventListener('change', reloadTopology);
+$('#region').addEventListener('change', reloadTopology);
+$('#view').addEventListener('change', reloadTopology);
+$('#show-inventory').addEventListener('change', reloadTopology);
 $('#relayout').addEventListener('click', () =>
   runLayout(state.graph, $('#layout').value),
 );

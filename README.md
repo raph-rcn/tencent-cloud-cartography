@@ -8,7 +8,7 @@ A derivative of [raph-rcn/aws-cartography](https://github.com/raph-rcn/aws-carto
 - **Architecture and full graph views:** account → region → VPC → availability zone → subnet, based on returned resource IDs. Search, service/account/region filters, inspector, three layouts, collapse/expand.
 - **Exports:** PNG and editable draw.io diagrams with embedded Tencent SVGs.
 - **All 896 official product icons:** 441 English and 455 Chinese SVGs, searchable gallery, original bytes, checksums, and source attribution.
-- **Private local snapshots:** mode `0600`, atomic replacement, optional isolated Neo4j mirror. The viewer makes no Tencent API calls.
+- **Two local data sources:** private JSON snapshots (`0600`, atomic replacement) or direct Neo4j reads, with refresh support. The viewer makes no Tencent API calls.
 
 ![Synthetic Frankfurt demo](docs/preview.jpg)
 
@@ -38,9 +38,9 @@ tccli sts GetCallerIdentity --profile default
 ./landscape/local.sh serve
 ```
 
-`sync` writes `.local/inventory.json`. **Exit code 2 means a usable but partial snapshot was saved**; 1 means collection stopped, such as missing authentication or a changed account identity. Exit code 0 means all selected operations completed and all discovered resources were enriched; it does **not** promise Tencent-wide service coverage.
+`sync` writes `.local/inventory.json`. **Exit code 2 means a usable but partial snapshot was saved**; 1 means collection stopped or database publication could not be confirmed. A JSON snapshot saved before a database failure remains available. Exit code 0 means all selected operations completed and all discovered resources were enriched; it does **not** promise Tencent-wide service coverage.
 
-The viewer loads a fixed snapshot at startup. Restart `serve` after syncing. Collection never replaces a live snapshot with demo data.
+Use **Refresh** in the viewer after syncing. File mode rereads the atomically replaced JSON file; Neo4j mode reads the latest published database generation. Neither mode needs a viewer restart. Collection never replaces a live snapshot with demo data.
 
 More options:
 
@@ -92,18 +92,32 @@ No collector retrieves COS objects, secret values, SCF source, database contents
 
 The HTTP viewer and optional Neo4j bind to loopback. HTTP Host/Origin checks reject foreign browser origins. Do not expose the unauthenticated local services through a tunnel or reverse proxy.
 
-## Optional Neo4j
+## Neo4j-backed viewer
 
 Docker must already be running. This uses different ports and a separate volume from the original AWS project.
 
 ```bash
 ./landscape/local.sh start
 ./landscape/local.sh sync --neo4j-uri bolt://127.0.0.1:7688
-# Browser: http://127.0.0.1:7475
+./landscape/local.sh serve --neo4j-uri bolt://127.0.0.1:7688
+# Viewer: http://127.0.0.1:8787
+# Neo4j Browser: http://127.0.0.1:7475
 ./landscape/local.sh stop
 ```
 
-Each sync atomically replaces only `:TencentCartography` nodes in the mirror. The mirror represents the last supplied snapshot, not an accumulated fleet history. Other graph labels are retained. Nodes are `:TencentResource`; edges use `:TENCENT_RELATIONSHIP {kind: ...}`. The UI reads the JSON snapshot and does not require Neo4j.
+Each sync atomically replaces only `:TencentCartography` nodes in the mirror. The mirror represents the last supplied snapshot, not an accumulated fleet history. Other graph labels are retained. Nodes are `:TencentResource`; edges use `:TENCENT_RELATIONSHIP {kind: ...}`. The UI supports either backend. A database scan retains account labels, coverage, mode and all graph properties. Readers verify a generation fingerprint and retry if a concurrent publication changes the graph; a missing, inconsistent or unavailable database returns an explicit error instead of an empty-success response. The viewer issues only fixed read queries. Use a database user with read privileges when your Neo4j edition supports that role; driver read mode alone is not an access-control boundary.
+
+Import an existing snapshot without any cloud calls:
+
+```bash
+./landscape/local.sh demo # optional synthetic demo; stop the viewer with Ctrl-C
+./landscape/local.sh import --input .local/demo.json --neo4j-uri bolt://127.0.0.1:7688
+./landscape/local.sh serve --neo4j-uri bolt://127.0.0.1:7688
+```
+
+Both `sync`, `import` and `serve` support `--neo4j-user`, `--neo4j-database`, and `--neo4j-password-env` (default `NEO4J_PASSWORD`). The username/database can also come from `NEO4J_USER` / `NEO4J_DATABASE`. Supply the password through your normal environment/credential tooling, not through command-line arguments. `--input` and `--neo4j-uri` select mutually exclusive viewer sources. Only direct loopback Bolt URIs are accepted; routing URIs and embedded credentials are rejected.
+
+Older mirrors from the initial release lack the required metadata. Re-sync or use `import` to upgrade them. The publication transaction changes only this application's graph and state; unrelated graph data is retained.
 
 ## Icons and attribution
 
@@ -130,7 +144,9 @@ npm run build
 npm audit --audit-level=high
 ```
 
-Tests cover pagination negative controls, blocked operations, identity changes, scoped collection, graph reconciliation, property redaction, icon mappings, hierarchy, draw.io embedding, local HTTP boundaries, and frontend filtering/exports. CI runs these checks. Browser smoke validation is documented in [VALIDATION.md](docs/VALIDATION.md).
+Real Neo4j integration tests run in CI against a disposable authenticated Neo4j 5.26 instance. They cover exact round trips, isolation from unrelated nodes, transaction rollback, concurrent publication, read-only query boundaries, corruption detection and HTTP refresh. To run locally, set `TEST_TENCENT_NEO4J_URI` and optional `TEST_TENCENT_NEO4J_USER`, `TEST_TENCENT_NEO4J_PASSWORD`, `TEST_TENCENT_NEO4J_DATABASE`, then run `uv run pytest tests/integration -v`. Tests refuse a nonempty database and are skipped when the opt-in URI is absent.
+
+Other tests cover pagination negative controls, blocked operations, identity changes, scoped collection, graph reconciliation, property redaction, icon mappings, hierarchy, draw.io embedding, local HTTP boundaries, and frontend filtering/exports. CI runs these checks. Browser smoke validation is documented in [VALIDATION.md](docs/VALIDATION.md).
 
 ## Source history
 

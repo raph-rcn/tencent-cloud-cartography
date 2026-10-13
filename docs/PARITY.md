@@ -17,7 +17,7 @@ The authoritative comparison is the AWS checkout's collector registry, model/ana
 | Unresolved-inventory toggle | Toggle, count and inspector explanation implemented; browser validated | Keep native references visible and validate large inventories |
 | Search, filters, selection, layout, collapse | Initial UI and browser smoke tests | Add regressions as graph semantics expand |
 | Service component grouping | Per-location service components implemented and browser validated | Further large-graph/export validation |
-| Direct Neo4j-backed viewer | Optional write-only mirror exists; UI reads a fixed JSON file | Implement Neo4j reads, auth/database options, refresh and integration validation |
+| Direct Neo4j-backed viewer | Direct reads, complete metadata, auth/database options and refresh implemented | Real transaction/HTTP integration gate added; runtime results recorded in VALIDATION.md |
 | PNG / editable draw.io | Initial browser downloads verified | Preserve grouping and assets across new graph types |
 | Multi-account discovery and federation | Explicit TCCLI profiles supported | Compare organization hierarchy and assume-role/federation workflows |
 | Metadata safeguards | Exact action allowlist and property filtering tested | Audit new APIs, preserve exclusions and avoid fetching object/secret values |

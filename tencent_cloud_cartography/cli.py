@@ -1,13 +1,38 @@
 import argparse
+import os
 import sys
 from pathlib import Path
 
 from .catalog import SERVICE_ICONS
 from .collect import collect
 from .demo import demo
+from .neo4j import Neo4jRepository
+from .repository import FileRepository, SourceError
 from .server import serve
 from .storage import load, mirror, save
 from .transport import CollectionError
+
+
+def database_options(parser):
+    parser.add_argument("--neo4j-user", default=os.environ.get("NEO4J_USER"))
+    parser.add_argument(
+        "--neo4j-password-env",
+        default="NEO4J_PASSWORD",
+        help="Name of the environment variable containing the database password",
+    )
+    parser.add_argument(
+        "--neo4j-database",
+        default=os.environ.get("NEO4J_DATABASE"),
+        help="Named database; defaults to the server default",
+    )
+
+
+def database_credentials(args):
+    return dict(
+        user=args.neo4j_user,
+        password=os.environ.get(args.neo4j_password_env),
+        database=args.neo4j_database,
+    )
 
 
 def main(argv=None):
@@ -30,10 +55,22 @@ def main(argv=None):
     sync.add_argument(
         "--neo4j-uri", help="Optional loopback Neo4j mirror, e.g. bolt://127.0.0.1:7688"
     )
+    database_options(sync)
     sample = sub.add_parser("demo", help="Write an explicitly synthetic Frankfurt snapshot")
     sample.add_argument("--output", type=Path, default=Path(".local/demo.json"))
-    ui = sub.add_parser("serve", help="Serve a saved snapshot on loopback")
-    ui.add_argument("--input", type=Path, default=Path(".local/inventory.json"))
+    publish = sub.add_parser(
+        "import", help="Publish a saved snapshot into local Neo4j without cloud access"
+    )
+    publish.add_argument("--input", type=Path, required=True)
+    publish.add_argument("--neo4j-uri", default="bolt://127.0.0.1:7688")
+    database_options(publish)
+    ui = sub.add_parser("serve", help="View local snapshots or read directly from Neo4j")
+    source = ui.add_mutually_exclusive_group()
+    source.add_argument("--input", type=Path, help="Snapshot file, default .local/inventory.json")
+    source.add_argument(
+        "--neo4j-uri", help="Read the latest published graph directly from local Neo4j"
+    )
+    database_options(ui)
     ui.add_argument("--port", type=int, default=8787)
     args = parser.parse_args(argv)
     try:
@@ -57,19 +94,30 @@ def main(argv=None):
                 f"Saved {len(snapshot['nodes'])} resources, {len(snapshot['edges'])} relationships; coverage={snapshot['status']}: {args.output}"
             )
             if args.neo4j_uri:
-                mirror(snapshot, args.neo4j_uri)
+                mirror(snapshot, args.neo4j_uri, **database_credentials(args))
                 print("Neo4j mirror updated")
             return 2 if snapshot["status"] == "partial" else 0
         if args.command == "demo":
             save(demo(), args.output)
             print(f"Synthetic demo written to {args.output}")
+        elif args.command == "import":
+            mirror(load(args.input), args.neo4j_uri, **database_credentials(args))
+            print("Saved snapshot published to Neo4j")
         elif args.command == "serve":
-            serve(load(args.input), args.port)
+            repository = (
+                Neo4jRepository(args.neo4j_uri, **database_credentials(args))
+                if args.neo4j_uri
+                else FileRepository(args.input or Path(".local/inventory.json"))
+            )
+            try:
+                serve(port=args.port, repository=repository)
+            finally:
+                repository.close()
         return 0
     except CollectionError as exc:
         print("Collection stopped: " + exc.code, file=sys.stderr)
         return 1
-    except (ValueError, OSError) as exc:
+    except (ValueError, OSError, SourceError) as exc:
         print(str(exc), file=sys.stderr)
         return 1
     except KeyboardInterrupt:
