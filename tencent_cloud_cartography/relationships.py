@@ -11,6 +11,10 @@ def enrich(graph, account, region, kind, nid, raw, source):
             return target
         return None
 
+    if kind in {"dnspod.domain", "privatedns.zone"}:
+        from .dns import zone_configuration
+
+        zone_configuration(graph, nid, raw, source)
     if kind == "vpc.networkacl":
         for subnet in raw.get("SubnetSet") or []:
             subnet_id = subnet.get("SubnetId")

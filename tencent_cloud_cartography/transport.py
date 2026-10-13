@@ -16,7 +16,7 @@ class CollectionError(RuntimeError):
 
 def failure_code(text):
     match = re.search(
-        r"(?i)(UnauthorizedOperation(?:\.[A-Za-z]+)*|AuthFailure(?:\.[A-Za-z]+)*|RequestLimitExceeded(?:\.[A-Za-z]+)*|ResourceNotFound(?:\.[A-Za-z]+)*|InvalidAction|UnsupportedOperation(?:\.[A-Za-z]+)*)",
+        r"(?i)(UnauthorizedOperation(?:\.[A-Za-z]+)*|OperationDenied(?:\.[A-Za-z]+)*|AuthFailure(?:\.[A-Za-z]+)*|RequestLimitExceeded(?:\.[A-Za-z]+)*|ResourceNotFound(?:\.[A-Za-z]+)*|InvalidAction|UnsupportedOperation(?:\.[A-Za-z]+)*)",
         text,
     )
     if match:

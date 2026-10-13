@@ -244,7 +244,7 @@ COLLECTORS = (
         "dnspod.domain",
         ("DomainId",),
         ("Name",),
-        "DomainCountInfo.AllTotal",
+        "DomainCountInfo.DomainTotal",
         regional=False,
     ),
     Collector(
@@ -340,6 +340,25 @@ CHILDREN = {
     ),
 }
 SCF_NAMESPACES = Collector("scf", "ListNamespaces", "Namespaces", "scf.namespace", ("Name",))
+DNS_RECORDS = {
+    "dnspod.domain": Collector(
+        "dnspod",
+        "DescribeRecordList",
+        "RecordList",
+        "dnspod.record",
+        ("RecordId",),
+        total="RecordCountInfo.TotalCount",
+        regional=False,
+    ),
+    "privatedns.zone": Collector(
+        "privatedns",
+        "DescribePrivateZoneRecordList",
+        "RecordSet",
+        "privatedns.record",
+        ("RecordId",),
+        regional=False,
+    ),
+}
 SCF_FUNCTIONS = Collector(
     "scf",
     "ListFunctions",
@@ -349,7 +368,8 @@ SCF_FUNCTIONS = Collector(
     ("FunctionName",),
 )
 ALLOWED_ACTIONS = {
-    (s.service, s.action) for s in (*COLLECTORS, *CHILDREN.values(), SCF_NAMESPACES, SCF_FUNCTIONS)
+    (s.service, s.action)
+    for s in (*COLLECTORS, *CHILDREN.values(), *DNS_RECORDS.values(), SCF_NAMESPACES, SCF_FUNCTIONS)
 } | {
     ("sts", "GetCallerIdentity"),
     ("cloudrc", "SearchResources"),
@@ -400,6 +420,12 @@ KIND_ICONS = {
     "vpc.peeringconnection": "Peering Connection",
 }
 DETAIL_KINDS = {
+    "dnspod.record",
+    "dnspod.name",
+    "dnspod.address",
+    "privatedns.record",
+    "privatedns.name",
+    "privatedns.address",
     "vpc.route",
     "vpc.networkacl",
     "vpc.networkaclrule",

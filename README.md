@@ -70,7 +70,7 @@ The **Cloud Resource Center** `SearchResources` API supplies a baseline of suppo
 | Storage | COS bucket names/regions; CFS file systems |
 | Serverless and integration | SCF namespaces/functions (metadata only), API Gateway services, CKafka instances |
 | Identity and keys | CAM users/groups/roles, memberships, policy attachments and conditional statements; KMS metadata and aliases; Secrets Manager metadata and explicit key relationships |
-| Edge and DNS | CDN domains, DNSPod domains, Private DNS zones |
+| Edge and DNS | CDN domains; owned DNSPod domains and Private DNS zones with records, nameservers, subzones and explicit VPC bindings |
 
 See [the exact API catalog](tencent_cloud_cartography/catalog.py). API versions are pinned. Global services are queried once per account, regional services once per selected region. The global CloudRC pass queries the account inventory but only retains resources whose region is global. COS lists bucket metadata account-wide and retains the selected regions.
 
@@ -93,6 +93,8 @@ No collector retrieves COS objects, secret values, SCF source, database contents
 CAM collection includes group membership, direct user/role/group policy attachments, local policies and attached preset policies. Full graph view exposes policy/trust statements and the principals they name. `MEMBER_OF` and `HAS_POLICY` describe collected associations; `NAMES_PRINCIPAL` includes conditional and deny statements. These edges do not establish effective access or permission to assume a role. Permission boundaries, federation inventory and effective permission analysis remain incomplete.
 
 KMS collection queries both customer-created and service-created keys, then retains key descriptions, aliases, lifecycle, origin and rotation metadata. CBS disks and Secrets Manager metadata link to explicitly configured KMS key IDs. A disk's encryption flag alone does not identify a key. Exact regional CAM key-resource expressions link policy statements to known keys; `NAMES_RESOURCE` and `CONFIGURED_KMS_KEY` describe configuration, not permission to decrypt. Tencent key aliases are key attributes; AWS key-policy and grant analysis still needs provider-specific authorization work.
+
+DNS collection retains record values, TTL, weight, routing line and enabled state. Public names, private zone views and VPC address scopes remain separate. Subzone links require an enabled NS record matching the child zone's assigned nameserver. IP matches use collected resource addresses and explicit network scope. These links describe configuration; they do not establish DNS resolution or network reachability. Shared public domains, cross-zone private resolver precedence and additional managed-service aliases remain incomplete.
 
 The HTTP viewer and optional Neo4j bind to loopback. HTTP Host/Origin checks reject foreign browser origins. Do not expose the unauthenticated local services through a tunnel or reverse proxy.
 

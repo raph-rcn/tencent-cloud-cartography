@@ -37,6 +37,12 @@ KMS now queries both `ListKeys` creator categories and describes each key. Alias
 
 CAM now collects group membership, user/role/group attachments, local policies and attached preset policies, with parsed policy and role trust statements. Conditions, deny effects and exact principal expressions remain visible. Numeric UIN identities are resolved only when their owning UIN is explicit; AppIds and wildcards are not guessed. These configuration relationships do not establish effective permissions. Permission boundaries, federation inventory, credential metadata and applicable permission analyses remain gaps.
 
+## DNS configuration
+
+Owned DNSPod domains and Private DNS zones now include paginated records, assigned nameservers, configured subzones and explicit VPC bindings. Record types, values, TTL, weight, routing line and enabled state remain visible. Public names and each private zone view have separate identities. Private IP relationships require a matching VPC binding with an explicit region and owner; a shared address alone does not join unrelated networks.
+
+DNSPod collection uses `Type=MINE` and its filtered `DomainTotal` count. Shared public-domain ownership is not inferred from the collecting account. Private zone ownership must match the profile owner. Nameserver/subzone and address links describe collected configuration, not effective DNS answers or reachability. Cross-zone private resolver precedence, additional managed-service endpoint aliases, shared public domains and authenticated runtime validation remain gaps.
+
 ## Completion rule
 
 A registered action, mapping row, green unit test, or icon does not on its own establish parity. Each audit item must have corresponding native collection, model/relationship behavior, tests for failure and negative controls, and runtime evidence appropriate to that capability. Keep this audit incomplete until those checks hold for the original scope.

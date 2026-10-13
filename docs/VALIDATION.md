@@ -69,3 +69,14 @@ Sources: [GetGroup](https://intl.cloud.tencent.com/document/api/598/32260), [Get
 - Dedicated HSM discovery, broader encrypted-resource coverage and authenticated Tencent runtime validation remain outstanding.
 
 Sources: [ListKeys](https://www.tencentcloud.com/document/api/1030/32184), [DescribeKey](https://www.tencentcloud.com/document/api/1030/32197), [KMS API catalog](https://intl.cloud.tencent.com/document/product/1030/32172), [KMS CAM resources](https://intl.cloud.tencent.com/ind/document/product/598/57129), and [CBS disk fields](https://cloud.tencent.com/document/product/362/15669).
+
+## DNS records and network scope — 2026-10-13
+
+- Compared the source Route53 collector and DNS record models with DNSPod 2021-03-23 and Private DNS 2020-10-28 SDK schemas and official documentation. Added both record-list actions to the metadata API allowlist.
+- DNSPod domain inventory explicitly requests owned domains and uses the filtered count. Private zone ownership is checked before insertion. VPC bindings use explicit owner UIN and region; deleted bindings and ownerless shared bindings do not create active associations.
+- **106 backend tests** pass. DNS controls cover pagination and duplicate IDs, partial/denied responses, malformed names/records, failed zone enrichment, IDNA, all retained record types, null MX/SRV targets, zero weight, disabled records, subzone nameserver checks, and public/private/account/region/VPC isolation.
+- Synthetic browser fixture: **14 resources, 16 relationships, 4 services** in the full graph; **5 resources and 2 relationships** in architecture view. Official DNSPod and Private DNS icons render. The local draw.io export parses with **20 editable nodes including containers and 16 edges**, with valid parent and endpoint references.
+- Frontend tests, production build, dependency audit and all 896 icon integrity checks pass. The original demo fixture was restored after browser validation.
+- Cross-zone private resolver precedence, additional managed-service aliases, shared public-domain collection and live Tencent verification remain incomplete. No external DNS queries or authenticated cloud calls were used for this validation.
+
+Sources: [DNSPod domain list](https://cloud.tencent.com/document/product/1427/56172), [DNSPod records](https://cloud.tencent.com/document/api/1427/56166), [DNSPod models](https://cloud.tencent.com/document/product/1427/56185), [Private DNS records](https://cloud.tencent.com/document/api/1338/55938), and [Private DNS models](https://cloud.tencent.com/document/product/1338/55947).

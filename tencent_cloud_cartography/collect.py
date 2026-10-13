@@ -2,14 +2,14 @@
 
 import json
 
-from .catalog import CHILDREN, COLLECTORS, SCF_FUNCTIONS, SCF_NAMESPACES
+from .catalog import CHILDREN, COLLECTORS, DNS_RECORDS, SCF_FUNCTIONS, SCF_NAMESPACES
 from .model import Graph, first, resource_kind, stable_id
 from .transport import CollectionError, TccliTransport, pages
 
 
 def status_for(code):
     low = code.lower()
-    if low.startswith(("unauthorized", "authfailure")):
+    if low.startswith(("unauthorized", "authfailure", "operationdenied")):
         return "denied"
     if low.startswith(("invalidaction", "unsupported")):
         return "unsupported"
@@ -98,6 +98,8 @@ class CollectorRunner:
 
     def native(self, spec, region, params=None, parent=None, relation=None):
         collected = []
+        if spec.service == "dnspod" and spec.action == "DescribeDomainList":
+            params = {**(params or {}), "Type": "MINE"}
         if spec.action == "ListPolicies":
             # Preset policies enter through actual attachments; do not collect the
             # entire provider catalog as though every policy belongs to this account.
@@ -133,6 +135,8 @@ class CollectorRunner:
                 if request_id:
                     record["request_ids"].append(request_id)
                 for item in items:
+                    if spec.kind == "privatedns.zone" and str(item.get("OwnerUin")) != self.account:
+                        raise CollectionError("AccountMismatch")
                     if spec.kind == "cvm.launchtemplateversion":
                         version = item.get("LaunchTemplateVersion")
                         template = item.get("LaunchTemplateId") or (params or {}).get(
@@ -251,6 +255,11 @@ class CollectorRunner:
                     collect_keys(self, spec, region)
                     continue
                 collected = self.native(spec, region)
+                if spec.kind in DNS_RECORDS:
+                    from .dns import collect_records
+
+                    for nid, item in collected:
+                        collect_records(self, nid, item)
                 if spec.kind == "vpc.securitygroup":
                     self.security_rules(region, collected)
                 child = CHILDREN.get(spec.kind)
@@ -339,4 +348,7 @@ def collect(
     from .kms import link_policy_resources
 
     link_policy_resources(graph)
+    from .dns import link_dns
+
+    link_dns(graph)
     return graph.snapshot()

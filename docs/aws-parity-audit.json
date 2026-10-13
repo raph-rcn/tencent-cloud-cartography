@@ -274,7 +274,7 @@
       "source_enabled": true,
       "tencent_counterpart": "DNSPod / Private DNS",
       "status": "incomplete",
-      "evidence_or_gap": "Domains and private zones only; records, aliases and VPC zone associations pending."
+      "evidence_or_gap": "Owned DNSPod domains, Private DNS zones, paginated records, assigned nameservers, configured subzones and explicit region/owner VPC bindings implemented. Record types/TTL/weight/line/status retained; scoped names and address matches prevent public/private or VPC conflation. Cross-zone private resolver precedence, remaining managed-service endpoint aliases, shared public-domain ownership and live validation remain incomplete."
     },
     {
       "aws_collector": "elasticsearch",
