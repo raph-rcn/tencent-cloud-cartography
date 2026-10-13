@@ -477,3 +477,22 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
   `.local/autoscaling-preview.png` preserve official Auto Scaling/CVM/network icons.
 - Validation is synthetic; no live Tencent collection or scaling action occurred.
   Launch configuration details remain excluded because the API includes UserData.
+
+## 2026-10-13 — Image/snapshot ownership, in-use lookup and sharing
+
+- Backend **631 tests passed**, including **22** new cases covering owned filters,
+  typed metadata, share recipients/timestamps, reference upgrades, wrong/empty
+  lookup responses, pagination, independent failures, ownership and account/region
+  boundaries, duplicate/invalid data and exact read-only API selection.
+- In-use public/shared resources are explicitly marked not owned by the query
+  account. Their foreign backing disks/snapshots are not assigned guessed owners.
+- Frontend **7 tests passed**, production build succeeded, dependency audit
+  reported **0 vulnerabilities**; the existing bundle-size advisory remains.
+- Synthetic `.local/image-snapshot-demo.json` rendered **6 resources / 6 relationships**
+  across the owner and recipient accounts. The inspector showed the snapshot share,
+  incoming snapshot edge, recipient identity, timestamp and `access_verified=false`.
+- Browser export `Downloads/tencent-cloud-cartography (25).drawio` and screenshot
+  `.local/image-snapshot-preview.png` verified the official CVM/CBS/CAM icon mappings.
+- No live API calls, snapshot/image contents, sharing mutations or access attempts
+  occurred. AWS public-permission semantics and broader source metadata parity
+  remain incomplete and are tracked in the parity audit.

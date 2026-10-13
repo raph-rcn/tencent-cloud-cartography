@@ -78,7 +78,7 @@
       "source_enabled": true,
       "tencent_counterpart": "CVM images",
       "status": "incomplete",
-      "evidence_or_gap": "Owned image inventory and snapshot links added; sharing metadata pending."
+      "evidence_or_gap": "Owned private images and targeted referenced public/shared image lookups implemented with required-total pagination, identity matching and independent failures. Selected architecture, lifecycle, license, cloud-init and deprecation metadata retained; owned images link backing snapshots. Recipient account/time sharing nodes and explicit CAM root-principal links implemented. Shared/public resources are query-account views explicitly marked not owned; unknown foreign snapshot ownership is not guessed. AWS-only hardware/boot fields, effective/public access equivalence and live validation remain incomplete."
     },
     {
       "aws_collector": "ec2:keypair",
@@ -197,7 +197,7 @@
       "source_enabled": true,
       "tencent_counterpart": "CBS snapshots",
       "status": "incomplete",
-      "evidence_or_gap": "Snapshot inventory and disk/image links added; sharing metadata pending."
+      "evidence_or_gap": "Explicit owned private snapshot inventory, referenced snapshot lookup, lifecycle/retention/encryption/size metadata and selected owned disk links implemented. Per-snapshot share recipients/timestamps link explicit recipient root accounts; empty sharing is not treated as AWS Public=false. Shared snapshots retain their foreign DiskId as metadata without creating a guessed current-account disk edge. Source-disk creation snapshot provenance, AWS public permission/KMS semantics, full sharing visibility and live validation remain incomplete."
     },
     {
       "aws_collector": "ecr",

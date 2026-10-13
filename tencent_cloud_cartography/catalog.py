@@ -659,6 +659,8 @@ ALLOWED_ACTIONS = {
         ("autoscaling", "DescribeLaunchConfigurations"),
     }
 } | {
+    ("cvm", "DescribeImageSharePermission"),
+    ("cbs", "DescribeSnapshotSharePermission"),
     ("ssl", "DescribeHostCdnInstanceList"),
     ("ssm", "ListSecretVersionIds"),
     ("ssm", "DescribeRotationDetail"),
@@ -801,6 +803,8 @@ DETAIL_KINDS = {
     "vpc.ccnattachment",
     "cvm.keypair",
     "cvm.image",
+    "cvm.imageshare",
+    "cbs.snapshotshare",
     "cvm.launchtemplateversion",
     "cbs.snapshot",
     "vpc.securitygroup",

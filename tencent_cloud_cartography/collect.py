@@ -351,6 +351,11 @@ class CollectorRunner:
             if services and spec.service not in services:
                 continue
             for region in self.regions if spec.regional else ["global"]:
+                if spec.kind in {"cvm.image", "cbs.snapshot"}:
+                    from .image_snapshots import collect_owned
+
+                    collect_owned(self, spec, region)
+                    continue
                 if spec.service == "autoscaling":
                     from .autoscaling import collect as collect_autoscaling
 
@@ -480,6 +485,9 @@ class CollectorRunner:
                 collect_layers(self, region)
         if not services or "cos" in services:
             self.buckets()
+        from .image_snapshots import collect_in_use
+
+        collect_in_use(self, services)
         if not services or "tag" in services:
             from .tags import collect_tags
 

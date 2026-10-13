@@ -103,6 +103,11 @@
     },
     {
       "service": "cbs",
+      "action": "DescribeSnapshotSharePermission",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "cbs",
       "action": "DescribeSnapshots",
       "api_version": "2017-03-12"
     },
@@ -266,6 +271,11 @@
       "action": "list_buckets",
       "api_version": "COS plugin",
       "cam_action": "cos:GetService"
+    },
+    {
+      "service": "cvm",
+      "action": "DescribeImageSharePermission",
+      "api_version": "2017-03-12"
     },
     {
       "service": "cvm",

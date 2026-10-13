@@ -582,3 +582,36 @@ Sources: [Tencent group API](https://intl.cloud.tencent.com/zh/document/product/
 [instance membership API](https://cloud.tencent.com/document/api/377/20437),
 [launch configuration API](https://cloud.tencent.com/document/api/377/20445),
 [response schemas](https://www-sg.tencentcloud.com/document/api/377/31018).
+
+## Owned and in-use images/snapshots
+
+Direct source comparison found that AWS image/snapshot collection includes both
+owned inventory and metadata for referenced resources outside owned inventory.
+Tencent now explicitly filters private image/snapshot lists, requires totals, and
+looks up unresolved referenced IDs individually after native collectors finish.
+An unavailable ID cannot erase another lookup's result; a wrong/empty response
+leaves the reference unresolved. Referenced inventory-only rows are eligible too.
+
+Public/shared resources retain provider type and selected lifecycle, architecture,
+license, retention, encryption and size fields. Their account field identifies
+the query context; `owned_by_collected_account=false` explicitly distinguishes
+external resources. The API does not supply authoritative foreign owner UINs.
+Foreign image backing snapshot IDs and shared snapshot source disk IDs are kept
+as metadata without fabricated current-account ownership edges.
+
+Owned resources independently query `DescribeImageSharePermission` or
+`DescribeSnapshotSharePermission`. Sharing nodes preserve recipient root-account
+ID and timestamp, with `HAS_SHARE` and `SHARE_RECIPIENT` relationships. These are
+provider-reported sharing configuration, not proven effective access. Empty
+sharing lists do not establish the AWS snapshot `Public=false` predicate. No
+image/snapshot contents are retrieved and no sharing mutation is allowed.
+
+Remaining differences include AWS public-permission semantics, snapshot KMS and
+source-disk creation provenance absent from these collected schemas, broader
+image boot/hardware fields and live verification.
+
+Sources: [image sharing](https://intl.cloud.tencent.com/zh/document/product/213/33273),
+[snapshot sharing](https://intl.cloud.tencent.com/document/api/362/33300),
+[recipient identity](https://cloud.tencent.com/document/product/362/40469),
+[image API](https://cloud.tencent.com/document/api/213/15715),
+[snapshot schema](https://cloud.tencent.com/document/product/362/15669).
