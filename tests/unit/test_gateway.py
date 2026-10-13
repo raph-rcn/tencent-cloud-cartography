@@ -1,4 +1,3 @@
-
 import pytest
 
 from tencent_cloud_cartography.catalog import COLLECTORS, SCF_FUNCTIONS
