@@ -730,3 +730,32 @@ equivalent. No such values are fabricated; live Tencent validation remains open.
 Sources: [VPC inventory](https://cloud.tencent.com/document/product/215/15778),
 [subnet inventory](https://cloud.tencent.com/document/product/215/15784),
 [network response schemas](https://cloud.tencent.com/document/api/215/15824).
+
+## Security-group selectors and reusable templates
+
+The source AWS collector retains IPv4 range nodes and referenced security groups.
+It does not collect prefix-list dependencies. Tencent rules now retain version,
+index, priority, direction, action, descriptions and timestamps, with explicit
+links to referenced groups, IPv4/IPv6 selectors and address/service templates.
+A malformed or conflicting rule prevents that policy response from partially
+updating the graph; independent group failures remain isolated.
+
+Four metadata APIs collect address templates/groups and service templates/groups.
+Members retain IP/CIDR/range identities or literal protocol/port selectors.
+Canonical addresses coexist with original provider text. Member remarks remain
+on their template so shared address nodes cannot overwrite each other's comments.
+Group membership and template dependencies remain explicit graph edges. All new
+kinds use the bundled official VPC SVG and appear in the full relationship graph.
+
+Security-group metadata now preserves descriptions, project, default flag and
+creation/update timestamps. Missing referenced groups/templates remain references.
+Rule address groups are not expanded into a claim of effective access, and policy
+version/index values describe the collected snapshot. The Tencent schemas provide
+no foreign owner UIN for a referenced group; references use the query account and
+region. AWS VPC-specific SG scoping and effective rule behavior require provider
+semantics/live verification; no reachability or firewall mutation is performed.
+
+Sources: [network response schemas](https://cloud.tencent.com/document/api/215/15824),
+[address templates](https://intl.cloud.tencent.com/document/product/215/16717),
+[service templates](https://intl.cloud.tencent.com/document/product/215/16719),
+[service template groups](https://intl.cloud.tencent.com/document/api/215/16718).

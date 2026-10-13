@@ -578,3 +578,25 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
   ten edges and the official VPC SVGs; preview `.local/vpc-cidr-preview.png`.
 - No live Tencent collection occurred. Provider-specific source-field equivalence
   gaps remain documented in the parity audit. No API permission was added.
+
+## 2026-10-13 — Security-group references and reusable selectors
+
+- Backend **763 tests passed**, including **25** new cases for direct IPv4/IPv6
+  selectors, referenced groups, address/service template dependencies, group
+  membership, ranges, policy versions/priorities, malformed selectors, duplicates,
+  pagination totals, independent denial and template-scoped member remarks.
+- Invalid ingress/egress data prevents partial application of that policy response.
+  Unsupported/denied template reads retain unresolved references. A source review
+  confirmed that AWS security_groups.py does not collect prefix-list dependencies.
+- Frontend **7 tests passed**, production build succeeded and dependency audit
+  reported **0 vulnerabilities**; the existing bundle-size advisory remains.
+- Synthetic `.local/security-templates-demo.json` rendered **12 resources / 11
+  relationships** in the full graph. Inspector confirmed two template dependency
+  edges plus policy version 7, priority 0 and `reachability_verified=false`.
+- Browser export `Downloads/tencent-cloud-cartography (30).drawio` retained all
+  eleven edges and embedded official VPC SVGs; preview saved to
+  `.local/security-templates-preview.png`. The peer group remains an unresolved
+  reference, making the synthetic fixture partial.
+- Four metadata API actions were added to the permission inventory. All 896
+  bundled official icons remain intact. No cloud mutation or live collection
+  occurred; source/provider scoping and effective-access semantics remain open.

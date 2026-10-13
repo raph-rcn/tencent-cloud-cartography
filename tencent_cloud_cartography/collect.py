@@ -274,51 +274,9 @@ class CollectorRunner:
         return collected
 
     def security_rules(self, region, groups):
-        for nid, group in groups:
+        from .security_groups import collect_rules
 
-            def operation(record, nid=nid, group=group):
-                response = self.transport.call(
-                    "vpc",
-                    "DescribeSecurityGroupPolicies",
-                    region,
-                    SecurityGroupId=group["SecurityGroupId"],
-                )
-                if response.get("RequestId"):
-                    record["request_ids"].append(response["RequestId"])
-                policy_set = response.get("SecurityGroupPolicySet")
-                if not isinstance(policy_set, dict):
-                    raise CollectionError("InvalidResponse")
-                for direction in ("Ingress", "Egress"):
-                    rules = policy_set.get(direction)
-                    if rules is None:
-                        rules = []
-                    if not isinstance(rules, list):
-                        raise CollectionError("InvalidResponse")
-                    for idx, rule in enumerate(rules):
-                        rid = (
-                            group["SecurityGroupId"]
-                            + "/"
-                            + direction
-                            + "/"
-                            + str(rule.get("PolicyIndex", idx))
-                        )
-                        target = self.graph.add(
-                            self.account,
-                            region,
-                            "vpc.securitygrouprule",
-                            rid,
-                            f"{direction} {rule.get('Action', '')} {rule.get('Protocol', '')}:{rule.get('Port', '')}",
-                            rule,
-                            "vpc.DescribeSecurityGroupPolicies",
-                        )
-                        self.graph.edge(
-                            nid, target, "HAS_RULE", "vpc.DescribeSecurityGroupPolicies"
-                        )
-                        record["count"] += 1
-
-            self.scope(
-                "vpc", "DescribeSecurityGroupPolicies", region, operation, group["SecurityGroupId"]
-            )
+        collect_rules(self, region, groups)
 
     def buckets(self):
         from .cos import collect_bucket
@@ -351,6 +309,17 @@ class CollectorRunner:
             if services and spec.service not in services:
                 continue
             for region in self.regions if spec.regional else ["global"]:
+                if spec.kind in {
+                    "vpc.securitygroup",
+                    "vpc.addresstemplate",
+                    "vpc.addresstemplategroup",
+                    "vpc.servicetemplate",
+                    "vpc.servicetemplategroup",
+                }:
+                    from .security_groups import collect as collect_security_groups
+
+                    collect_security_groups(self, spec, region)
+                    continue
                 if spec.kind in {"vpc.vpc", "vpc.subnet"}:
                     from .vpc import collect as collect_vpc
 

@@ -92,7 +92,7 @@
       "source_enabled": true,
       "tencent_counterpart": "VPC security groups",
       "status": "incomplete",
-      "evidence_or_gap": "Groups, rules and memberships implemented; reference groups/prefix lists need audit."
+      "evidence_or_gap": "Typed security-group descriptions/default/project/time metadata and policy version/priority/direction/action/description retained. Rules now link to referenced groups and canonical IPv4/IPv6/host/range selector nodes; reusable address/service templates and template-group membership are collected with member remarks. Per-group rule responses validate atomically. Source security_groups.py collects IPv4 ranges and referenced groups but does not collect prefix-list dependencies; removed that unsupported parity requirement. Provider-specific SG scoping and effective rule semantics, cross-account ownership where absent from Tencent responses, and live collection remain unverified."
     },
     {
       "aws_collector": "ec2:subnet",

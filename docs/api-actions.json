@@ -539,6 +539,16 @@
     },
     {
       "service": "vpc",
+      "action": "DescribeAddressTemplateGroups",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
+      "action": "DescribeAddressTemplates",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
       "action": "DescribeAddresses",
       "api_version": "2017-03-12"
     },
@@ -580,6 +590,16 @@
     {
       "service": "vpc",
       "action": "DescribeSecurityGroups",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
+      "action": "DescribeServiceTemplateGroups",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
+      "action": "DescribeServiceTemplates",
       "api_version": "2017-03-12"
     },
     {
