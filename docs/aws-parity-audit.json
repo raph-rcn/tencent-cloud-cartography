@@ -36,7 +36,7 @@
       "source_enabled": true,
       "tencent_counterpart": "KMS",
       "status": "incomplete",
-      "evidence_or_gap": "Only key IDs collected. Key descriptions, aliases and encryption edges remain incomplete."
+      "evidence_or_gap": "Customer- and service-created keys, descriptions, aliases, lifecycle/rotation metadata, explicit CBS/Secrets Manager configuration edges and exact CAM resource references implemented. Tencent uses CAM authorization; AWS key-policy/grant analysis is not reproduced by configuration edges. Dedicated HSM inventory, broader encryption consumers and live validation remain incomplete."
     },
     {
       "aws_collector": "s3",

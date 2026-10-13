@@ -37,6 +37,15 @@ def walk_values(data, keys):
 
 
 SAFE_FIELDS = {
+    "KmsKeyId",
+    "KmsKeyType",
+    "EncryptType",
+    "EncryptSwitching",
+    "RotationStatus",
+    "RotationFrequency",
+    "NextRotationTime",
+    "SecretType",
+    "DiskEncryption",
     "ConsoleLogin",
     "RoleType",
     "SessionDuration",

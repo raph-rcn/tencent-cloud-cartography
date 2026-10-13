@@ -245,6 +245,11 @@ class CollectorRunner:
             if services and spec.service not in services:
                 continue
             for region in self.regions if spec.regional else ["global"]:
+                if spec.action == "ListKeys" and spec.service == "kms":
+                    from .kms import collect_keys
+
+                    collect_keys(self, spec, region)
+                    continue
                 collected = self.native(spec, region)
                 if spec.kind == "vpc.securitygroup":
                     self.security_rules(region, collected)
@@ -331,4 +336,7 @@ def collect(
                 "IdentityChanged",
                 "Authentication changed during collection; snapshot not published",
             )
+    from .kms import link_policy_resources
+
+    link_policy_resources(graph)
     return graph.snapshot()

@@ -31,8 +31,12 @@ Route configuration is not a reachability finding. For `NORMAL_CVM` next hops, T
 
 Sources: [AS API catalog](https://cloud.tencent.com/document/api/377/20423), [image ownership filter](https://cloud.tencent.com/document/api/213/15715), [CCN attachments](https://cloud.tencent.com/document/api/215/19202), and the pinned-version models in TCCLI's Tencent SDK. Offline contract fixtures validate implementation semantics; live coverage remains unverified.
 
-## Completion rule
+## Identity and encryption configuration
+
+KMS now queries both `ListKeys` creator categories and describes each key. Aliases, origin, lifecycle and rotation metadata are retained, together with explicit CBS/Secrets Manager key configuration and exact CAM key-resource references. The Tencent API catalog exposes CAM-based authorization rather than the source's AWS `GetKeyPolicy`/`ListGrants` workflow. Configuration edges are not a replacement for that authorization analysis. Dedicated HSM discovery, additional encryption consumers and live verification remain gaps.
 
 CAM now collects group membership, user/role/group attachments, local policies and attached preset policies, with parsed policy and role trust statements. Conditions, deny effects and exact principal expressions remain visible. Numeric UIN identities are resolved only when their owning UIN is explicit; AppIds and wildcards are not guessed. These configuration relationships do not establish effective permissions. Permission boundaries, federation inventory, credential metadata and applicable permission analyses remain gaps.
+
+## Completion rule
 
 A registered action, mapping row, green unit test, or icon does not on its own establish parity. Each audit item must have corresponding native collection, model/relationship behavior, tests for failure and negative controls, and runtime evidence appropriate to that capability. Keep this audit incomplete until those checks hold for the original scope.

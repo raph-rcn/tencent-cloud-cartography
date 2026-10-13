@@ -57,3 +57,15 @@
 - Full AWS IAM parity and authenticated Tencent runtime validation remain outstanding.
 
 Sources: [GetGroup](https://intl.cloud.tencent.com/document/api/598/32260), [GetPolicy](https://cloud.tencent.com/document/api/598/34574), [role structures](https://cloud.tencent.com/document/product/598/33167), [group attachments](https://cloud.tencent.com/document/api/598/34573), and [CAM policy syntax](https://cloud.tencent.com.cn/document/product/598/10604).
+
+## KMS metadata and encryption configuration — 2026-10-13
+
+- The source KMS collector was inspected directly: it collects described keys, aliases, key policies and grants. Tencent authorization analysis is still incomplete; configuration links do not substitute for it.
+- `ListKeys` now queries `Role=0` and `Role=1` independently. Its default previously omitted service-created keys. Each discovered key is described once per region; one denied list category does not suppress the other.
+- DescribeKey request/response and retained fields were checked against the installed KMS 2019-01-18 SDK. CBS `Disk.KmsKeyId` and SSM `SecretMetadata.KmsKeyId` field semantics were checked against their SDK models. Snapshot encryption flags do not supply a key ID.
+- **88 backend tests** pass, including owner/region separation, creator UIN versus owner UIN, duplicate alias names, false/zero rotation values, mismatched IDs, denied detail calls, explicit versus absent/contradictory encryption metadata, exact CAM resource matching, and blocked plaintext/ciphertext key retrieval calls.
+- Keys are resolved only from explicit supported IDs. Unknown formats remain visible as unresolved reference properties. Exact CAM resource references include deny/conditional statements and never create access or decrypt permissions.
+- Browser check of a separate synthetic KMS fixture rendered 6 resources, 5 relationships and 4 services with official icons. Architecture view retained only the disk. The draw.io download parsed with 13 editable nodes (including groups), all 5 edges and valid endpoints/parents. The original demo fixture was restored. Frontend tests, build, dependency audit and all 896 icon integrity checks passed.
+- Dedicated HSM discovery, broader encrypted-resource coverage and authenticated Tencent runtime validation remain outstanding.
+
+Sources: [ListKeys](https://www.tencentcloud.com/document/api/1030/32184), [DescribeKey](https://www.tencentcloud.com/document/api/1030/32197), [KMS API catalog](https://intl.cloud.tencent.com/document/product/1030/32172), [KMS CAM resources](https://intl.cloud.tencent.com/ind/document/product/598/57129), and [CBS disk fields](https://cloud.tencent.com/document/product/362/15669).

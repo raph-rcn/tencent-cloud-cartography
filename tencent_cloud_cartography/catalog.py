@@ -358,6 +358,7 @@ ALLOWED_ACTIONS = {
     ("cam", "GetGroup"),
     ("cam", "GetPolicy"),
     ("cam", "GetRole"),
+    ("kms", "DescribeKey"),
 }
 
 # Official archive titles; all assets are verified by tests against the manifest.
@@ -421,6 +422,7 @@ DETAIL_KINDS = {
     "cam.rootprincipal",
     "ssm.secret",
     "kms.key",
+    "kms.alias",
 }
 
 API_VERSIONS = {

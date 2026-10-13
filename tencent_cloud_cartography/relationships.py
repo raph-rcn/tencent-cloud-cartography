@@ -141,3 +141,8 @@ def enrich(graph, account, region, kind, nid, raw, source):
             reference(snapshot, "cbs.snapshot", "USES_SNAPSHOT")
     if kind == "cbs.snapshot":
         reference(raw.get("DiskId"), "cbs.disk", "SNAPSHOT_OF")
+
+    if kind in {"cbs.disk", "ssm.secret"}:
+        from .kms import configured_key
+
+        configured_key(graph, nid, raw, source)

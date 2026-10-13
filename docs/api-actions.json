@@ -158,6 +158,11 @@
     },
     {
       "service": "kms",
+      "action": "DescribeKey",
+      "api_version": "2019-01-18"
+    },
+    {
+      "service": "kms",
       "action": "ListKeys",
       "api_version": "2019-01-18"
     },
