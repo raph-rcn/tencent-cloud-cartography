@@ -429,3 +429,56 @@ Node protection does not establish cluster-level termination-policy equivalence.
 Sources: [cluster list](https://cloud.tencent.com/document/api/589/74070),
 [node inventory](https://cloud.tencent.com/document/product/589/41707),
 [official SDK schemas](https://github.com/TencentCloud/tencentcloud-sdk-python/blob/master/tencentcloud/emr/v20190103/models.py).
+
+
+## Resource tags
+
+The AWS source's `resourcegroupstaggingapi` collector creates shared tag nodes
+and `TAGGED` relationships to inventory resources, including a separate global
+IAM path. Tencent now uses account-wide `tag.GetResources` with API version
+2018-08-13, no tag/resource filters, and continuation-token pagination. Each
+profile is queried once; returned regional bindings are retained only for the
+selected regions, alongside global or unresolved-region bindings. Coverage
+reports both scanned and retained resource counts. Missing/null tokens, repeated
+tokens/resources and malformed arrays remain incomplete.
+
+Tag keys and values are case-sensitive. Unicode and empty values are preserved;
+duplicate keys and malformed fields are rejected before writing a binding.
+Tag identity is a hash of the separate key/value strings, scoped to the account;
+colon-containing keys cannot collide with colon-containing values. Sharing a tag
+expresses metadata equality and does not imply permission or network access.
+
+Documented QCS service/prefix pairs map to the actual native resource kinds.
+Matching includes account UIN, region and full ID; names and ID suffixes are not
+substituted. Global CAM roles/users, SSL, CCN and private DNS use documented
+regionless identifiers. EMR node references need a unique returned EmrResourceId.
+COS's three documented AppId forms resolve only to a full bucket name already
+collected under the same account and region. AppId is never treated as a UIN;
+object paths are rejected instead of silently tagging the containing bucket.
+
+Unknown resource types, missing regional identity, missing collected resources,
+ambiguous node IDs, and conflicting tag sets for equivalent QCS identifiers
+remain `tag.resource` inventory-only nodes. They retain the tag relationships and
+make the snapshot partial. Successfully matched bindings become direct
+resource-to-tag edges; the temporary binding nodes are removed. Native and
+CloudRC tag properties remain separate from `tag_api_tags`, preserving their
+provenance. A new collection builds a new snapshot, so removed tags are not
+silently carried forward from an earlier scan.
+
+The full relationship graph includes tags; the architecture view hides these
+metadata detail nodes. The bundled official archive has no Tag product logo:
+this metadata service uses its generic **Application Programming Interface**
+symbol, explicitly mapped in the icon catalog. All native product logos remain
+unchanged. This is not presented as a dedicated Tag logo.
+
+Remaining gaps include unsupported/composite resource identifiers, native API
+fallback where the Tag API omits a product, and live account verification. An
+empty successful tag response does not establish that every cloud resource is
+untagged or supported by the Tag API.
+
+Sources: [GetResources](https://cloud.tencent.com/document/product/651/72278),
+[resource prefixes](https://cloud.tencent.com/document/product/651/89122),
+[COS identifier forms](https://cloud.tencent.com/document/product/651/133239),
+[CAM role identifiers](https://cloud.tencent.com/document/product/1312/48197),
+[TKE resource identifiers](https://intl.cloud.tencent.com/zh/document/product/598/57168),
+[international resource table](https://intl.cloud.tencent.com/zh/document/product/651/55662).

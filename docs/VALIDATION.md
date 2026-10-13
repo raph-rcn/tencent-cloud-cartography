@@ -387,3 +387,28 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
 - No live Tencent collection was performed. Cluster role/log/security/image
   fields and AWS termination-policy equivalence remain gaps; the password-bearing
   `DescribeInstances` API remains disallowed.
+
+
+## 2026-10-13 — Shared resource-tag graph
+
+- `uv run pytest -q`: **540 passed**, including **34** new tag cases for
+  continuation tokens and page bounds, empty intermediate pages, account/region
+  isolation, case-sensitive key/value identity, Unicode/empty values, malformed
+  data, CAM global IDs, CBS aliases, COS AppId forms, ambiguous EMR node IDs,
+  unresolved inventory and conflicting equivalent resource identifiers.
+- Full synthetic collection now checks **76 coverage rows**, including the
+  independent account-wide `tag.GetResources` pass. API mutation actions remain
+  outside the allowlist.
+- Pre-commit lint/format and **896 icon checksum checks passed**. The icon catalog
+  explicitly identifies the generic official Cloud API symbol used for tagging;
+  the archive has no dedicated Tag product logo.
+- Frontend **7 tests passed**, production build succeeded, dependency audit
+  reported **0 vulnerabilities**. The existing large-bundle advisory remains.
+- `.local/tags-demo.json` rendered **5 resources / 4 relationships** with the
+  Frankfurt region filter. Global tag nodes remained visible. The inspector for
+  `team=analytics` showed incoming links from the CVM worker, COS bucket and CAM
+  role, with `tag.GetResources` provenance.
+- Browser export `Downloads/tencent-cloud-cartography (21).drawio` preserved
+  **12 vertices / 4 edges / 5 embedded SVGs**. Preview: `.local/tags-preview.png`.
+- Validation uses synthetic metadata; no live Tencent collection was performed.
+  Unknown/composite resource mappings and product-specific fallback remain gaps.

@@ -646,6 +646,7 @@ ALLOWED_ACTIONS = {
         SCF_FUNCTIONS,
     )
 } | {
+    ("tag", "GetResources"),
     ("emr", "DescribeClusterNodes"),
     ("config", "DescribeConfigRule"),
     ("config", "DescribeConfigRecorder"),
@@ -683,6 +684,8 @@ ALLOWED_ACTIONS = {
 
 # Official archive titles; all assets are verified by tests against the manifest.
 SERVICE_ICONS = {
+    # The official archive has no Tag product logo; use its generic Cloud API symbol.
+    "tag": ("Resource tags", "Application Programming Interface"),
     "emr": ("Elastic MapReduce", "Elastic MapReduce"),
     "config": ("CloudConfig", "CloudConfig"),
     "ses": ("Simple Email Service", "Simple Email Service"),
@@ -729,6 +732,8 @@ KIND_ICONS = {
     "vpc.peeringconnection": "Peering Connection",
 }
 DETAIL_KINDS = {
+    "tag.tag",
+    "tag.resource",
     "emr.node",
     "config.resourcetype",
     "ses.dnscheck",
@@ -800,6 +805,7 @@ DETAIL_KINDS = {
 }
 
 API_VERSIONS = {
+    "tag": "2018-08-13",
     "emr": "2019-01-03",
     "config": "2022-08-02",
     "ses": "2020-10-02",

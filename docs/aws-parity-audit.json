@@ -302,7 +302,7 @@
       "source_enabled": true,
       "tencent_counterpart": "Tag / CloudRC tags",
       "status": "incomplete",
-      "evidence_or_gap": "Raw tags returned but not retained/modeled. Pending."
+      "evidence_or_gap": "Account-wide Tencent Tag GetResources inventory, token pagination and shared account-scoped tag nodes with TAGGED relationships implemented. Exact documented QCS prefixes bind to collected account/region/resource identities, including CAM/global resources, CBS aliases and COS AppId forms; unknown, ambiguous and conflicting bindings remain inventory-only. Tag case, Unicode and empty values preserved. Composite provider IDs, remaining type mappings, native-only tag fallback and live API validation remain incomplete."
     },
     {
       "aws_collector": "apigateway",

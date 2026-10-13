@@ -71,6 +71,7 @@ The **Cloud Resource Center** `SearchResources` API supplies a baseline of suppo
 | Serverless and integration | SCF namespaces/functions, versions, aliases, triggers and layer versions; API Gateway services/APIs/environments/releases/domains and selected backend links; CKafka instances, topics, partitions and delivery/trigger links; TDMQ for CMQ queues, topics, subscriptions and dead-letter routes; EventBridge buses, rules, targets and resource links |
 | Email | SES sending domains, verification state, DKIM key size and DNS checks; exact collected DNSPod record links |
 | Identity and keys | CAM users/groups/roles, memberships, policy attachments and conditional statements; KMS metadata and aliases; Secrets Manager metadata and explicit key relationships |
+| Resource tags | Shared tag nodes and `TAGGED` relationships, exact QCS matching and visible unresolved bindings |
 | Big data | EMR standard/TKE clusters, host/database/isolated nodes, explicit network and CVM/TKE relationships |
 | Configuration audit | CloudConfig recorder and resource-type scope, rules/parameters/triggers, delivery settings and explicit COS/CLS destinations |
 | Monitoring | Cloud Monitor policies, metric/event rules, notices and object bindings with explicit CVM links; CLS alarms, query/topic links, schedules, notice channels and escalation configuration; scheduled SQL tasks and declared metric outputs |

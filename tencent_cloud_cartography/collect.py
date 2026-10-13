@@ -465,8 +465,12 @@ class CollectorRunner:
                 collect_layers(self, region)
         if not services or "cos" in services:
             self.buckets()
+        if not services or "tag" in services:
+            from .tags import collect_tags
+
+            collect_tags(self)
         # Explicit exclusions remain visible, rather than being represented as zero resources.
-        for service in sorted({s.service for s in COLLECTORS} | {"scf", "cos"}):
+        for service in sorted({s.service for s in COLLECTORS} | {"scf", "cos", "tag"}):
             if services and service not in services:
                 self.graph.coverage.append(
                     dict(
@@ -518,6 +522,9 @@ def collect(
     from .inventory import reconcile_global_inventory
 
     reconcile_global_inventory(graph)
+    from .tags import link_tags
+
+    link_tags(graph)
     from .kms import link_policy_resources
 
     link_policy_resources(graph)
