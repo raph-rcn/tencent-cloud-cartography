@@ -19,6 +19,24 @@ class Collector:
 
 COLLECTORS = (
     Collector(
+        "cls",
+        "DescribeAlarms",
+        "Alarms",
+        "cls.alarm",
+        ("AlarmId",),
+        ("Name",),
+        require_total=True,
+    ),
+    Collector(
+        "cls",
+        "DescribeAlarmNotices",
+        "AlarmNotices",
+        "cls.alarmnotice",
+        ("AlarmNoticeId",),
+        ("Name",),
+        require_total=True,
+    ),
+    Collector(
         "monitor",
         "DescribeAlarmPolicies",
         "Policies",
@@ -580,6 +598,10 @@ KIND_ICONS = {
     "vpc.peeringconnection": "Peering Connection",
 }
 DETAIL_KINDS = {
+    "cls.alarm",
+    "cls.alarmquery",
+    "cls.alarmnotice",
+    "cls.noticerule",
     "monitor.policy",
     "monitor.rule",
     "monitor.notice",

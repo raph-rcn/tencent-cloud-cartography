@@ -134,10 +134,18 @@ class CollectorRunner:
 
         def operation(record):
             monitor_ids = set()
+            cls_alarm_ids = set()
             for items, request_id in pages(self.transport, spec, region, params):
                 if request_id:
                     record["request_ids"].append(request_id)
                 for item in items:
+                    if spec.kind in {"cls.alarm", "cls.alarmnotice"}:
+                        from .cls_alarms import identity
+
+                        rid = identity(item.get(spec.ids[0]), spec.kind)
+                        if rid in cls_alarm_ids:
+                            raise CollectionError("DuplicateClsAlarmIdentity")
+                        cls_alarm_ids.add(rid)
                     if spec.kind == "monitor.policy":
                         from .monitor import policy_id
 

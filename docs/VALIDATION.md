@@ -161,3 +161,23 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
   confirmed the successful local export. Preview: `.local/monitor-preview.png`.
 - Live Tencent permissions, API availability, metric evaluation, notification
   delivery and complete AWS CloudWatch parity remain unverified/incomplete.
+
+## 2026-10-13 — CLS alarm queries and notification groups
+
+- `uv run pytest -q`: **246 passed**. Fifteen new CLS tests cover query/schedule
+  fields, reference enrichment, receiver/callback filtering, recursive escalation,
+  cross-account/region controls, distinct global Monitor references, 101-item
+  pagination for both APIs, duplicates, malformed identities/configuration and
+  independent regional access denial. Two additional tests block alarm log/history
+  operations at the exact API allowlist.
+- `uv run pre-commit run --all-files`: Ruff and all **896 official icon** checks
+  passed. `npm ci`, frontend tests (**5 passed**), build and npm audit passed with
+  **0 vulnerabilities**; the existing bundle-size warning remains.
+- Browser smoke fixture `.local/cls-alarms-demo.json` on loopback 8790 rendered
+  **7 nodes / 6 edges** in the full graph. Left-to-right layout visibly retained the
+  Frankfurt alarm → query → topic path, notification group/rule and cross-region
+  delivery-topic configuration. Preview: `.local/cls-alarms-preview.png`.
+- Browser export `tencent-cloud-cartography (11).drawio` was read back as **12
+  vertices, 6 edges and 7 embedded SVG icons**. No frontend changes were needed.
+- All data above is synthetic. No live Tencent API calls, query execution or
+  notification delivery were performed; complete AWS parity remains incomplete.

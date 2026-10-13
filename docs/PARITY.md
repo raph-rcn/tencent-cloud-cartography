@@ -113,3 +113,31 @@ Schema references: [policies](https://cloud.tencent.com/document/product/248/512
 [bound objects](https://cloud.tencent.com/document/api/248/40570),
 [data types](https://cloud.tencent.com/document/api/248/30354), and
 [dimension region aliases](https://cloud.tencent.com/document/product/248/50863).
+
+### CLS alarms and notification configuration
+
+Regional `DescribeAlarms` and `DescribeAlarmNotices` now collect enabled and disabled
+configurations with total-count validation, duplicate detection and independent
+coverage records. Alarm query nodes retain the configured query text, syntax and
+time offsets, linking only to explicitly returned topic/logset IDs in the same
+account and region. Queries are configuration; the collector never executes them.
+Schedules, repeat/trigger periods, single/multiple conditions, grouping fields and
+classification metadata are retained.
+
+CLS notice references stay regional; `MonitorNotice` references target global
+Cloud Monitor templates, with content-template IDs and severity bindings preserved.
+Notification groups retain channel metadata, callback integration IDs/methods,
+security switches, routing-rule text and bounded escalation configuration. Callback
+URLs/headers/bodies, phone details, user-supplied notification payloads and raw
+failure messages are excluded. Selected receiver metadata includes channel/time
+settings and receiver counts, not recipient contact data. Generic recursive graph
+inference is disabled for these payloads so callback fields cannot fabricate
+compute/network relationships. Explicit delivery-topic regions are honored without
+claiming that delivery succeeded; reported delivery flags are retained separately.
+
+These additions do not close the CloudWatch parity audit: log-to-metric extraction,
+current alarm-state equivalence, wider Cloud Monitor mappings, legacy/template
+expansion and live account validation remain open. References:
+[alarms](https://cloud.tencent.com/document/api/614/56461),
+[notification groups](https://cloud.tencent.com/document/product/614/56462),
+[data types](https://cloud.tencent.com/document/api/614/56471).

@@ -8,7 +8,11 @@ def enrich(graph, account, region, kind, nid, raw, source):
         from .monitor import configuration
 
         configuration(graph, nid, raw, source)
-    if kind.startswith(("cls.", "cloudaudit.")):
+    if kind in {"cls.alarm", "cls.alarmnotice"}:
+        from .cls_alarms import configuration
+
+        configuration(graph, nid, raw, source)
+    elif kind.startswith(("cls.", "cloudaudit.")):
         from .observability import configuration
 
         configuration(graph, nid, raw, source)

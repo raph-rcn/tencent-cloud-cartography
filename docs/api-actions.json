@@ -163,6 +163,16 @@
     },
     {
       "service": "cls",
+      "action": "DescribeAlarmNotices",
+      "api_version": "2020-10-16"
+    },
+    {
+      "service": "cls",
+      "action": "DescribeAlarms",
+      "api_version": "2020-10-16"
+    },
+    {
+      "service": "cls",
       "action": "DescribeLogsets",
       "api_version": "2020-10-16"
     },

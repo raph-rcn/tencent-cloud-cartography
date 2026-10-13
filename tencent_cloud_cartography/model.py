@@ -222,12 +222,25 @@ class Graph:
 
     def native(self, account, region, spec, raw, source):
         rid = first(raw, spec.ids)
-        nid = self.add(account, region, spec.kind, rid, first(raw, spec.names), raw, source)
+        # Alarm callbacks may contain credentials and arbitrary template fields.
+        # Their dedicated selector owns every persisted property and relationship.
+        explicit_alarm = spec.kind in {"cls.alarm", "cls.alarmnotice"}
+        nid = self.add(
+            account,
+            region,
+            spec.kind,
+            rid,
+            first(raw, spec.names),
+            {} if explicit_alarm else raw,
+            source,
+        )
         for keys, kind, relation, prefix in REFERENCES:
             # Associations in these responses describe peers/children, not where
             # the resource itself lives. Handle them with typed relationship code.
-            if spec.kind in {"vpc.ccnattachment", "privatedns.zone", "monitor.policy"} or (
-                spec.kind == "cbs.snapshot" and relation == "USES_DISK"
+            if (
+                explicit_alarm
+                or spec.kind in {"vpc.ccnattachment", "privatedns.zone", "monitor.policy"}
+                or (spec.kind == "cbs.snapshot" and relation == "USES_DISK")
             ):
                 continue
             reference_data = raw
