@@ -31,3 +31,12 @@
 - [Resource coverage and latency limits](https://cloud.tencent.com/document/product/1791/115771)
 - [CLB DescribeLoadBalancersDetail](https://cloud.tencent.com/document/api/214/46916): relationship fields must be supplied explicitly in `Fields`.
 - [Official icon download page](https://cloud.tencent.com/act/event/icons); exact archive and SHA-256 are recorded in the bundled manifest.
+
+## Parity extension — 2026-10-13
+
+- The source audit now enumerates all **66 enabled AWS collector slots**. Full parity is explicitly incomplete; see [PARITY.md](PARITY.md).
+- Added 12 native inventory operations plus 2 child operations for compute/network depth. All **50 native/child request and response envelopes** now match the installed pinned-version Tencent SDK models.
+- **47 backend tests + 5 frontend tests** pass. New negative controls cover cross-account UIN vs AppId, ambiguous subnet-to-VPC placement, IP/sentinel route next hops, IPv6 route IDs, key/payload omission, launch version identity, ACL direction/order and all new icon mappings.
+- Browser validation: unresolved inventory is hidden initially (10 architecture resources), enabling it and full graph shows 13 resources and all 13 relationships. Service components render, and the grouped draw.io download parses with valid parent references and all 13 edges. No browser console errors observed.
+- Official icon archive remains **896 verified assets**, with explicit mappings for CCN, Private Link, peering, Auto Scaling and ENIs.
+- Previous live Tencent and Neo4j validation limitations remain. Contract checks and synthetic tests do not establish account-specific behavior or full AWS parity.

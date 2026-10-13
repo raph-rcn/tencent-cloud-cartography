@@ -223,10 +223,10 @@ def test_all_catalog_icons_exist():
 
 def test_topology_factual_containment_and_full_edges():
     data = demo()
-    result = topology(data, view="full")
+    result = topology(data, view="full", include_inventory=True)
     nodes = {e["data"]["id"]: e["data"] for e in result["elements"] if "source" not in e["data"]}
     actual = {n["resource_id"]: n for n in data["nodes"]}
-    assert nodes[actual["ins-web"]["id"]]["parent"] == actual["subnet-web"]["id"]
+    assert nodes[actual["ins-web"]["id"]]["locationParent"] == actual["subnet-web"]["id"]
     assert nodes[actual["subnet-web"]["id"]]["parent"].startswith("zone-")
     assert all(not n.get("parent") or n["parent"] in nodes for n in nodes.values())
     assert result["stats"]["relationships"] == len(data["edges"])
@@ -251,7 +251,7 @@ def test_multi_subnet_stays_in_vpc():
     )
     result = topology(data)
     item = next(e["data"] for e in result["elements"] if e["data"]["id"] == n["id"])
-    assert item["parent"] == stable_id(n["account"], n["region"], "vpc.vpc", "vpc-demo")
+    assert item["locationParent"] == stable_id(n["account"], n["region"], "vpc.vpc", "vpc-demo")
 
 
 def test_atomic_private_snapshot_roundtrip(tmp_path):
@@ -337,7 +337,7 @@ def test_end_to_end_collection_all_scopes_and_clb_field_selection():
                         TargetId="ins-test",
                     )
                 ]
-            if service == "cvm":
+            if service == "cvm" and action == "DescribeInstances":
                 items = [dict(InstanceId="ins-test", InstanceName="server")]
             current[parts[-1]] = items
             if spec.total:
@@ -363,7 +363,7 @@ def test_end_to_end_collection_all_scopes_and_clb_field_selection():
     )
     assert data["status"] == "complete"
     assert len(data["nodes"]) == 4
-    assert len(data["coverage"]) == 35
+    assert len(data["coverage"]) == 47
     assert any(e["relationship"] == "FORWARDS_TO" for e in data["edges"])
     assert all(n["region"] == "eu-frankfurt" for n in data["nodes"])
     assert all(c["status"] in {"empty", "complete"} for c in data["coverage"])

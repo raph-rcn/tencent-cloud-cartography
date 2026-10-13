@@ -7,6 +7,21 @@
       "api_version": "2018-08-08"
     },
     {
+      "service": "autoscaling",
+      "action": "DescribeAutoScalingGroups",
+      "api_version": "2018-04-19"
+    },
+    {
+      "service": "autoscaling",
+      "action": "DescribeAutoScalingInstances",
+      "api_version": "2018-04-19"
+    },
+    {
+      "service": "autoscaling",
+      "action": "DescribeLaunchConfigurations",
+      "api_version": "2018-04-19"
+    },
+    {
       "service": "cam",
       "action": "DescribeRoleList",
       "api_version": "2019-01-16"
@@ -39,6 +54,11 @@
     {
       "service": "cbs",
       "action": "DescribeDisks",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "cbs",
+      "action": "DescribeSnapshots",
       "api_version": "2017-03-12"
     },
     {
@@ -83,7 +103,27 @@
     },
     {
       "service": "cvm",
+      "action": "DescribeImages",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "cvm",
       "action": "DescribeInstances",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "cvm",
+      "action": "DescribeKeyPairs",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "cvm",
+      "action": "DescribeLaunchTemplateVersions",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "cvm",
+      "action": "DescribeLaunchTemplates",
       "api_version": "2017-03-12"
     },
     {
@@ -168,7 +208,22 @@
     },
     {
       "service": "vpc",
+      "action": "DescribeCcnAttachedInstances",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
+      "action": "DescribeCcns",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
       "action": "DescribeNatGateways",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
+      "action": "DescribeNetworkAcls",
       "api_version": "2017-03-12"
     },
     {
@@ -194,6 +249,21 @@
     {
       "service": "vpc",
       "action": "DescribeSubnets",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
+      "action": "DescribeVpcEndPoint",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
+      "action": "DescribeVpcEndPointService",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
+      "action": "DescribeVpcPeeringConnections",
       "api_version": "2017-03-12"
     },
     {

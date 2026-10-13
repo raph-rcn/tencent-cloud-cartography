@@ -37,6 +37,40 @@ def walk_values(data, keys):
 
 
 SAFE_FIELDS = {
+    "DestinationIpv6CidrBlock",
+    "GatewayType",
+    "GatewayId",
+    "Enabled",
+    "RouteType",
+    "Priority",
+    "ImageType",
+    "OsName",
+    "Architecture",
+    "ImageSize",
+    "SnapshotType",
+    "Encrypt",
+    "MinSize",
+    "MaxSize",
+    "DesiredCapacity",
+    "InstanceCount",
+    "LifeCycleState",
+    "HealthStatus",
+    "LaunchTemplateVersion",
+    "DefaultVersionNumber",
+    "LatestVersionNumber",
+    "IsDefaultVersion",
+    "SourceVpcId",
+    "PeerVpcId",
+    "DestinationVpcId",
+    "SourceRegion",
+    "DestinationRegion",
+    "SourceUin",
+    "DestinationUin",
+    "InstanceUin",
+    "InstanceRegion",
+    "ServiceType",
+    "SubnetId",
+    "EndPointServiceId",
     "CidrBlock",
     "InstanceType",
     "EngineVersion",
@@ -63,7 +97,12 @@ SAFE_FIELDS = {
 }
 REFERENCES = (
     ({"VpcId", "UniqVpcId", "UnVpcId"}, "vpc.vpc", "IN_VPC", "vpc-"),
-    ({"SubnetId", "UniqSubnetId", "SubnetIds"}, "vpc.subnet", "IN_SUBNET", "subnet-"),
+    (
+        {"SubnetId", "UniqSubnetId", "SubnetIds", "SubnetIdSet"},
+        "vpc.subnet",
+        "IN_SUBNET",
+        "subnet-",
+    ),
     (
         {"SecurityGroupId", "SecurityGroupIds", "GroupSet", "SecurityGroupSet"},
         "vpc.securitygroup",
@@ -100,7 +139,19 @@ class Graph:
         props["state"] = str(
             first(
                 raw,
-                ("InstanceState", "State", "Status", "ClusterStatus", "DiskState", "AddressStatus"),
+                (
+                    "InstanceState",
+                    "State",
+                    "Status",
+                    "ClusterStatus",
+                    "DiskState",
+                    "AddressStatus",
+                    "SnapshotState",
+                    "ImageState",
+                    "AutoScalingGroupStatus",
+                    "LaunchConfigurationStatus",
+                    "LifeCycleState",
+                ),
             )
         )
         ips = list(
@@ -154,7 +205,16 @@ class Graph:
         rid = first(raw, spec.ids)
         nid = self.add(account, region, spec.kind, rid, first(raw, spec.names), raw, source)
         for keys, kind, relation, prefix in REFERENCES:
-            for value in set(walk_values(raw, keys)):
+            # Associations in these responses describe peers/children, not where
+            # the resource itself lives. Handle them with typed relationship code.
+            if spec.kind == "vpc.ccnattachment":
+                continue
+            reference_data = raw
+            if spec.kind in {"vpc.networkacl", "vpc.routetable", "vpc.endpointservice"}:
+                reference_data = {
+                    key: value for key, value in raw.items() if not isinstance(value, (list, dict))
+                }
+            for value in set(walk_values(reference_data, keys)):
                 if not value.startswith(prefix):
                     continue
                 other = self.add(account, region, kind, value, status="reference")
@@ -189,6 +249,9 @@ class Graph:
                         source,
                     )
                 self.edge(lid, tid, "FORWARDS_TO", source)
+        from .relationships import enrich
+
+        enrich(self, account, region, spec.kind, nid, raw, source)
         return nid
 
     def snapshot(self):

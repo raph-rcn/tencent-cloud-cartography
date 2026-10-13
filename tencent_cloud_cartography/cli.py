@@ -44,6 +44,8 @@ def main(argv=None):
             ):
                 parser.error("Provide one or more region codes, e.g. eu-frankfurt")
             services = set(args.services.split(",")) if args.services else None
+            if services and "as" in services:
+                services = (services - {"as"}) | {"autoscaling"}
             if services and not services <= SERVICE_ICONS.keys():
                 parser.error(
                     "Unknown service; supported native services: "

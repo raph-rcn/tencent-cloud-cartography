@@ -858,3 +858,5 @@ dd {
 }
 
 .tencent-mark {display:grid;place-items:center;font-weight:800;color:white;background:#0052d9;border-radius:8px;width:34px;height:34px;font-size:15px} a {color:#0052d9} .coverage-summary {font-size:11px;color:#52647a;line-height:1.5} #coverage-button {margin-top:15px;width:100%} dialog {border:1px solid #d3def0;border-radius:12px;max-width:1000px;width:90vw;max-height:85vh;padding:24px;color:#172b4d} dialog::backdrop {background:#172b4d80} dialog table {border-collapse:collapse;width:100%;font-size:13px} dialog th,dialog td {text-align:left;padding:12px;border-bottom:1px solid #d3def0} dialog p {line-height:1.6} dialog small {color:#60708a}
+
+.inventory-toggle {display:flex;gap:10px;align-items:flex-start;font-size:12px;line-height:1.5;cursor:pointer}.inventory-toggle small {display:block;color:#60708a;font-size:11px;margin-top:5px}.inventory-toggle input {margin-top:3px;accent-color:#0052d9}.inventory-note {padding:12px;background:#fff5df;border-left:3px solid #c5830a;font-size:12px;line-height:1.6}

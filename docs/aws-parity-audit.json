@@ -1,0 +1,482 @@
+{
+  "objective": "Tencent implementation must match the capabilities of the AWS source, with provider-specific equivalents supported by evidence.",
+  "source": {
+    "repository": "https://github.com/raph-rcn/aws-cartography",
+    "base_commit": "48780ef5",
+    "working_tree": true,
+    "registry": "cartography/intel/aws/resources.py",
+    "registry_sha256": "2102c4667d969921948dc9d1f8ed753008de00f6a791dee97161ecc33d3e4451",
+    "enabled_collectors": 66
+  },
+  "audited_at": "2026-10-13",
+  "collectors": [
+    {
+      "aws_collector": "resourceexplorer",
+      "source_enabled": true,
+      "tencent_counterpart": "Cloud Resource Center",
+      "status": "incomplete",
+      "evidence_or_gap": "Baseline discovery implemented; type alias reconciliation and mandatory-baseline behavior need parity review."
+    },
+    {
+      "aws_collector": "iam",
+      "source_enabled": true,
+      "tencent_counterpart": "CAM",
+      "status": "incomplete",
+      "evidence_or_gap": "Users, groups, roles, policies and direct user/role policy attachments exist. Group membership, trust, effective permissions and credential metadata remain incomplete."
+    },
+    {
+      "aws_collector": "iaminstanceprofiles",
+      "source_enabled": true,
+      "tencent_counterpart": "CVM CAM roles",
+      "status": "incomplete",
+      "evidence_or_gap": "Not implemented."
+    },
+    {
+      "aws_collector": "kms",
+      "source_enabled": true,
+      "tencent_counterpart": "KMS",
+      "status": "incomplete",
+      "evidence_or_gap": "Only key IDs collected. Key descriptions, aliases and encryption edges remain incomplete."
+    },
+    {
+      "aws_collector": "s3",
+      "source_enabled": true,
+      "tencent_counterpart": "COS",
+      "status": "incomplete",
+      "evidence_or_gap": "Only bucket list/region. ACL, policy, encryption and public-access modeling remain incomplete."
+    },
+    {
+      "aws_collector": "dynamodb",
+      "source_enabled": true,
+      "tencent_counterpart": "TencentDB / TcaplusDB",
+      "status": "incomplete",
+      "evidence_or_gap": "Equivalent database product mapping and collection pending."
+    },
+    {
+      "aws_collector": "ec2:launch_templates",
+      "source_enabled": true,
+      "tencent_counterpart": "CVM launch templates / AS launch configurations",
+      "status": "incomplete",
+      "evidence_or_gap": "Templates, versions and configurations added. Deeper parity validation pending."
+    },
+    {
+      "aws_collector": "ec2:autoscalinggroup",
+      "source_enabled": true,
+      "tencent_counterpart": "Auto Scaling",
+      "status": "incomplete",
+      "evidence_or_gap": "Groups, memberships, launch configuration and load-balancer edges added. Scaling policy metadata remains incomplete."
+    },
+    {
+      "aws_collector": "ec2:instance",
+      "source_enabled": true,
+      "tencent_counterpart": "CVM",
+      "status": "incomplete",
+      "evidence_or_gap": "Core instances and network relationships implemented; full AWS property/relationship comparison pending."
+    },
+    {
+      "aws_collector": "ec2:images",
+      "source_enabled": true,
+      "tencent_counterpart": "CVM images",
+      "status": "incomplete",
+      "evidence_or_gap": "Owned image inventory and snapshot links added; sharing metadata pending."
+    },
+    {
+      "aws_collector": "ec2:keypair",
+      "source_enabled": true,
+      "tencent_counterpart": "CVM key pairs",
+      "status": "incomplete",
+      "evidence_or_gap": "Key pair inventory and instance links added; private/public key contents excluded from snapshots."
+    },
+    {
+      "aws_collector": "ec2:security_group",
+      "source_enabled": true,
+      "tencent_counterpart": "VPC security groups",
+      "status": "incomplete",
+      "evidence_or_gap": "Groups, rules and memberships implemented; reference groups/prefix lists need audit."
+    },
+    {
+      "aws_collector": "ec2:subnet",
+      "source_enabled": true,
+      "tencent_counterpart": "VPC subnets",
+      "status": "incomplete",
+      "evidence_or_gap": "Inventory, VPC/AZ membership and route/ACL references implemented."
+    },
+    {
+      "aws_collector": "ec2:load_balancer",
+      "source_enabled": true,
+      "tencent_counterpart": "CLB",
+      "status": "incomplete",
+      "evidence_or_gap": "Load balancers/listeners/targets implemented; listener/certificate/rule depth review pending."
+    },
+    {
+      "aws_collector": "ec2:load_balancer_v2",
+      "source_enabled": true,
+      "tencent_counterpart": "CLB",
+      "status": "incomplete",
+      "evidence_or_gap": "Load balancers/listeners/targets implemented; listener/certificate/rule depth review pending."
+    },
+    {
+      "aws_collector": "ec2:network_acls",
+      "source_enabled": true,
+      "tencent_counterpart": "VPC network ACLs",
+      "status": "incomplete",
+      "evidence_or_gap": "ACLs, ordered ingress/egress rules and subnet associations added."
+    },
+    {
+      "aws_collector": "ec2:network_interface",
+      "source_enabled": true,
+      "tencent_counterpart": "VPC ENIs",
+      "status": "incomplete",
+      "evidence_or_gap": "Inventory and basic associations exist; per-IP modeling pending."
+    },
+    {
+      "aws_collector": "ec2:load_balancer_v2:expose",
+      "source_enabled": true,
+      "tencent_counterpart": "CLB target relationships",
+      "status": "incomplete",
+      "evidence_or_gap": "Target IDs retained; target IP-to-instance reconciliation and exposure analysis pending."
+    },
+    {
+      "aws_collector": "ec2:tgw",
+      "source_enabled": true,
+      "tencent_counterpart": "Cloud Connect Network",
+      "status": "incomplete",
+      "evidence_or_gap": "CCN and attachments added, preserving remote UIN/region. Route table collection pending."
+    },
+    {
+      "aws_collector": "ec2:vpc",
+      "source_enabled": true,
+      "tencent_counterpart": "VPC",
+      "status": "incomplete",
+      "evidence_or_gap": "VPC inventory and CIDRs implemented; property completeness review pending."
+    },
+    {
+      "aws_collector": "ec2:vpc_endpoint",
+      "source_enabled": true,
+      "tencent_counterpart": "Private Link",
+      "status": "incomplete",
+      "evidence_or_gap": "Endpoints and services added. Shared endpoint-to-service reconciliation pending."
+    },
+    {
+      "aws_collector": "ec2:route_table",
+      "source_enabled": true,
+      "tencent_counterpart": "VPC routes",
+      "status": "incomplete",
+      "evidence_or_gap": "Tables, routes, associations and typed next-hop edges added. Unsupported gateway types retained as properties."
+    },
+    {
+      "aws_collector": "ec2:vpc_peering",
+      "source_enabled": true,
+      "tencent_counterpart": "VPC peering",
+      "status": "incomplete",
+      "evidence_or_gap": "Peering inventory and cross-account/region endpoint edges added. No AppId-to-UIN guessing."
+    },
+    {
+      "aws_collector": "ec2:internet_gateway",
+      "source_enabled": true,
+      "tencent_counterpart": "Tencent VPC public egress model",
+      "status": "incomplete",
+      "evidence_or_gap": "Provider architecture differs; equivalent EIP/public-IP/egress configuration analysis pending. Do not fabricate AWS-style IGW resources."
+    },
+    {
+      "aws_collector": "ec2:reserved_instances",
+      "source_enabled": true,
+      "tencent_counterpart": "CVM reserved capacity",
+      "status": "incomplete",
+      "evidence_or_gap": "Product/API equivalence research pending."
+    },
+    {
+      "aws_collector": "ec2:volumes",
+      "source_enabled": true,
+      "tencent_counterpart": "CBS",
+      "status": "incomplete",
+      "evidence_or_gap": "Disks/attachments exist; KMS and lifecycle metadata pending."
+    },
+    {
+      "aws_collector": "ec2:snapshots",
+      "source_enabled": true,
+      "tencent_counterpart": "CBS snapshots",
+      "status": "incomplete",
+      "evidence_or_gap": "Snapshot inventory and disk/image links added; sharing metadata pending."
+    },
+    {
+      "aws_collector": "ecr",
+      "source_enabled": true,
+      "tencent_counterpart": "TCR",
+      "status": "incomplete",
+      "evidence_or_gap": "Registry list only; namespaces/repositories/images/policy coverage pending."
+    },
+    {
+      "aws_collector": "ecr:image_layers",
+      "source_enabled": true,
+      "tencent_counterpart": "TCR image metadata and supply-chain inspection",
+      "status": "incomplete",
+      "evidence_or_gap": "Source supports image-layer analysis; no Tencent counterpart implemented. Needs explicit design matching source behavior and data scope."
+    },
+    {
+      "aws_collector": "ecs",
+      "source_enabled": true,
+      "tencent_counterpart": "Tencent container workload services",
+      "status": "incomplete",
+      "evidence_or_gap": "Workload/task/container inventory beyond TKE clusters pending."
+    },
+    {
+      "aws_collector": "eks",
+      "source_enabled": true,
+      "tencent_counterpart": "TKE",
+      "status": "incomplete",
+      "evidence_or_gap": "Clusters and CVM worker references only; workload/service/pod relationships pending."
+    },
+    {
+      "aws_collector": "elasticache",
+      "source_enabled": true,
+      "tencent_counterpart": "TencentDB Redis",
+      "status": "incomplete",
+      "evidence_or_gap": "Instance metadata exists; topology and encryption detail review pending."
+    },
+    {
+      "aws_collector": "elastic_ip_addresses",
+      "source_enabled": true,
+      "tencent_counterpart": "VPC EIP",
+      "status": "incomplete",
+      "evidence_or_gap": "EIPs and returned references implemented; per-IP reconciliation pending."
+    },
+    {
+      "aws_collector": "emr",
+      "source_enabled": true,
+      "tencent_counterpart": "Elastic MapReduce",
+      "status": "incomplete",
+      "evidence_or_gap": "No native collector yet."
+    },
+    {
+      "aws_collector": "lambda_function",
+      "source_enabled": true,
+      "tencent_counterpart": "SCF",
+      "status": "incomplete",
+      "evidence_or_gap": "Namespaces/function list only; triggers, roles and integration relationships pending."
+    },
+    {
+      "aws_collector": "rds",
+      "source_enabled": true,
+      "tencent_counterpart": "TencentDB relational databases",
+      "status": "incomplete",
+      "evidence_or_gap": "MySQL/PostgreSQL basic inventory; SQL Server/MariaDB and deeper relationships pending."
+    },
+    {
+      "aws_collector": "redshift",
+      "source_enabled": true,
+      "tencent_counterpart": "Tencent cloud data warehouse services",
+      "status": "incomplete",
+      "evidence_or_gap": "Product mapping and native collection pending."
+    },
+    {
+      "aws_collector": "route53",
+      "source_enabled": true,
+      "tencent_counterpart": "DNSPod / Private DNS",
+      "status": "incomplete",
+      "evidence_or_gap": "Domains and private zones only; records, aliases and VPC zone associations pending."
+    },
+    {
+      "aws_collector": "elasticsearch",
+      "source_enabled": true,
+      "tencent_counterpart": "Elasticsearch Service",
+      "status": "incomplete",
+      "evidence_or_gap": "Instances implemented; relationship depth review pending."
+    },
+    {
+      "aws_collector": "cloudformation",
+      "source_enabled": true,
+      "tencent_counterpart": "Infrastructure as Code / TIC",
+      "status": "incomplete",
+      "evidence_or_gap": "Product mapping and stack/resource collection pending."
+    },
+    {
+      "aws_collector": "permission_relationships",
+      "source_enabled": true,
+      "tencent_counterpart": "CAM effective permission graph",
+      "status": "incomplete",
+      "evidence_or_gap": "Not implemented."
+    },
+    {
+      "aws_collector": "resourcegroupstaggingapi",
+      "source_enabled": true,
+      "tencent_counterpart": "Tag / CloudRC tags",
+      "status": "incomplete",
+      "evidence_or_gap": "Raw tags returned but not retained/modeled. Pending."
+    },
+    {
+      "aws_collector": "apigateway",
+      "source_enabled": true,
+      "tencent_counterpart": "API Gateway",
+      "status": "incomplete",
+      "evidence_or_gap": "Services only; APIs, integrations and invocation edges pending."
+    },
+    {
+      "aws_collector": "apigatewayv2",
+      "source_enabled": true,
+      "tencent_counterpart": "API Gateway",
+      "status": "incomplete",
+      "evidence_or_gap": "Services only; protocol/integration equivalence pending."
+    },
+    {
+      "aws_collector": "bedrock",
+      "source_enabled": true,
+      "tencent_counterpart": "Hunyuan / TI services",
+      "status": "incomplete",
+      "evidence_or_gap": "Model and deployment inventory pending."
+    },
+    {
+      "aws_collector": "cloudfront",
+      "source_enabled": true,
+      "tencent_counterpart": "CDN / EdgeOne",
+      "status": "incomplete",
+      "evidence_or_gap": "CDN domain list only; origin relationships and EdgeOne pending."
+    },
+    {
+      "aws_collector": "secretsmanager",
+      "source_enabled": true,
+      "tencent_counterpart": "Secrets Manager",
+      "status": "incomplete",
+      "evidence_or_gap": "Names/metadata list only; versions and encryption relationships pending."
+    },
+    {
+      "aws_collector": "ecr:pull_through_cache_rules",
+      "source_enabled": true,
+      "tencent_counterpart": "TCR proxy/cache configuration",
+      "status": "incomplete",
+      "evidence_or_gap": "Not implemented."
+    },
+    {
+      "aws_collector": "securityhub",
+      "source_enabled": true,
+      "tencent_counterpart": "Security Center / CSPM",
+      "status": "incomplete",
+      "evidence_or_gap": "Product mapping and metadata collection pending."
+    },
+    {
+      "aws_collector": "s3accountpublicaccessblock",
+      "source_enabled": true,
+      "tencent_counterpart": "COS public access controls",
+      "status": "incomplete",
+      "evidence_or_gap": "Not implemented."
+    },
+    {
+      "aws_collector": "sagemaker",
+      "source_enabled": true,
+      "tencent_counterpart": "TI Platform",
+      "status": "incomplete",
+      "evidence_or_gap": "Not implemented."
+    },
+    {
+      "aws_collector": "ses",
+      "source_enabled": true,
+      "tencent_counterpart": "Simple Email Service",
+      "status": "incomplete",
+      "evidence_or_gap": "Not implemented."
+    },
+    {
+      "aws_collector": "sns",
+      "source_enabled": true,
+      "tencent_counterpart": "TDMQ event/pubsub services",
+      "status": "incomplete",
+      "evidence_or_gap": "Not implemented."
+    },
+    {
+      "aws_collector": "sqs",
+      "source_enabled": true,
+      "tencent_counterpart": "TDMQ queues",
+      "status": "incomplete",
+      "evidence_or_gap": "Not implemented."
+    },
+    {
+      "aws_collector": "ssm",
+      "source_enabled": false,
+      "status": "source-excluded",
+      "reason": "AWS Landscape excludes SSM parameter-value collection."
+    },
+    {
+      "aws_collector": "acm:certificate",
+      "source_enabled": true,
+      "tencent_counterpart": "SSL Certificates",
+      "status": "incomplete",
+      "evidence_or_gap": "Not implemented."
+    },
+    {
+      "aws_collector": "inspector",
+      "source_enabled": true,
+      "tencent_counterpart": "Cloud Workload/Container Security",
+      "status": "incomplete",
+      "evidence_or_gap": "Not implemented."
+    },
+    {
+      "aws_collector": "config",
+      "source_enabled": true,
+      "tencent_counterpart": "CloudConfig",
+      "status": "incomplete",
+      "evidence_or_gap": "Not implemented."
+    },
+    {
+      "aws_collector": "identitycenter",
+      "source_enabled": true,
+      "tencent_counterpart": "Cloud Identity Governance / CAM federation",
+      "status": "incomplete",
+      "evidence_or_gap": "Not implemented."
+    },
+    {
+      "aws_collector": "cloudtrail",
+      "source_enabled": true,
+      "tencent_counterpart": "CloudAudit",
+      "status": "incomplete",
+      "evidence_or_gap": "Not implemented."
+    },
+    {
+      "aws_collector": "cloudwatch",
+      "source_enabled": true,
+      "tencent_counterpart": "Cloud Monitor / CLS",
+      "status": "incomplete",
+      "evidence_or_gap": "Not implemented."
+    },
+    {
+      "aws_collector": "efs",
+      "source_enabled": true,
+      "tencent_counterpart": "CFS",
+      "status": "incomplete",
+      "evidence_or_gap": "File systems only; mount targets and access-rule depth pending."
+    },
+    {
+      "aws_collector": "guardduty",
+      "source_enabled": true,
+      "tencent_counterpart": "Tencent threat detection services",
+      "status": "incomplete",
+      "evidence_or_gap": "Product mapping and metadata collection pending."
+    },
+    {
+      "aws_collector": "codebuild",
+      "source_enabled": true,
+      "tencent_counterpart": "CODING CI",
+      "status": "incomplete",
+      "evidence_or_gap": "Not implemented."
+    },
+    {
+      "aws_collector": "cognito",
+      "source_enabled": true,
+      "tencent_counterpart": "Customer Identity and Access Management",
+      "status": "incomplete",
+      "evidence_or_gap": "Not implemented."
+    },
+    {
+      "aws_collector": "eventbridge",
+      "source_enabled": true,
+      "tencent_counterpart": "EventBridge",
+      "status": "incomplete",
+      "evidence_or_gap": "Not implemented."
+    },
+    {
+      "aws_collector": "glue",
+      "source_enabled": true,
+      "tencent_counterpart": "WeData / Data Lake services",
+      "status": "incomplete",
+      "evidence_or_gap": "Product mapping and native collection pending."
+    }
+  ]
+}

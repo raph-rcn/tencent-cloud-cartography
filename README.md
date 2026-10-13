@@ -12,6 +12,8 @@ A derivative of [raph-rcn/aws-cartography](https://github.com/raph-rcn/aws-carto
 
 ![Synthetic Frankfurt demo](docs/preview.jpg)
 
+**Parity status:** this is still an incomplete replacement for the AWS backend. The [capability audit](docs/PARITY.md) tracks all 66 enabled AWS collector slots and the remaining relationship, analysis, workflow and runtime gaps.
+
 ## Quick start
 
 Requires Python 3.11+, [uv](https://docs.astral.sh/uv/), Node.js 22+, and a current [Tencent Cloud CLI](https://github.com/TencentCloud/tencentcloud-cli) for live collection. Development verified against TCCLI 3.1.181.1. Use this source checkout; standalone wheel distribution with UI assets is not supported yet.
@@ -56,12 +58,12 @@ More options:
 
 ## What is collected
 
-The **Cloud Resource Center** `SearchResources` API supplies a baseline of supported resource types. Native collectors enrich the services below and derive relationships from returned identifiers. Baseline-only products remain visible with `inventory-only` status. Referenced resources that could not be enumerated remain `reference` nodes. Unknown products use a clearly generic question-mark icon; every registered native service maps to an official product asset.
+The **Cloud Resource Center** `SearchResources` API supplies a baseline of supported resource types. Native collectors enrich the services below and derive relationships from returned identifiers. Baseline-only products are available through **Show unresolved inventory** with `inventory-only` status. Referenced resources that could not be enumerated remain `reference` nodes. Unknown products use a clearly generic question-mark icon; every registered native service maps to an official product asset.
 
 | Area | Native services and relationships |
 |---|---|
-| Network | VPC, subnets, security groups and rules, route tables, NAT, EIP, network interfaces; returned VPC/subnet/group/route/NAT/interface references |
-| Compute | CVM, Lighthouse, CBS disks and CVM attachments |
+| Network | VPC, subnets, security groups and rules, route tables and typed next hops, ACL rules, NAT, EIP, network interfaces, Private Link, peering, CCN attachments; returned VPC/subnet/group/route/NAT/interface references |
+| Compute | CVM, Lighthouse, images, key pairs, launch templates/versions, Auto Scaling groups/configurations/members, CBS disks/snapshots and attachments |
 | Load balancing | CLB, listeners/rules and returned backend target IDs or endpoint addresses |
 | Containers | TKE clusters and CVM worker references, TCR registries |
 | Databases | TencentDB MySQL, PostgreSQL, Redis, MongoDB, Elasticsearch |

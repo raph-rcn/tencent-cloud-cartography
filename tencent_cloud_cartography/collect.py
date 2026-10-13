@@ -3,7 +3,7 @@
 import json
 
 from .catalog import CHILDREN, COLLECTORS, SCF_FUNCTIONS, SCF_NAMESPACES
-from .model import Graph, first, resource_kind
+from .model import Graph, first, resource_kind, stable_id
 from .transport import CollectionError, TccliTransport, pages
 
 
@@ -98,6 +98,11 @@ class CollectorRunner:
 
     def native(self, spec, region, params=None, parent=None, relation=None):
         collected = []
+        if spec.action == "DescribeImages":
+            params = {
+                **(params or {}),
+                "Filters": [{"Name": "image-type", "Values": ["PRIVATE_IMAGE"]}],
+            }
         if spec.action == "DescribeLoadBalancersDetail":
             # Tencent returns only the two ID/name fields by default.
             params = {
@@ -124,6 +129,30 @@ class CollectorRunner:
                 if request_id:
                     record["request_ids"].append(request_id)
                 for item in items:
+                    if spec.kind == "cvm.launchtemplateversion":
+                        version = item.get("LaunchTemplateVersion")
+                        template = item.get("LaunchTemplateId") or (params or {}).get(
+                            "LaunchTemplateId"
+                        )
+                        if version is None or not template:
+                            raise CollectionError("InvalidResponse")
+                        item = {
+                            **item,
+                            "LaunchTemplateId": template,
+                            "VersionResourceId": f"{template}/{version}",
+                        }
+                    if spec.kind == "vpc.ccnattachment":
+                        if not item.get("InstanceId"):
+                            raise CollectionError("InvalidResponse")
+                        item = {
+                            **item,
+                            "AttachmentId": stable_id(
+                                (params or {}).get("CcnId"),
+                                item.get("InstanceUin"),
+                                item.get("InstanceRegion"),
+                                item["InstanceId"],
+                            ),
+                        }
                     # ListFunctions IDs are namespace scoped when FunctionId is unavailable.
                     if spec.kind == "scf.function" and not item.get("FunctionId"):
                         item = {
@@ -221,6 +250,8 @@ class CollectorRunner:
                         "tke.cluster": "ClusterId",
                         "cam.role": "RoleId",
                         "cam.user": "TargetUin",
+                        "cvm.launchtemplate": "LaunchTemplateId",
+                        "vpc.ccn": "CcnId",
                     }[spec.kind]
                     for nid, item in collected:
                         self.native(
@@ -228,7 +259,11 @@ class CollectorRunner:
                             region,
                             {key: first(item, spec.ids)},
                             nid,
-                            "HAS_NODE" if spec.kind == "tke.cluster" else "HAS_POLICY",
+                            {
+                                "tke.cluster": "HAS_NODE",
+                                "cvm.launchtemplate": "HAS_VERSION",
+                                "vpc.ccn": "HAS_ATTACHMENT",
+                            }.get(spec.kind, "HAS_POLICY"),
                         )
         if not services or "scf" in services:
             for region in self.regions:

@@ -71,6 +71,12 @@ document.querySelector('#app').innerHTML = `
           <div class="search-result" id="search-result"></div>
         </section>
 
+        <section class="inventory-option">
+          <label class="inventory-toggle" for="show-inventory">
+            <input id="show-inventory" type="checkbox" />
+            <span><strong>Show unresolved inventory</strong><small id="inventory-option-detail">CloudRC-only resources are hidden</small></span>
+          </label>
+        </section>
         <section class="metrics" aria-label="Landscape summary">
           <div><strong id="resource-count">—</strong><span>Resources</span></div>
           <div><strong id="relationship-count">—</strong><span>Relations</span></div>
@@ -275,6 +281,7 @@ function renderInspector(data) {
       <div class="inspector-kicker">${escapeHtml(data.title || 'RESOURCE')}</div>
       <h2>${escapeHtml(data.label)}</h2>
       <div class="label-chips">${labels}</div>
+      ${data.inventoryOnly ? '<p class="inventory-note">Inventory only: discovered by Cloud Resource Center, without native configuration enrichment. Relationships may be incomplete.</p>' : ''}
       ${
         connections
           ? `
@@ -307,6 +314,7 @@ async function loadTopology() {
   if (account) query.set('account', account);
   if ($('#region').value) query.set('region', $('#region').value);
   query.set('view', $('#view').value);
+  query.set('include_inventory', $('#show-inventory').checked ? '1' : '0');
   const response = await request(`/api/topology?${query}`);
   const topology = await response.json();
   if (loadVersion !== state.loadVersion) return;
@@ -317,6 +325,7 @@ async function loadTopology() {
   state.graph = graph.cy;
   state.expandApi = graph.expandApi;
   renderServices(state.topology.stats.services);
+  $('#inventory-option-detail').textContent = `${state.topology.stats.unresolvedAvailable} inventory-only resources available · ${$('#show-inventory').checked ? 'shown' : 'hidden'}`;
   $('#resource-count').textContent =
     state.topology.stats.resources.toLocaleString();
   $('#relationship-count').textContent =
@@ -362,6 +371,7 @@ async function init() {
 $('#account').addEventListener('change', loadTopology);
 $('#region').addEventListener('change', loadTopology);
 $('#view').addEventListener('change', loadTopology);
+$('#show-inventory').addEventListener('change', loadTopology);
 $('#relayout').addEventListener('click', () =>
   runLayout(state.graph, $('#layout').value),
 );

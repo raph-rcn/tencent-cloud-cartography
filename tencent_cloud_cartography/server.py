@@ -69,7 +69,14 @@ class Handler(SimpleHTTPRequestHandler):
                 if view not in {"full", "architecture"}:
                     raise ValueError("Invalid view")
                 return self.respond(
-                    topology(data, query.get("account", ""), query.get("region", ""), view, limit)
+                    topology(
+                        data,
+                        query.get("account", ""),
+                        query.get("region", ""),
+                        view,
+                        limit,
+                        query.get("include_inventory", "0") == "1",
+                    )
                 )
             except ValueError:
                 return self.respond({"message": "Invalid topology parameters"}, status=400)

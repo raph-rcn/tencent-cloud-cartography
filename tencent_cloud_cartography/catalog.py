@@ -62,6 +62,80 @@ COLLECTORS = (
         ("InstanceId",),
         ("InstanceName",),
     ),
+    Collector("cvm", "DescribeImages", "ImageSet", "cvm.image", ("ImageId",), ("ImageName",)),
+    Collector("cvm", "DescribeKeyPairs", "KeyPairSet", "cvm.keypair", ("KeyId",), ("KeyName",)),
+    Collector(
+        "cvm",
+        "DescribeLaunchTemplates",
+        "LaunchTemplateSet",
+        "cvm.launchtemplate",
+        ("LaunchTemplateId",),
+        ("LaunchTemplateName",),
+    ),
+    Collector(
+        "cbs",
+        "DescribeSnapshots",
+        "SnapshotSet",
+        "cbs.snapshot",
+        ("SnapshotId",),
+        ("SnapshotName",),
+    ),
+    Collector(
+        "autoscaling",
+        "DescribeAutoScalingGroups",
+        "AutoScalingGroupSet",
+        "as.auto-scaling-group",
+        ("AutoScalingGroupId",),
+        ("AutoScalingGroupName",),
+    ),
+    Collector(
+        "autoscaling",
+        "DescribeLaunchConfigurations",
+        "LaunchConfigurationSet",
+        "as.launch-configuration",
+        ("LaunchConfigurationId",),
+        ("LaunchConfigurationName",),
+    ),
+    Collector(
+        "autoscaling",
+        "DescribeAutoScalingInstances",
+        "AutoScalingInstanceSet",
+        "cvm.instance",
+        ("InstanceId",),
+    ),
+    Collector(
+        "vpc",
+        "DescribeNetworkAcls",
+        "NetworkAclSet",
+        "vpc.networkacl",
+        ("NetworkAclId",),
+        ("NetworkAclName",),
+    ),
+    Collector("vpc", "DescribeCcns", "CcnSet", "vpc.ccn", ("CcnId",), ("CcnName",), regional=False),
+    Collector(
+        "vpc",
+        "DescribeVpcEndPoint",
+        "EndPointSet",
+        "vpc.endpoint",
+        ("EndPointId",),
+        ("EndPointName",),
+    ),
+    Collector(
+        "vpc",
+        "DescribeVpcEndPointService",
+        "EndPointServiceSet",
+        "vpc.endpointservice",
+        ("EndPointServiceId",),
+        ("ServiceName",),
+    ),
+    Collector(
+        "vpc",
+        "DescribeVpcPeeringConnections",
+        "PeerConnectionSet",
+        "vpc.peeringconnection",
+        ("PeeringConnectionId",),
+        ("PeeringConnectionName",),
+    ),
     Collector("cbs", "DescribeDisks", "DiskSet", "cbs.disk", ("DiskId",), ("DiskName",)),
     Collector(
         "clb",
@@ -218,6 +292,16 @@ COLLECTORS = (
     ),
 )
 CHILDREN = {
+    "cvm.launchtemplate": Collector(
+        "cvm",
+        "DescribeLaunchTemplateVersions",
+        "LaunchTemplateVersionSet",
+        "cvm.launchtemplateversion",
+        ("VersionResourceId",),
+    ),
+    "vpc.ccn": Collector(
+        "vpc", "DescribeCcnAttachedInstances", "InstanceSet", "vpc.ccnattachment", ("AttachmentId",)
+    ),
     "tke.cluster": Collector(
         "tke", "DescribeClusterInstances", "InstanceSet", "cvm.instance", ("InstanceId",)
     ),
@@ -264,6 +348,8 @@ ALLOWED_ACTIONS = {
 
 # Official archive titles; all assets are verified by tests against the manifest.
 SERVICE_ICONS = {
+    "autoscaling": ("Auto Scaling", "Auto Scaling"),
+    "as": ("Auto Scaling", "Auto Scaling"),
     "cvm": ("Cloud Virtual Machine", "Cloud Virtual Machine"),
     "cbs": ("Cloud Block Storage", "Cloud Block Storage"),
     "vpc": ("Virtual Private Cloud", "Virtual Private Cloud"),
@@ -288,8 +374,25 @@ SERVICE_ICONS = {
     "dnspod": ("DNSPod", "云解析 DNS"),
     "privatedns": ("Private DNS", "Private DNS"),
 }
-KIND_ICONS = {"vpc.eip": "Elastic IP", "vpc.nat": "NAT Gateway"}
+KIND_ICONS = {
+    "vpc.eip": "Elastic IP",
+    "vpc.nat": "NAT Gateway",
+    "vpc.networkinterface": "Elastic Network Interface",
+    "vpc.ccn": "Cloud Connect Network",
+    "vpc.ccnattachment": "Cloud Connect Network",
+    "vpc.endpoint": "Private Link",
+    "vpc.endpointservice": "Private Link",
+    "vpc.peeringconnection": "Peering Connection",
+}
 DETAIL_KINDS = {
+    "vpc.route",
+    "vpc.networkacl",
+    "vpc.networkaclrule",
+    "vpc.ccnattachment",
+    "cvm.keypair",
+    "cvm.image",
+    "cvm.launchtemplateversion",
+    "cbs.snapshot",
     "vpc.securitygroup",
     "vpc.routetable",
     "vpc.networkinterface",
@@ -303,6 +406,7 @@ DETAIL_KINDS = {
 }
 
 API_VERSIONS = {
+    "autoscaling": "2018-04-19",
     "vpc": "2017-03-12",
     "cvm": "2017-03-12",
     "cbs": "2017-03-12",
