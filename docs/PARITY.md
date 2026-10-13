@@ -55,6 +55,12 @@ SCF now adds function versions, aliases, weighted and rule-based version routing
 
 `GetFunction` remains excluded under the repository metadata policy: its response includes environment values and can include function source. Consequently execution-role, VPC, image and function-layer configuration still need an approved metadata collection design. Listing layers does not establish that a function uses them. Full event integration coverage, permissions/public invocation analysis and live runtime validation also remain incomplete. Trigger snapshots omit custom event arguments, CKafka credential fields and URL query/fragment values.
 
+## API Gateway configuration
+
+Classic API Gateway now includes service detail, APIs/method paths, selected backend configuration, environments, release versions and custom domains/certificate references. SCF, WebSocket role functions and COS backends link only to matching collected account/region identities. SCF namespaces must be explicit and unique. Backend VPC links are separate from service placement. API authentication type and authorizer references describe configuration, not effective access.
+
+Published environment status controls release edges; API `Environments` is retained separately. Conflicting API/environment publication metadata is flagged. Current API detail does not establish the contents of an older deployed release. Upstream/TSF details, custom domain path mappings, certificate inventory, historical deployment API contents, broader policies/permissions, Cloud Native API Gateway equivalence and live validation remain gaps.
+
 ## Completion rule
 
 A registered action, mapping row, green unit test, or icon does not on its own establish parity. Each audit item must have corresponding native collection, model/relationship behavior, tests for failure and negative controls, and runtime evidence appropriate to that capability. Keep this audit incomplete until those checks hold for the original scope.

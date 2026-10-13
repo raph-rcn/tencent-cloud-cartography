@@ -259,6 +259,11 @@ class CollectorRunner:
                     collect_keys(self, spec, region)
                     continue
                 collected = self.native(spec, region)
+                if spec.kind == "apigateway.service":
+                    from .gateway import collect_service
+
+                    for nid, item in collected:
+                        collect_service(self, nid)
                 if spec.kind == "tcr.instance":
                     from .tcr import collect_registry
 
@@ -370,4 +375,7 @@ def collect(
     from .scf import link_trigger_sources
 
     link_trigger_sources(graph)
+    from .gateway import link_backends
+
+    link_backends(graph)
     return graph.snapshot()

@@ -3,6 +3,36 @@
   "actions": [
     {
       "service": "apigateway",
+      "action": "DescribeApi",
+      "api_version": "2018-08-08"
+    },
+    {
+      "service": "apigateway",
+      "action": "DescribeApisStatus",
+      "api_version": "2018-08-08"
+    },
+    {
+      "service": "apigateway",
+      "action": "DescribeService",
+      "api_version": "2018-08-08"
+    },
+    {
+      "service": "apigateway",
+      "action": "DescribeServiceEnvironmentList",
+      "api_version": "2018-08-08"
+    },
+    {
+      "service": "apigateway",
+      "action": "DescribeServiceReleaseVersion",
+      "api_version": "2018-08-08"
+    },
+    {
+      "service": "apigateway",
+      "action": "DescribeServiceSubDomains",
+      "api_version": "2018-08-08"
+    },
+    {
+      "service": "apigateway",
       "action": "DescribeServicesStatus",
       "api_version": "2018-08-08"
     },

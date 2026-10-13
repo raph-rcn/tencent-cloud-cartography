@@ -340,6 +340,40 @@ CHILDREN = {
         False,
     ),
 }
+GATEWAY_CHILDREN = {
+    "api": Collector(
+        "apigateway",
+        "DescribeApisStatus",
+        "Result.ApiIdStatusSet",
+        "apigateway.api",
+        ("ApiId",),
+        total="Result.TotalCount",
+    ),
+    "environment": Collector(
+        "apigateway",
+        "DescribeServiceEnvironmentList",
+        "Result.EnvironmentList",
+        "apigateway.environment",
+        ("EnvironmentName",),
+        total="Result.TotalCount",
+    ),
+    "release": Collector(
+        "apigateway",
+        "DescribeServiceReleaseVersion",
+        "Result.VersionList",
+        "apigateway.release",
+        ("VersionName",),
+        total="Result.TotalCount",
+    ),
+    "domain": Collector(
+        "apigateway",
+        "DescribeServiceSubDomains",
+        "Result.DomainSet",
+        "apigateway.domain",
+        ("DomainName",),
+        total="Result.TotalCount",
+    ),
+}
 TCR_CHILDREN = {
     "namespace": Collector(
         "tcr",
@@ -420,6 +454,7 @@ ALLOWED_ACTIONS = {
         *DNS_RECORDS.values(),
         *TCR_CHILDREN.values(),
         *SCF_DETAILS.values(),
+        *GATEWAY_CHILDREN.values(),
         SCF_NAMESPACES,
         SCF_FUNCTIONS,
     )
@@ -432,10 +467,13 @@ ALLOWED_ACTIONS = {
     ("cam", "GetPolicy"),
     ("cam", "GetRole"),
     ("kms", "DescribeKey"),
+    ("apigateway", "DescribeService"),
+    ("apigateway", "DescribeApi"),
 }
 
 # Official archive titles; all assets are verified by tests against the manifest.
 SERVICE_ICONS = {
+    "ssl": ("SSL Certificates", "SSL Certificates"),
     "autoscaling": ("Auto Scaling", "Auto Scaling"),
     "as": ("Auto Scaling", "Auto Scaling"),
     "cvm": ("Cloud Virtual Machine", "Cloud Virtual Machine"),
@@ -473,6 +511,12 @@ KIND_ICONS = {
     "vpc.peeringconnection": "Peering Connection",
 }
 DETAIL_KINDS = {
+    "apigateway.api",
+    "apigateway.environment",
+    "apigateway.release",
+    "apigateway.domain",
+    "apigateway.integration",
+    "ssl.certificate",
     "scf.version",
     "scf.alias",
     "scf.trigger",

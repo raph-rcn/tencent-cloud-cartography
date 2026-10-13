@@ -309,14 +309,14 @@
       "source_enabled": true,
       "tencent_counterpart": "API Gateway",
       "status": "incomplete",
-      "evidence_or_gap": "Services only; APIs, integrations and invocation edges pending."
+      "evidence_or_gap": "API Gateway services, APIs/method paths, environments, release versions, domains/certificate references and selected backend configuration implemented. SCF/WebSocket qualifier and COS relationships resolve against collected identities. Upstream/TSF details, domain path mappings, broader policy/permission analysis, historical deployment API contents, Cloud Native API Gateway equivalence and live verification remain incomplete."
     },
     {
       "aws_collector": "apigatewayv2",
       "source_enabled": true,
       "tencent_counterpart": "API Gateway",
       "status": "incomplete",
-      "evidence_or_gap": "Services only; protocol/integration equivalence pending."
+      "evidence_or_gap": "API Gateway services, APIs/method paths, environments, release versions, domains/certificate references and selected backend configuration implemented. SCF/WebSocket qualifier and COS relationships resolve against collected identities. Upstream/TSF details, domain path mappings, broader policy/permission analysis, historical deployment API contents, Cloud Native API Gateway equivalence and live verification remain incomplete."
     },
     {
       "aws_collector": "bedrock",

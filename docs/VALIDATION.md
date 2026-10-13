@@ -103,3 +103,15 @@ Sources: [Namespaces](https://cloud.tencent.com/document/product/1141/42765), [r
 - `GetFunction` exposes environment values and optionally source, so execution-role, VPC, image and function-layer usage remain outside the current metadata collection design. Layer inventory is not proof of function use. Broader event integrations, permission/public invocation analyses and authenticated Tencent validation remain incomplete.
 
 Sources: [ListTriggers](https://cloud.tencent.com/document/product/583/44268), [trigger configuration formats](https://cloud.tencent.com/document/product/583/39901), [ListAliases](https://intl.cloud.tencent.com/ind/document/product/583/36322), [alias routing](https://cloud.tencent.com/document/api/583/44164), and [SCF data structures](https://cloud.tencent.com/document/product/583/17244).
+
+## API Gateway configuration and deployment metadata — 2026-10-13
+
+- Compared AWS API Gateway/v2 collectors with the installed Tencent API Gateway 2018-08-08 SDK and official API/model documentation. Added service/API detail, API lists, environments, release versions and custom domains through six read operations.
+- **149 backend tests** pass. Gateway controls cover service-scoped API IDs, parent/detail ID mismatches, independent denied scopes, SCF account/region/namespace isolation, ambiguous function names, separate WebSocket backend roles/qualifiers, COS bucket identity, backend VPC versus service placement, publication conflicts and SSL icon mapping.
+- Frontend method/path and backend method/path remain separate. URL credentials are rejected and query/fragment values are omitted; OAuth config, constant parameter values and mock response bodies are not stored. Authentication flags do not create effective-access claims.
+- Only published environments link to running release versions. Current API detail is not presented as the contents of a historical deployment. Contradictory API/environment publication fields are flagged.
+- Browser fixture: **10 resources and 12 relationships** in full graph; **2 resources and 0 relationships** in architecture view. One alias remains an explicit unresolved reference. Export parsed with **14 editable nodes including containers, 12 edges and 10 embedded official SVGs**, with valid parents/endpoints. Original Frankfurt demo restored afterward.
+- Five frontend tests, production build, dependency audit and pre-commit checks pass; all 896 official assets pass integrity checks.
+- Upstream/TSF details, custom domain path mappings, certificate inventory, historical deployment API contents, broader policy/permission analysis, Cloud Native API Gateway equivalence and authenticated runtime validation remain incomplete.
+
+Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659), [environments](https://cloud.tencent.com/document/api/628/45198), [API Gateway data structures](https://cloud.tencent.com/document/api/628/45244), and [API catalog](https://intl.cloud.tencent.com/zh/document/product/628/36595).
