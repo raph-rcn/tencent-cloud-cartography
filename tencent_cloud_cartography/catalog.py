@@ -720,6 +720,7 @@ ALLOWED_ACTIONS = {
     ("cloudrc", "SearchResources"),
     ("vpc", "DescribeSecurityGroupPolicies"),
     ("vpc", "DescribeRouteList"),
+    ("vpc", "DescribeNetworkAclQuintupleEntries"),
     ("cos", "list_buckets"),
     ("cos", "get_bucket_acl"),
     ("cos", "get_bucket_policy"),

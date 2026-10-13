@@ -621,3 +621,22 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
 - DescribeRouteList was added to the metadata permission inventory. No cloud
   mutation, probe or live collection occurred. Source-state/provider equivalence
   and live IPv6 route coverage remain explicit gaps.
+
+## 2026-10-13 — Network ACL metadata and five-field rule pagination
+
+- Backend **824 tests passed**, including **32** new cases covering both rule
+  formats, IPv4/IPv6, exact subnet/VPC associations, provider versus positional
+  identities, priorities, ports, malformed pages, pagination totals, duplicate
+  parents/rules, independent denied scopes and preservation of partial inventory.
+- Frontend **7 tests passed**, production build succeeded and dependency audit
+  reported **0 vulnerabilities**. The existing bundle-size advisory remains.
+- Synthetic `.local/network-acls-demo.json` rendered **8 resources / 12
+  relationships**. Inspector confirmed an IPv6 EGRESS DROP rule's source and
+  destination selectors, ports, priority, parent ACL and reachability=false.
+- Browser export `Downloads/tencent-cloud-cartography (32).drawio` retained all
+  twelve edges and embedded five official VPC SVGs. The preview is
+  `.local/network-acls-preview.png`; supporting VPC/subnet inventory is synthetic.
+- Added DescribeNetworkAclQuintupleEntries to the exact metadata API allowlist and
+  permission inventory. All 896 official bundled icons remain available. No cloud
+  mutation or live collection occurred. AWS default/association identity semantics
+  and live Frankfurt behavior remain explicit gaps.

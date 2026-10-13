@@ -791,3 +791,30 @@ Live Tencent API behavior, including IPv6 coverage, is not yet verified.
 Sources: [route tables](https://cloud.tencent.com/document/product/215/15763),
 [paginated route list](https://cloud.tencent.com/document/product/215/115754),
 [route and gateway schemas](https://cloud.tencent.com/document/api/215/15824).
+
+### Network ACL rule formats and subnet placement
+
+The ACL collector selects typed metadata from `DescribeNetworkAcls`, requires
+pagination totals, validates explicit VPC/subnet associations, and keeps ACLs and
+rules in their collected VPC. Three-field ingress/egress rules retain provider
+entry IDs, action, protocol, ports, IPv4/IPv6 selectors, description, modification
+time and priority. Older responses without entry IDs or priority use a labeled
+response-position identity/order; no provider priority is invented. Missing type
+is labeled `legacy_triple`, and unknown types produce unsupported coverage.
+
+Five-field ACLs use the separately allowlisted, paginated
+`DescribeNetworkAclQuintupleEntries` API scoped by exact `NetworkAclId`. Both
+returned directions are collected, with source/destination ports and IPv4/IPv6
+selectors, provider IDs, creation time and priority. Denials are isolated per ACL;
+missing totals, malformed families, duplicate IDs/priorities and mismatched
+parent associations retain partial coverage. Whole pages are validated before
+new nodes or edges are added. No rule is evaluated as proof of reachability.
+
+The AWS source stores default/owner/association IDs and numbered rules. Tencent's
+listed ACL schema has no corresponding default flag or association identifier:
+account ownership is the queried account and subnet association edges use explicit
+returned IDs. Those source semantics and live Frankfurt behavior remain unverified.
+Provider documentation:
+[ACL list](https://cloud.tencent.com/document/product/215/42160),
+[five-field rule list](https://cloud.tencent.com/document/product/215/77634),
+[data types](https://cloud.tencent.com/document/api/215/15824).

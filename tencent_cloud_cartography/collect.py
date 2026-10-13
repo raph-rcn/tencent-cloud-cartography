@@ -309,6 +309,11 @@ class CollectorRunner:
             if services and spec.service not in services:
                 continue
             for region in self.regions if spec.regional else ["global"]:
+                if spec.kind == "vpc.networkacl":
+                    from .network_acls import collect as collect_acls
+
+                    collect_acls(self, spec, region)
+                    continue
                 if spec.kind == "vpc.routetable":
                     from .routes import collect as collect_routes
 

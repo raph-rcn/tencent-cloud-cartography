@@ -120,7 +120,7 @@
       "source_enabled": true,
       "tencent_counterpart": "VPC network ACLs",
       "status": "incomplete",
-      "evidence_or_gap": "ACLs, ordered ingress/egress rules and subnet associations added."
+      "evidence_or_gap": "Typed ACL metadata, explicit VPC/subnet associations and three-field ingress/egress rules implemented. Five-field rules are independently paginated per ACL with source/destination ports and IPv4/IPv6 selectors, direction, provider identity and priority. Missing legacy IDs/order use labeled response positions. Malformed pages, duplicates, missing totals and denied scopes remain partial. AWS default flag, association identity/provider semantics and live Frankfurt validation remain incomplete; configuration does not prove reachability."
     },
     {
       "aws_collector": "ec2:network_interface",

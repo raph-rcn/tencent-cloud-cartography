@@ -569,6 +569,11 @@
     },
     {
       "service": "vpc",
+      "action": "DescribeNetworkAclQuintupleEntries",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
       "action": "DescribeNetworkAcls",
       "api_version": "2017-03-12"
     },
