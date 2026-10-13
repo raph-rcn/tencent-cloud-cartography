@@ -1,7 +1,7 @@
 """API Gateway configuration and explicit deployment/backend relationships."""
 
-from urllib.parse import urlsplit, urlunsplit
 import json
+from urllib.parse import urlsplit, urlunsplit
 
 from .catalog import GATEWAY_CHILDREN
 from .transport import CollectionError, pages
