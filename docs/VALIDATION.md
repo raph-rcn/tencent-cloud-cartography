@@ -515,3 +515,23 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
 - No live Tencent collection, connectivity probes or configuration mutations were
   performed. Cross-VPC target mappings, effective reachability, undocumented owner
   identifier semantics and non-CVM attachment counterparts remain gaps.
+
+## 2026-10-13 — CCN ownership, state and network references
+
+- Backend **680 tests passed**, including **27** new cases for explicit owner/region
+  identity, mismatched/missing UINs, parent mismatch, CIDR validation, lifecycle
+  flags, unknown types, duplicate pages, pagination totals and independent denial.
+- Source review corrected the audit: AWS transit-gateway collection includes
+  gateways and attachments, but does not include route tables or routes.
+- Frontend **7 tests passed**, production build succeeded, dependency audit
+  reported **0 vulnerabilities**. The existing bundle-size advisory remains.
+- Synthetic `.local/ccn-demo.json` rendered **5 resources / 4 relationships** across
+  three accounts and global/Frankfurt/Guangzhou scopes. Two network references
+  remain unresolved, so the fixture correctly reports partial coverage.
+- Inspector verified PENDING state, both UINs, target region/CIDR and explicit
+  `active_reported=false` / `connectivity_verified=false` on the partner attachment.
+- Browser export `Downloads/tencent-cloud-cartography (27).drawio` retained all
+  four edges and the official CCN SVG; preview `.local/ccn-preview.png`.
+- No live Tencent collection occurred. Discovery of shared CCNs absent from the
+  queried inventory, source ownership/SHARED_WITH correspondence and provider
+  subnet semantics remain open gaps. No additional API operation was allowed.

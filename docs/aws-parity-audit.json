@@ -141,7 +141,7 @@
       "source_enabled": true,
       "tencent_counterpart": "Cloud Connect Network",
       "status": "incomplete",
-      "evidence_or_gap": "CCN and attachments added, preserving remote UIN/region. Route table collection pending."
+      "evidence_or_gap": "CCN lifecycle/billing/routing-feature metadata and owner-qualified attachments implemented. Explicit network UIN/region, CIDRs, reported state and route-table identifier are retained; parent/owner mismatches fail the scope, and configured associations do not establish connectivity. Source tgw.py collects gateways and attachments, not route tables/routes. Shared CCN discovery, source SHARED_WITH ownership correspondence, provider-specific subnet association semantics and live validation remain incomplete."
     },
     {
       "aws_collector": "ec2:vpc",

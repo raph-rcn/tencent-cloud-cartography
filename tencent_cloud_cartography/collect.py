@@ -351,6 +351,11 @@ class CollectorRunner:
             if services and spec.service not in services:
                 continue
             for region in self.regions if spec.regional else ["global"]:
+                if spec.kind == "vpc.ccn":
+                    from .ccn import collect as collect_ccn
+
+                    collect_ccn(self, spec)
+                    continue
                 if spec.kind in {"vpc.networkinterface", "vpc.eip"}:
                     from .network_addresses import collect as collect_network_addresses
 

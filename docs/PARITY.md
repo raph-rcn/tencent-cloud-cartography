@@ -642,3 +642,33 @@ inferred; cross-VPC targets remain unresolved under this matching rule.
 Sources: [ENI inventory](https://cloud.tencent.com/document/api/215/15817),
 [EIP inventory](https://intl.cloud.tencent.com/zh/document/product/215/16702),
 [network schemas](https://cloud.tencent.com/document/product/215/15824).
+
+## Cloud Connect Network ownership and attachments
+
+Comparison with the AWS `ec2/tgw.py` collector confirmed that its scope is gateways
+and attachments, including VPC/subnet associations and owner/shared-account links.
+It does not collect transit-gateway route tables or routes. The audit no longer
+counts those as a missing source capability.
+
+CCN collection now retains selected lifecycle, billing/QoS, instance count and
+routing-feature flags. Each attachment validates its CCN ID and explicit CCN
+owner UIN against the parent scope. Target identity includes instance type, root
+UIN, region and resource ID; a missing owner never defaults to the current account.
+VPC, Direct Connect gateway and Blackstone VPC references keep their provider
+namespace. Unrecognized types retain metadata without an invented target edge.
+
+CIDRs, attachment state/time and returned route-table identifiers remain metadata.
+Pending/deleted associations remain visible with their reported state;
+`connectivity_verified=false` applies even when the provider reports ACTIVE.
+Pagination requires totals, validates each page before mutation and isolates
+failures by parent CCN. The existing official Cloud Connect Network SVG covers
+both network and attachment nodes. No API permission was added.
+
+Shared CCNs that are absent from the queried account's CCN inventory remain a
+discovery gap. AWS owner/SHARED_WITH correspondence, provider-specific subnet
+attachment semantics and live Tencent validation are also incomplete.
+
+Sources: [CCN inventory](https://cloud.tencent.com/document/product/215/19199),
+[attachment API](https://intl.cloud.tencent.com/zh/document/api/215/34789),
+[network response schemas](https://cloud.tencent.com/document/product/215/15824),
+[cross-account workflow](https://intl.cloud.tencent.com/zh/document/product/1003/31985).
