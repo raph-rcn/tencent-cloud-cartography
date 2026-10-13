@@ -254,3 +254,33 @@ Sources: [CMQ queues](https://cloud.tencent.com/document/api/1179/55909),
 and installed Tencent SDK `tdmq.v20200217` metadata models. The API catalog lists
 Frankfurt (`eu-frankfurt`); this does not establish availability for a particular
 account.
+
+## EventBridge rule and target configuration
+
+EventBridge now collects all returned regional buses, bus details, per-bus rules,
+rule details and per-rule targets. Required totals, duplicate detection and explicit
+parent ID checks protect pagination and child scoping. Rule patterns are validated
+as JSON objects and preserved as configuration; disabled rules remain visible.
+Bus logging references retain regional CLS identities. Safe connection summaries
+retain type/status without inventing connection IDs.
+
+Target QCS resource strings preserve explicit UIN and region, including references
+to another account. AppId alone cannot supply an owner. SCF targets require one
+collected function matching namespace/name/account/region and preserve version or
+alias qualifiers. Kafka targets and dead-letter routes require a matching collected
+instance/topic association; contradictory nested UINs prevent linking. CLS and
+Elasticsearch IDs produce explicit references, with AppId kept separate from UIN.
+Batch settings, retry configuration, event delivery format and selected ES output
+configuration remain metadata; no event is published or read.
+
+AWS schedule expressions, role associations and managed-by correspondence still
+need provider-specific evidence, and live validation is pending. `ListConnections`
+is intentionally excluded: its `DTSParams` schema can return a password, violating
+this project's metadata-only collection boundary. Source AWS EventBridge currently
+collects rules and targets, not that Tencent connection detail operation. Event
+search, transformation payloads and execution/permission claims remain excluded.
+
+Sources: [EventBridge API catalog](https://cloud.tencent.com/document/product/1359/67713),
+[bus listing](https://cloud.tencent.com/document/product/1359/67683),
+[target/QCS schemas](https://cloud.tencent.com/document/api/1359/67704), and the
+installed Tencent SDK `eb.v20210416` request/response models.

@@ -138,11 +138,20 @@ class CollectorRunner:
             scheduled_sql_ids = set()
             cfs_ids = set()
             cmq_ids, cmq_names = set(), set()
+            eb_ids = set()
             kafka_ids, kafka_names = set(), set()
             for items, request_id in pages(self.transport, spec, region, params):
                 if request_id:
                     record["request_ids"].append(request_id)
                 for item in items:
+                    if spec.service == "eb":
+                        from .eventbridge import prepare
+
+                        item = prepare(spec.kind, item, params or {})
+                        rid = first(item, spec.ids)
+                        if rid in eb_ids:
+                            raise CollectionError("DuplicateEventBridgeResource")
+                        eb_ids.add(rid)
                     if spec.kind.startswith("tdmq.cmq"):
                         from .cmq import prepare
 
@@ -337,6 +346,11 @@ class CollectorRunner:
                     collect_keys(self, spec, region)
                     continue
                 collected = self.native(spec, region)
+                if spec.kind == "eb.bus":
+                    from .eventbridge import collect_bus
+
+                    for nid, item in collected:
+                        collect_bus(self, nid)
                 if spec.kind in {"tdmq.cmqqueue", "tdmq.cmqtopic"}:
                     from .cmq import collect_resource
 
@@ -491,6 +505,9 @@ def collect(
     from .cmq import link_destinations as link_cmq_destinations
 
     link_cmq_destinations(graph)
+    from .eventbridge import link_targets
+
+    link_targets(graph)
     from .monitor import link_bindings
 
     link_bindings(graph)

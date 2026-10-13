@@ -20,6 +20,15 @@ class Collector:
 
 COLLECTORS = (
     Collector(
+        "eb",
+        "ListEventBuses",
+        "EventBuses",
+        "eb.bus",
+        ("EventBusId",),
+        ("EventBusName",),
+        require_total=True,
+    ),
+    Collector(
         "tdmq",
         "DescribeCmqQueues",
         "QueueList",
@@ -598,6 +607,10 @@ ALLOWED_ACTIONS = {
         SCF_FUNCTIONS,
     )
 } | {
+    ("eb", "GetEventBus"),
+    ("eb", "ListRules"),
+    ("eb", "GetRule"),
+    ("eb", "ListTargets"),
     ("tdmq", "DescribeCmqQueueDetail"),
     ("tdmq", "DescribeCmqTopicDetail"),
     ("tdmq", "DescribeCmqSubscriptionDetail"),
@@ -626,6 +639,7 @@ ALLOWED_ACTIONS = {
 
 # Official archive titles; all assets are verified by tests against the manifest.
 SERVICE_ICONS = {
+    "eb": ("EventBridge", "Event Bridge"),
     "tdmq": ("TDMQ for CMQ", "TDMQ for CMQ"),
     "monitor": ("Cloud Monitor", "Cloud Monitor"),
     "cls": ("Cloud Log Service", "Cloud Log Service"),
@@ -668,6 +682,8 @@ KIND_ICONS = {
     "vpc.peeringconnection": "Peering Connection",
 }
 DETAIL_KINDS = {
+    "eb.rule",
+    "eb.target",
     "tdmq.cmqsubscription",
     "tdmq.httpendpoint",
     "ckafka.topic",
@@ -734,6 +750,7 @@ DETAIL_KINDS = {
 }
 
 API_VERSIONS = {
+    "eb": "2021-04-16",
     "tdmq": "2020-02-17",
     "monitor": "2018-07-24",
     "cls": "2020-10-16",

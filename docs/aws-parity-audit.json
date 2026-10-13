@@ -469,7 +469,7 @@
       "source_enabled": true,
       "tencent_counterpart": "EventBridge",
       "status": "incomplete",
-      "evidence_or_gap": "Not implemented."
+      "evidence_or_gap": "Event buses, rules, exact JSON event-pattern configuration, enabled/lifecycle state, targets and scoped child identities now implemented. Explicit QCS ownership/region binds SCF qualifiers, collected Kafka topics, CLS and ES references; rule dead-letter targets and bus logging metadata retained. AWS schedule/role/managed-by correspondence and live validation remain incomplete. ListConnections is excluded because DTSParams can contain a password; safe connection summaries remain metadata."
     },
     {
       "aws_collector": "glue",

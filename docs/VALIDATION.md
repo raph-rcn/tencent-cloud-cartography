@@ -262,3 +262,24 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
   5 edges and 6 embedded SVGs**. No frontend code changes were needed.
 - This was synthetic metadata. No live Tencent request, message operation or HTTP
   callback occurred. Full AWS parity and live validation remain incomplete.
+
+## 2026-10-13 — EventBridge buses, rules and targets
+
+- `uv run pytest -q`: **369 passed**. Thirty-four EventBridge cases cover bus,
+  rule and target pagination; required totals; scoped and duplicate identities;
+  detail/parent mismatches; pattern validation; independent access denials; QCS
+  owner/region controls; SCF versions/aliases; explicit CLS/ES references; Kafka
+  and dead-letter links; disabled/drop behavior; selected configuration fields;
+  and excluded secret-bearing connection/event/payload operations. The full
+  synthetic collection now checks 69 coverage rows.
+- Ruff and all **896 official icon** integrity checks passed. `npm ci`, **5
+  frontend tests**, production build and npm audit passed with **0 vulnerabilities**;
+  the existing bundle-size warning remains.
+- Synthetic `.local/eventbridge-demo.json` rendered **8 resources / 8 relationships**
+  on loopback 8788, including an SCF version target and a Kafka dead-letter topic.
+  Preview: `.local/eventbridge-preview.png`.
+- Browser export `tencent-cloud-cartography (16).drawio` read back as **13 vertices,
+  8 edges and 8 embedded official SVGs**. No frontend changes were needed.
+- No live Tencent call, event read/publication or invocation occurred. Full AWS
+  parity, provider-specific schedule/role correspondence and live validation remain
+  incomplete; see PARITY.md for the documented connection-secret exclusion.
