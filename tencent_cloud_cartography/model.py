@@ -37,6 +37,15 @@ def walk_values(data, keys):
 
 
 SAFE_FIELDS = {
+    "ConsoleLogin",
+    "RoleType",
+    "SessionDuration",
+    "RoleArn",
+    "AddTime",
+    "UpdateTime",
+    "PolicyType",
+    "Deactived",
+    "IsServiceLinkedRolePolicy",
     "DestinationIpv6CidrBlock",
     "GatewayType",
     "GatewayId",

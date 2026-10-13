@@ -17,7 +17,7 @@ The authoritative comparison is the AWS checkout's collector registry, model/ana
 | Unresolved-inventory toggle | Toggle, count and inspector explanation implemented; browser validated | Keep native references visible and validate large inventories |
 | Search, filters, selection, layout, collapse | Initial UI and browser smoke tests | Add regressions as graph semantics expand |
 | Service component grouping | Per-location service components implemented and browser validated | Further large-graph/export validation |
-| Direct Neo4j-backed viewer | Direct reads, complete metadata, auth/database options and refresh implemented | Real transaction/HTTP integration gate added; runtime results recorded in VALIDATION.md |
+| Direct Neo4j-backed viewer | Direct reads, complete metadata, auth/database options and refresh implemented; 5 real Neo4j integration tests passed in CI | Large-inventory performance validation remains; runtime results recorded in VALIDATION.md |
 | PNG / editable draw.io | Initial browser downloads verified | Preserve grouping and assets across new graph types |
 | Multi-account discovery and federation | Explicit TCCLI profiles supported | Compare organization hierarchy and assume-role/federation workflows |
 | Metadata safeguards | Exact action allowlist and property filtering tested | Audit new APIs, preserve exclusions and avoid fetching object/secret values |
@@ -32,5 +32,7 @@ Route configuration is not a reachability finding. For `NORMAL_CVM` next hops, T
 Sources: [AS API catalog](https://cloud.tencent.com/document/api/377/20423), [image ownership filter](https://cloud.tencent.com/document/api/213/15715), [CCN attachments](https://cloud.tencent.com/document/api/215/19202), and the pinned-version models in TCCLI's Tencent SDK. Offline contract fixtures validate implementation semantics; live coverage remains unverified.
 
 ## Completion rule
+
+CAM now collects group membership, user/role/group attachments, local policies and attached preset policies, with parsed policy and role trust statements. Conditions, deny effects and exact principal expressions remain visible. Numeric UIN identities are resolved only when their owning UIN is explicit; AppIds and wildcards are not guessed. These configuration relationships do not establish effective permissions. Permission boundaries, federation inventory, credential metadata and applicable permission analyses remain gaps.
 
 A registered action, mapping row, green unit test, or icon does not on its own establish parity. Each audit item must have corresponding native collection, model/relationship behavior, tests for failure and negative controls, and runtime evidence appropriate to that capability. Keep this audit incomplete until those checks hold for the original scope.

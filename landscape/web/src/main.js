@@ -156,14 +156,20 @@ document.querySelector('#app').innerHTML = `
 
 const $ = (selector) => document.querySelector(selector);
 const loadingMarkup = $('#loading').innerHTML;
+let toastTimer;
+
+function clearToast() {
+  window.clearTimeout(toastTimer);
+  $('#toast').className = 'toast';
+  $('#toast').textContent = '';
+}
 
 function showToast(message, variant = 'default') {
+  clearToast();
   const toast = $('#toast');
   toast.textContent = message;
   toast.className = `toast visible ${variant}`;
-  window.setTimeout(() => {
-    toast.className = 'toast';
-  }, 3200);
+  toastTimer = window.setTimeout(clearToast, 3200);
 }
 
 async function request(path, options) {
@@ -365,6 +371,7 @@ async function init() {
     ]);
     const health = await healthResponse.json();
     const { accounts } = await accountsResponse.json();
+    clearToast();
     setHealth(health);
     replaceOptions($('#account'), 'All accounts', accounts.map((account) => ({value:account.id,label:account.display})));
     await loadTopology();

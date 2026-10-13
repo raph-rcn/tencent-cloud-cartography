@@ -23,7 +23,7 @@
 ## Remaining external checks
 
 - **Live Tencent sync not run:** the default TCCLI credential was absent. Sign in and run `./landscape/local.sh sync --profile default --regions eu-frankfurt`. Inspect the coverage table for account-specific denials, availability and baseline-only products. Do not treat synthetic tests as a live account validation.
-- **Neo4j integration not run:** neither the selected Colima daemon nor Docker Desktop daemon was available. JSON collection/viewer/export behavior was tested without Docker. The optional mirror should be integration-tested once Docker is running.
+- **Local Neo4j daemon not available:** neither the selected Colima daemon nor Docker Desktop daemon was available. The real database integration is now verified in GitHub CI, as recorded below; no local live-database browser session is claimed.
 
 ## Sources used for API behavior
 
@@ -39,4 +39,21 @@
 - **48 backend tests + 5 frontend tests** pass. New negative controls cover cross-account UIN vs AppId, ambiguous subnet-to-VPC placement, IP/sentinel route next hops, IPv6 route IDs, key/payload omission, launch version identity, ACL direction/order and all new icon mappings.
 - Browser validation: unresolved inventory is hidden initially (10 architecture resources), enabling it and full graph shows 13 resources and all 13 relationships. Service components render, and the grouped draw.io download parses with valid parent references and all 13 edges. No browser console errors observed.
 - Official icon archive remains **896 verified assets**, with explicit mappings for CCN, Private Link, peering, Auto Scaling and ENIs.
-- Previous live Tencent and Neo4j validation limitations remain. Contract checks and synthetic tests do not establish account-specific behavior or full AWS parity.
+- Live Tencent validation remains outstanding. Contract checks and synthetic tests do not establish account-specific behavior or full AWS parity.
+
+## Neo4j source and refresh — 2026-10-13
+
+- [CI run for `3d839589`](https://github.com/raph-rcn/tencent-cloud-cartography/actions/runs/38386506037) passed all verification jobs, including **5 integration tests against Neo4j 5.26 Community**. No database integration tests were skipped in that job.
+- Verified snapshot round-trip with coverage/accounts, preservation of unrelated graph nodes, repeated publication without duplicates, rollback after a forced transaction failure, and a reader retry during concurrent graph replacement. A deliberately corrupted generation is rejected.
+- Real HTTP integration verifies an unpublished graph returns 503 and subsequent imports become visible without restarting the viewer. The reader issues only its fixed read queries.
+- Browser check of the file-backed viewer: Refresh picked up an atomically replaced synthetic account label without duplicate filter options. Temporarily removing the fixture produced an explicit disconnected/data-unavailable state. Restoring it and refreshing recovered the graph with its original account label and counts. Only the synthetic demo fixture was used and it was restored.
+
+## CAM configuration depth — 2026-10-13
+
+- Added `GetGroup`, `GetRole`, `GetPolicy` and `ListAttachedGroupPolicies`. Request fields and response shapes were checked against the installed CAM 2019-01-16 SDK and official API documentation.
+- **75 backend tests** pass. CAM tests cover exact UIN membership identity, shared-policy deduplication, local versus preset policy scope, conditions and deny retention, malformed/duplicate JSON rejection, unsupported syntax, mismatched role IDs, incomplete membership counts, denied detail APIs, and foreign-principal isolation.
+- Full graph preserves statement and principal edges with official CAM icons. The architecture view omits these detail nodes. No effective access or role-assumption edges are inferred.
+- Browser fixture verified 5 CAM resources and 4 trust/principal relationships in global full graph view, while architecture counts stayed at 10 resources and 3 relationships. Original synthetic snapshot restored afterward. Recovery also clears the accessible status message; the previous hidden toast retained stale error text.
+- Full AWS IAM parity and authenticated Tencent runtime validation remain outstanding.
+
+Sources: [GetGroup](https://intl.cloud.tencent.com/document/api/598/32260), [GetPolicy](https://cloud.tencent.com/document/api/598/34574), [role structures](https://cloud.tencent.com/document/product/598/33167), [group attachments](https://cloud.tencent.com/document/api/598/34573), and [CAM policy syntax](https://cloud.tencent.com.cn/document/product/598/10604).

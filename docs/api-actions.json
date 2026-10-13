@@ -28,6 +28,26 @@
     },
     {
       "service": "cam",
+      "action": "GetGroup",
+      "api_version": "2019-01-16"
+    },
+    {
+      "service": "cam",
+      "action": "GetPolicy",
+      "api_version": "2019-01-16"
+    },
+    {
+      "service": "cam",
+      "action": "GetRole",
+      "api_version": "2019-01-16"
+    },
+    {
+      "service": "cam",
+      "action": "ListAttachedGroupPolicies",
+      "api_version": "2019-01-16"
+    },
+    {
+      "service": "cam",
       "action": "ListAttachedRolePolicies",
       "api_version": "2019-01-16"
     },

@@ -22,7 +22,7 @@
       "source_enabled": true,
       "tencent_counterpart": "CAM",
       "status": "incomplete",
-      "evidence_or_gap": "Users, groups, roles, policies and direct user/role policy attachments exist. Group membership, trust, effective permissions and credential metadata remain incomplete."
+      "evidence_or_gap": "Users, groups, roles, local and attached policies, direct attachments, group membership, policy statements and role trust conditions are modeled. Deny and conditions are retained without claiming effective access. Permission boundaries, credential metadata, federation inventory, resource permission analyses and live validation remain incomplete."
     },
     {
       "aws_collector": "iaminstanceprofiles",

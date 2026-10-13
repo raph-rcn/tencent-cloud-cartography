@@ -292,6 +292,17 @@ COLLECTORS = (
     ),
 )
 CHILDREN = {
+    "cam.group": Collector(
+        "cam",
+        "ListAttachedGroupPolicies",
+        "List",
+        "cam.policy",
+        ("PolicyId",),
+        ("PolicyName",),
+        "TotalNum",
+        "page",
+        False,
+    ),
     "cvm.launchtemplate": Collector(
         "cvm",
         "DescribeLaunchTemplateVersions",
@@ -344,6 +355,9 @@ ALLOWED_ACTIONS = {
     ("cloudrc", "SearchResources"),
     ("vpc", "DescribeSecurityGroupPolicies"),
     ("cos", "list_buckets"),
+    ("cam", "GetGroup"),
+    ("cam", "GetPolicy"),
+    ("cam", "GetRole"),
 }
 
 # Official archive titles; all assets are verified by tests against the manifest.
@@ -401,6 +415,10 @@ DETAIL_KINDS = {
     "cam.role",
     "cam.policy",
     "cam.group",
+    "cam.policystatement",
+    "cam.truststatement",
+    "cam.principal",
+    "cam.rootprincipal",
     "ssm.secret",
     "kms.key",
 }

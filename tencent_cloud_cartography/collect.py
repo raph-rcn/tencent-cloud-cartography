@@ -98,6 +98,10 @@ class CollectorRunner:
 
     def native(self, spec, region, params=None, parent=None, relation=None):
         collected = []
+        if spec.action == "ListPolicies":
+            # Preset policies enter through actual attachments; do not collect the
+            # entire provider catalog as though every policy belongs to this account.
+            params = {**(params or {}), "Scope": "Local"}
         if spec.action == "DescribeImages":
             params = {
                 **(params or {}),
@@ -250,6 +254,7 @@ class CollectorRunner:
                         "tke.cluster": "ClusterId",
                         "cam.role": "RoleId",
                         "cam.user": "TargetUin",
+                        "cam.group": "TargetGroupId",
                         "cvm.launchtemplate": "LaunchTemplateId",
                         "vpc.ccn": "CcnId",
                     }[spec.kind]
@@ -265,6 +270,10 @@ class CollectorRunner:
                                 "vpc.ccn": "HAS_ATTACHMENT",
                             }.get(spec.kind, "HAS_POLICY"),
                         )
+        if not services or "cam" in services:
+            from .cam import collect_details
+
+            collect_details(self)
         if not services or "scf" in services:
             for region in self.regions:
                 namespaces = self.native(SCF_NAMESPACES, region)
