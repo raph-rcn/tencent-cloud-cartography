@@ -283,3 +283,28 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
 - No live Tencent call, event read/publication or invocation occurred. Full AWS
   parity, provider-specific schedule/role correspondence and live validation remain
   incomplete; see PARITY.md for the documented connection-secret exclusion.
+
+
+## 2026-10-13 — CloudRC identity reconciliation and compound Grid layout
+
+- `uv run pytest -q`: **399 passed**. Thirty new inventory cases cover documented
+  CBS/CKafka/MySQL type aliases, ambiguous SCF codes, required ownership, malformed
+  identities and metadata, duplicate resources and token failures, partial results,
+  explicit versus missing region evidence, and native global reconciliation with
+  incoming/outgoing edges and provenance preserved. No API allowlist expansion.
+- CloudRC records with missing region remain unresolved until the same account,
+  kind and ID are confirmed by a global native collector. Ambiguous `scf::namespace`
+  records remain inventory-only; they cannot overwrite native namespaces.
+- Browser review exposed overlapping region/service boxes in the flat Grid layout.
+  Grid now arranges siblings recursively within their containers. The new frontend
+  regression verifies sibling separation, containment, stable rearrangement and
+  relationship preservation; **6 frontend tests** passed.
+- Ruff and **896 official icon** integrity checks passed. `npm ci`, production build
+  and npm audit passed with **0 vulnerabilities**; the existing bundle-size warning
+  remains.
+- Synthetic `.local/inventory-demo.json` rendered **7 resources / 1 relationship**,
+  including separate unresolved SCF inventory and native namespace, and global
+  Private DNS outside Frankfurt. Preview: `.local/inventory-preview.png`.
+- Browser export `tencent-cloud-cartography (17).drawio` read back as **16 vertices,
+  1 edge and 7 embedded official SVGs**. No live Tencent request occurred. Full AWS
+  parity and live validation remain incomplete, as recorded in PARITY.md.

@@ -12,8 +12,9 @@ def stable_id(*parts):
 
 
 def resource_kind(value):
-    parts = [p for p in str(value).replace(".", "::").split("::") if p and p != "qcs"]
-    return ".".join(parts).lower()
+    from .inventory import type_identity
+
+    return type_identity(value)[0]
 
 
 def first(data, keys, default=""):

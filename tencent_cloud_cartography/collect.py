@@ -3,7 +3,7 @@
 import json
 
 from .catalog import CHILDREN, COLLECTORS, DNS_RECORDS, SCF_FUNCTIONS, SCF_NAMESPACES
-from .model import Graph, first, resource_kind, stable_id
+from .model import Graph, first, stable_id
 from .transport import CollectionError, TccliTransport, pages
 
 
@@ -48,15 +48,17 @@ class CollectorRunner:
         return record
 
     def baseline(self, region):
+        from .inventory import add_resource, identity
+
         def operation(record):
-            token, seen = None, set()
+            token, seen_tokens, seen_resources = None, set(), set()
+            record["scanned_count"] = 0
             for _ in range(10000):
                 args = dict(MaxResults=100)
                 if region != "global":
                     args["Filters"] = [
                         {"Key": "RegionCode", "Values": [region], "MatchType": "Equals"}
                     ]
-                # An account-wide pass retains only globals, so regional scope never leaks.
                 if token:
                     args["NextToken"] = token
                 response = self.transport.call("cloudrc", "SearchResources", **args)
@@ -66,32 +68,29 @@ class CollectorRunner:
                 if not isinstance(resources, list):
                     raise CollectionError("InvalidResponse")
                 for item in resources:
-                    owner = item.get("Uin")
-                    if owner is not None and str(owner) != self.account:
-                        raise CollectionError("AccountMismatch")
-                    actual_region = item.get("RegionCode") or "global"
+                    parsed = identity(item, self.account)
+                    kind, rid, actual_region, resolution = parsed
+                    key = (kind, rid, actual_region)
+                    if key in seen_resources:
+                        raise CollectionError("DuplicateInventoryResource")
+                    seen_resources.add(key)
+                    record["scanned_count"] += 1
                     if actual_region != region:
                         if region == "global":
-                            continue
-                        raise CollectionError("RegionMismatch")
-                    kind = resource_kind(item["ResourceType"])
-                    self.graph.add(
-                        self.account,
-                        actual_region,
-                        kind,
-                        item["ResourceId"],
-                        item.get("ResourceAlias"),
-                        item,
-                        "cloudrc.SearchResources",
-                        "inventory-only",
-                    )
+                            if actual_region != "unknown":
+                                continue
+                        else:
+                            raise CollectionError("RegionMismatch")
+                    add_resource(self.graph, self.account, item, parsed)
                     record["count"] += 1
                 token = response.get("NextToken")
+                if token is not None and not isinstance(token, str):
+                    raise CollectionError("InvalidInventoryToken")
                 if not token:
                     return
-                if token in seen:
+                if token in seen_tokens:
                     raise CollectionError("PaginationStalled")
-                seen.add(token)
+                seen_tokens.add(token)
             raise CollectionError("PageLimit")
 
         return self.scope("cloudrc", "SearchResources", region, operation)
@@ -484,6 +483,9 @@ def collect(
                 "IdentityChanged",
                 "Authentication changed during collection; snapshot not published",
             )
+    from .inventory import reconcile_global_inventory
+
+    reconcile_global_inventory(graph)
     from .kms import link_policy_resources
 
     link_policy_resources(graph)

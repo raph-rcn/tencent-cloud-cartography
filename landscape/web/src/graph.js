@@ -437,7 +437,46 @@ export function createGraph(container, elements, onSelect) {
   return { cy, expandApi };
 }
 
+// Pack siblings together, then pack their containers. A flat grid positions
+// unrelated leaves together and can make region/VPC/service boxes overlap.
+export function arrangeCompoundGrid(cy) {
+  const gap = 64;
+  const bounds = (node) => node.boundingBox({
+    includeLabels: true, includeOverlays: false,
+  });
+  const move = (node, dx, dy) => {
+    const leaves = node.isParent() ? node.descendants().filter(n => !n.isParent()) : node;
+    leaves.forEach(leaf => {
+      const p = leaf.position();
+      leaf.position({ x: p.x + dx, y: p.y + dy });
+    });
+  };
+  const pack = (siblings) => {
+    if (!siblings.length) return;
+    siblings.forEach(node => pack(node.children(':visible')));
+    const columns = Math.ceil(Math.sqrt(siblings.length));
+    let x = 0, y = 0, rowHeight = 0;
+    siblings.forEach((node, index) => {
+      if (index && index % columns === 0) {
+        x = 0;
+        y += rowHeight + gap;
+        rowHeight = 0;
+      }
+      const box = bounds(node);
+      move(node, x - box.x1, y - box.y1);
+      x += box.w + gap;
+      rowHeight = Math.max(rowHeight, box.h);
+    });
+  };
+  pack(cy.nodes(':visible').filter(node => !node.parent().length));
+}
+
 export function runLayout(cy, name) {
+  if (name === 'grid') {
+    arrangeCompoundGrid(cy);
+    cy.layout({ name: 'preset', fit: true, padding: 72, animate: false }).run();
+    return;
+  }
   cy.layout(layoutOptions[name] || layoutOptions.fcose).run();
 }
 

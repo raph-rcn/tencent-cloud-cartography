@@ -10,7 +10,7 @@ The authoritative comparison is the AWS checkout's collector registry, model/ana
 |---|---|---|
 | Preserve source history and publish Tencent repository | Original revision is an ancestor; `origin/main` published | Retain provenance as features are added |
 | All official product assets | 896 SVGs, manifest hashes, gallery and native-service mappings tested | Keep mappings complete for added resource types |
-| Broad mandatory inventory and native reconciliation | CloudRC baseline exists, per-scope errors retained | Canonical type aliases, baseline failure semantics and reconciliation audit |
+| Broad mandatory inventory and native reconciliation | Documented CBS/CKafka/MySQL aliases, duplicate/error checks, scope validation and global identity reconciliation implemented | Composite resource IDs, remaining provider type ambiguities and live reconciliation |
 | All 66 enabled collector capabilities | Per-collector audit linked above | Complete equivalent configuration/relationships; justify provider differences with evidence |
 | Account/region/VPC/AZ/subnet hierarchy | Existing diagram and containment tests | Common VPC inference from unanimous subnet memberships added; broader graph cycles/scope audit remains |
 | Full relationship graph | Collected edges preserved by current tests | Restore missing relationship collection and applicable analyses |
@@ -284,3 +284,34 @@ Sources: [EventBridge API catalog](https://cloud.tencent.com/document/product/13
 [bus listing](https://cloud.tencent.com/document/product/1359/67683),
 [target/QCS schemas](https://cloud.tencent.com/document/api/1359/67704), and the
 installed Tencent SDK `eb.v20210416` request/response models.
+
+## CloudRC and native identity reconciliation
+
+Documented CloudRC type codes `cvm::volume`, `ckafka::ckafkaId` and
+`cdb::instanceId` now map to the existing CBS, CKafka and MySQL native kinds.
+Resource IDs remain opaque and unchanged: a type alias cannot equate different IDs,
+accounts or regions. PostgreSQL already shares its normalized machine type.
+Original inventory type, ID, alias, tags and provenance survive native enrichment.
+
+CloudRC documents `scf::namespace` as a function resource, whereas SCF
+`ListNamespaces` enumerates actual namespaces. It now stays an explicitly ambiguous
+inventory type instead of accidentally merging with a namespace. The public
+Lighthouse table has inconsistent human labels; its distinct machine types are
+preserved without inferring aliases. Composite/function resource-ID reconciliation
+still requires authoritative format or live evidence.
+
+Baseline pagination rejects duplicate canonical identities even with changing
+continuation tokens, invalid token types and malformed owner/type/ID metadata.
+Prior valid rows and request IDs survive a later denial/error. The account-wide
+pass reports scanned versus retained counts and preserves only explicit globals or
+records with missing regions. Missing regions remain `unknown`; a global native
+API must provide a matching account/type/ID before merging. That merge preserves
+incoming/outgoing edges and their provenance. Regional filters do not substitute
+for a missing returned region. Unknown types stay visible through unresolved
+inventory rather than being silently discarded.
+
+Sources: [CloudRC type catalog](https://cloud.tencent.com/document/product/1791/115765),
+[SearchResources](https://cloud.tencent.com/document/api/1791/136441), and installed
+`cloudrc.v20240606` schemas. These rules apply to newly collected snapshots;
+previously saved snapshots are not silently rewritten. Full live reconciliation,
+remaining product aliases and broader AWS parity remain incomplete.

@@ -1,7 +1,7 @@
 import cytoscape from 'cytoscape';
 import { describe, expect, it } from 'vitest';
 
-import { clearRelationshipFocus, focusRelationships, filterServices, serializeForDrawio } from './graph.js';
+import { arrangeCompoundGrid, clearRelationshipFocus, focusRelationships, filterServices, serializeForDrawio } from './graph.js';
 
 function graph() {
   return cytoscape({
@@ -104,6 +104,46 @@ describe('filters and exports', () => {
     filterServices(cy,new Set(['CVM']));
     expect(cy.$id('vpc').hasClass('filtered')).toBe(false);
     expect(cy.$id('empty').hasClass('filtered')).toBe(true);
+    cy.destroy();
+  });
+});
+
+
+describe('compound grid', () => {
+  it('keeps nested region and service siblings separate while retaining edges', () => {
+    const cy = cytoscape({ headless: true, styleEnabled: true,
+      style: [{ selector: 'node', style: { width: 78, height: 78, padding: 38 } }],
+      elements: [
+        {data:{id:'account'}},
+        {data:{id:'frankfurt',parent:'account'}},
+        {data:{id:'global',parent:'account'}},
+        {data:{id:'compute',parent:'frankfurt'}},
+        {data:{id:'storage',parent:'frankfurt'}},
+        {data:{id:'vm',parent:'compute'}},
+        {data:{id:'vm2',parent:'compute'}},
+        {data:{id:'disk',parent:'storage'}},
+        {data:{id:'dns',parent:'global'}},
+        {data:{id:'attachment',source:'disk',target:'vm'}},
+      ]});
+    arrangeCompoundGrid(cy);
+    const disjoint = (a, b) => a.x2 < b.x1 || b.x2 < a.x1 || a.y2 < b.y1 || b.y2 < a.y1;
+    for (const [a, b] of [['frankfurt','global'], ['compute','storage'], ['vm','vm2']]) {
+      expect(disjoint(cy.$id(a).boundingBox(), cy.$id(b).boundingBox())).toBe(true);
+    }
+    cy.nodes(':parent').forEach(parent => {
+      const p = parent.boundingBox();
+      parent.children().forEach(child => {
+        const c = child.boundingBox();
+        expect(c.x1).toBeGreaterThan(p.x1);
+        expect(c.x2).toBeLessThan(p.x2);
+        expect(c.y1).toBeGreaterThan(p.y1);
+        expect(c.y2).toBeLessThan(p.y2);
+      });
+    });
+    expect(serializeForDrawio(cy).edges).toHaveLength(1);
+    const positions = cy.nodes().map(n => ({...n.position()}));
+    arrangeCompoundGrid(cy);
+    expect(cy.nodes().map(n => n.position())).toEqual(positions);
     cy.destroy();
   });
 });
