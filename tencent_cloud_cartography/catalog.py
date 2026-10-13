@@ -14,6 +14,7 @@ class Collector:
     total: str | None = "TotalCount"
     paging: str = "offset"
     regional: bool = True
+    require_total: bool = False
 
 
 COLLECTORS = (
@@ -339,6 +340,35 @@ CHILDREN = {
         False,
     ),
 }
+TCR_CHILDREN = {
+    "namespace": Collector(
+        "tcr",
+        "DescribeNamespaces",
+        "NamespaceList",
+        "tcr.namespace",
+        ("Name",),
+        paging="none",
+        require_total=True,
+    ),
+    "repository": Collector(
+        "tcr",
+        "DescribeRepositories",
+        "RepositoryList",
+        "tcr.repository",
+        ("Name",),
+        paging="offset-page",
+        require_total=True,
+    ),
+    "image": Collector(
+        "tcr",
+        "DescribeImages",
+        "ImageInfoList",
+        "tcr.image",
+        ("Digest",),
+        paging="offset-page",
+        require_total=True,
+    ),
+}
 SCF_NAMESPACES = Collector("scf", "ListNamespaces", "Namespaces", "scf.namespace", ("Name",))
 DNS_RECORDS = {
     "dnspod.domain": Collector(
@@ -369,7 +399,14 @@ SCF_FUNCTIONS = Collector(
 )
 ALLOWED_ACTIONS = {
     (s.service, s.action)
-    for s in (*COLLECTORS, *CHILDREN.values(), *DNS_RECORDS.values(), SCF_NAMESPACES, SCF_FUNCTIONS)
+    for s in (
+        *COLLECTORS,
+        *CHILDREN.values(),
+        *DNS_RECORDS.values(),
+        *TCR_CHILDREN.values(),
+        SCF_NAMESPACES,
+        SCF_FUNCTIONS,
+    )
 } | {
     ("sts", "GetCallerIdentity"),
     ("cloudrc", "SearchResources"),
@@ -420,6 +457,10 @@ KIND_ICONS = {
     "vpc.peeringconnection": "Peering Connection",
 }
 DETAIL_KINDS = {
+    "tcr.namespace",
+    "tcr.repository",
+    "tcr.image",
+    "tcr.imagereference",
     "dnspod.record",
     "dnspod.name",
     "dnspod.address",

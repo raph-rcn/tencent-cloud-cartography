@@ -43,6 +43,12 @@ Owned DNSPod domains and Private DNS zones now include paginated records, assign
 
 DNSPod collection uses `Type=MINE` and its filtered `DomainTotal` count. Shared public-domain ownership is not inferred from the collecting account. Private zone ownership must match the profile owner. Nameserver/subzone and address links describe collected configuration, not effective DNS answers or reachability. Cross-zone private resolver precedence, additional managed-service endpoint aliases, shared public domains and authenticated runtime validation remain gaps.
 
+## Container registry configuration
+
+TCR Enterprise now collects namespaces, repositories, tag references and image digest metadata. Repositories use registry-scoped names; tags refer to separate content nodes. Digest equality is shared only within an account and region. Public/anonymous configuration is retained without inferring pull permission. Denied namespace metadata does not prevent repository discovery.
+
+Image and repository pagination uses `Offset` as a one-based page number. Namespace collection requests `All=true` and checks the returned total; a truncated response remains explicitly incomplete. The source ECR collector also models multi-platform manifest members, architecture and attestations. These capabilities, image-layer analysis, Personal Edition, workload links, registry policy analysis, proxy/cache rules and authenticated runtime validation remain gaps.
+
 ## Completion rule
 
 A registered action, mapping row, green unit test, or icon does not on its own establish parity. Each audit item must have corresponding native collection, model/relationship behavior, tests for failure and negative controls, and runtime evidence appropriate to that capability. Keep this audit incomplete until those checks hold for the original scope.

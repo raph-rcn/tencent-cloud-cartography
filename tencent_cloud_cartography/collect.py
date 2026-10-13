@@ -104,7 +104,7 @@ class CollectorRunner:
             # Preset policies enter through actual attachments; do not collect the
             # entire provider catalog as though every policy belongs to this account.
             params = {**(params or {}), "Scope": "Local"}
-        if spec.action == "DescribeImages":
+        if spec.service == "cvm" and spec.action == "DescribeImages":
             params = {
                 **(params or {}),
                 "Filters": [{"Name": "image-type", "Values": ["PRIVATE_IMAGE"]}],
@@ -255,6 +255,11 @@ class CollectorRunner:
                     collect_keys(self, spec, region)
                     continue
                 collected = self.native(spec, region)
+                if spec.kind == "tcr.instance":
+                    from .tcr import collect_registry
+
+                    for nid, item in collected:
+                        collect_registry(self, nid, item)
                 if spec.kind in DNS_RECORDS:
                     from .dns import collect_records
 

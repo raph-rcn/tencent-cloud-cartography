@@ -131,11 +131,15 @@ def pages(transport, spec, region, params=None, max_pages=10000):
             query.update(Offset=cursor, Limit=100)
         elif spec.paging == "page":
             query.update(Page=cursor + 1, Rp=100)
+        elif spec.paging == "offset-page":
+            query.update(Offset=cursor + 1, Limit=100)
         response = transport.call(spec.service, spec.action, region=region, **query)
         items = path_value(response, spec.result)
         if not isinstance(items, list):
             raise CollectionError("InvalidResponse", "Expected a resource array")
         total = path_value(response, spec.total) if spec.total else None
+        if spec.require_total and (type(total) is not int or total < 0):
+            raise CollectionError("InvalidTotal")
         if total is not None:
             try:
                 total = int(total)
@@ -162,7 +166,7 @@ def pages(transport, spec, region, params=None, max_pages=10000):
             return
         if total is None and len(items) < 100:
             return
-        cursor = cursor + 1 if spec.paging == "page" else cursor + len(items)
+        cursor = cursor + 1 if spec.paging in {"page", "offset-page"} else cursor + len(items)
     raise CollectionError("PageLimit")
 
 

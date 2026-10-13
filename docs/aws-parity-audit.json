@@ -204,7 +204,7 @@
       "source_enabled": true,
       "tencent_counterpart": "TCR",
       "status": "incomplete",
-      "evidence_or_gap": "Registry list only; namespaces/repositories/images/policy coverage pending."
+      "evidence_or_gap": "TCR Enterprise registries, namespaces, repositories, tags and digest metadata implemented with isolated account/region/registry identities and page-number pagination. Multi-platform manifests, attestations, workload image links, Personal Edition, policy analysis and live verification remain incomplete."
     },
     {
       "aws_collector": "ecr:image_layers",

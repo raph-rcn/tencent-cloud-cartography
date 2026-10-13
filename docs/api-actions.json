@@ -223,7 +223,22 @@
     },
     {
       "service": "tcr",
+      "action": "DescribeImages",
+      "api_version": "2019-09-24"
+    },
+    {
+      "service": "tcr",
       "action": "DescribeInstances",
+      "api_version": "2019-09-24"
+    },
+    {
+      "service": "tcr",
+      "action": "DescribeNamespaces",
+      "api_version": "2019-09-24"
+    },
+    {
+      "service": "tcr",
+      "action": "DescribeRepositories",
       "api_version": "2019-09-24"
     },
     {

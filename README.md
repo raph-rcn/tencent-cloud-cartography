@@ -65,7 +65,7 @@ The **Cloud Resource Center** `SearchResources` API supplies a baseline of suppo
 | Network | VPC, subnets, security groups and rules, route tables and typed next hops, ACL rules, NAT, EIP, network interfaces, Private Link, peering, CCN attachments; returned VPC/subnet/group/route/NAT/interface references |
 | Compute | CVM, Lighthouse, images, key pairs, launch templates/versions, Auto Scaling groups/configurations/members, CBS disks/snapshots and attachments |
 | Load balancing | CLB, listeners/rules and returned backend target IDs or endpoint addresses |
-| Containers | TKE clusters and CVM worker references, TCR registries |
+| Containers | TKE clusters and CVM worker references; TCR Enterprise registries, namespaces, repositories, tags and image digests |
 | Databases | TencentDB MySQL, PostgreSQL, Redis, MongoDB, Elasticsearch |
 | Storage | COS bucket names/regions; CFS file systems |
 | Serverless and integration | SCF namespaces/functions (metadata only), API Gateway services, CKafka instances |
@@ -95,6 +95,8 @@ CAM collection includes group membership, direct user/role/group policy attachme
 KMS collection queries both customer-created and service-created keys, then retains key descriptions, aliases, lifecycle, origin and rotation metadata. CBS disks and Secrets Manager metadata link to explicitly configured KMS key IDs. A disk's encryption flag alone does not identify a key. Exact regional CAM key-resource expressions link policy statements to known keys; `NAMES_RESOURCE` and `CONFIGURED_KMS_KEY` describe configuration, not permission to decrypt. Tencent key aliases are key attributes; AWS key-policy and grant analysis still needs provider-specific authorization work.
 
 DNS collection retains record values, TTL, weight, routing line and enabled state. Public names, private zone views and VPC address scopes remain separate. Subzone links require an enabled NS record matching the child zone's assigned nameserver. IP matches use collected resource addresses and explicit network scope. These links describe configuration; they do not establish DNS resolution or network reachability. Shared public domains, cross-zone private resolver precedence and additional managed-service aliases remain incomplete.
+
+TCR collection keeps repository/tag identities scoped to each registry and separates mutable tags from content digests. Namespace and repository public flags, registry anonymous-access configuration, image size and artifact kind remain visible; they do not alone establish effective anonymous access. Repository collection continues if namespace metadata is denied. Multi-platform manifests, attestations, workload image links and image-layer analysis remain incomplete.
 
 The HTTP viewer and optional Neo4j bind to loopback. HTTP Host/Origin checks reject foreign browser origins. Do not expose the unauthenticated local services through a tunnel or reverse proxy.
 
