@@ -471,13 +471,20 @@ export function arrangeCompoundGrid(cy) {
   pack(cy.nodes(':visible').filter(node => !node.parent().length));
 }
 
+const activeLayouts = new WeakMap();
+
 export function runLayout(cy, name) {
+  activeLayouts.get(cy)?.stop();
+  cy.stop(true, false);
+  cy.nodes().stop(true, false);
+  let options = layoutOptions[name] || layoutOptions.fcose;
   if (name === 'grid') {
     arrangeCompoundGrid(cy);
-    cy.layout({ name: 'preset', fit: true, padding: 72, animate: false }).run();
-    return;
+    options = { name: 'preset', fit: true, padding: 72, animate: false };
   }
-  cy.layout(layoutOptions[name] || layoutOptions.fcose).run();
+  const layout = cy.layout(options);
+  activeLayouts.set(cy, layout);
+  layout.run();
 }
 
 export function applySearch(cy, query) {

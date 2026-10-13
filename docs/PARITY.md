@@ -315,3 +315,37 @@ Sources: [CloudRC type catalog](https://cloud.tencent.com/document/product/1791/
 `cloudrc.v20240606` schemas. These rules apply to newly collected snapshots;
 previously saved snapshots are not silently rewritten. Full live reconciliation,
 remaining product aliases and broader AWS parity remain incomplete.
+
+
+## SES sending-domain configuration
+
+The AWS source `intel/aws/ses.py` lists email identities and collects sending,
+verification and DKIM attributes. Tencent now lists sending domains with required
+`Total` pagination, normalized domain identities, reputation/quota metadata,
+configured sending IPs, tags and independent per-domain details. List/detail
+verification changes remain visible. Denied or invalid detail responses retain the
+listed domain and do not prevent other domains from being collected.
+
+Tencent `DKIMOption` represents key size (1024, 2048 or both); it is not the AWS
+`DkimSigningEnabled` or `DkimStatus` field. Provider-reported DNS checks preserve
+record type/name, expected/current values and check status. The graph links exact
+same-account public DNSPod record name/type/value matches, without inferring live
+DNS resolution, successful signature generation or delivery. No email, recipient
+list, template body, SMTP password or sending API is queried.
+
+Mainland APIs document Guangzhou and Hong Kong; international APIs document
+Singapore with `ses.intl.tencentcloudapi.com`. Transport selects the documented
+endpoint from the explicit selected region. Frankfurt and other unsupported
+regions produce a visible unsupported coverage record, with no SES request.
+Domains and DNS checks use the bundled official Simple Email Service icon.
+
+AWS individual email-address identity correspondence, exact DKIM signing-state
+semantics and live account validation remain incomplete. Sender addresses are not
+silently equated to independently verified identities. The API examples omit the
+newer `Total` field although both current schemas and the installed SDK include it;
+responses without it remain incomplete rather than being assumed exhaustive.
+
+Sources: [domain list](https://cloud.tencent.com/document/api/1288/51045),
+[domain details](https://cloud.tencent.com/document/api/1288/51046),
+[international endpoint and region](https://www.tencentcloud.com/document/product/1084/39411),
+[data types](https://cloud.tencent.com/document/api/1288/51053).

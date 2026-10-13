@@ -69,11 +69,14 @@ The **Cloud Resource Center** `SearchResources` API supplies a baseline of suppo
 | Databases | TencentDB MySQL, PostgreSQL, Redis, MongoDB, Elasticsearch |
 | Storage | COS buckets, ACL/policy, encryption/KMS, versioning and logging; CFS file systems, mount targets, permission groups and export rules |
 | Serverless and integration | SCF namespaces/functions, versions, aliases, triggers and layer versions; API Gateway services/APIs/environments/releases/domains and selected backend links; CKafka instances, topics, partitions and delivery/trigger links; TDMQ for CMQ queues, topics, subscriptions and dead-letter routes; EventBridge buses, rules, targets and resource links |
+| Email | SES sending domains, verification state, DKIM key size and DNS checks; exact collected DNSPod record links |
 | Identity and keys | CAM users/groups/roles, memberships, policy attachments and conditional statements; KMS metadata and aliases; Secrets Manager metadata and explicit key relationships |
 | Monitoring | Cloud Monitor policies, metric/event rules, notices and object bindings with explicit CVM links; CLS alarms, query/topic links, schedules, notice channels and escalation configuration; scheduled SQL tasks and declared metric outputs |
 | Edge and DNS | CDN domains; owned DNSPod domains and Private DNS zones with records, nameservers, subzones and explicit VPC bindings |
 
-See [the exact API catalog](tencent_cloud_cartography/catalog.py). API versions are pinned. Global services are queried once per account, regional services once per selected region. The global CloudRC pass queries the account inventory but only retains resources whose region is global. COS lists bucket metadata account-wide and retains the selected regions.
+See [the exact API catalog](tencent_cloud_cartography/catalog.py). API versions are pinned. Global services are queried once per account, regional services once per selected region. The global CloudRC pass queries the account inventory but only retains global or unknown-region resources. COS lists bucket metadata account-wide and retains the selected regions.
+
+SES supports `ap-guangzhou` and `ap-hongkong` on the mainland API endpoint, and `ap-singapore` on the international endpoint. Other regions, including Frankfurt, are recorded as unsupported without sending a SES request.
 
 ### Coverage and limits
 

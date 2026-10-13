@@ -15,7 +15,7 @@
       "source_enabled": true,
       "tencent_counterpart": "Cloud Resource Center",
       "status": "incomplete",
-      "evidence_or_gap": "Baseline discovery implemented; type alias reconciliation and mandatory-baseline behavior need parity review."
+      "evidence_or_gap": "Mandatory CloudRC baseline, documented CBS/CKafka/MySQL type aliases, strict ownership, duplicate/pagination checks and native global reconciliation implemented. Missing region stays unknown and ambiguous SCF type remains inventory-only. Composite IDs, remaining provider ambiguities and live reconciliation remain incomplete."
     },
     {
       "aws_collector": "iam",
@@ -372,7 +372,7 @@
       "source_enabled": true,
       "tencent_counterpart": "Simple Email Service",
       "status": "incomplete",
-      "evidence_or_gap": "Not implemented."
+      "evidence_or_gap": "SES sending domains, required-total pagination, independent details, verification and DKIM key-size metadata, quota/reputation/tags and provider DNS checks implemented. Exact same-account public DNSPod name/type/value links preserve configuration without delivery claims. Explicit mainland Guangzhou/Hong Kong and international Singapore endpoints; Frankfurt recorded unsupported. Individual email-address identity correspondence, AWS DKIM signing-state semantics and live validation remain incomplete."
     },
     {
       "aws_collector": "sns",

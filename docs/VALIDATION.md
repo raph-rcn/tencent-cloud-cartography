@@ -308,3 +308,30 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
 - Browser export `tencent-cloud-cartography (17).drawio` read back as **16 vertices,
   1 edge and 7 embedded official SVGs**. No live Tencent request occurred. Full AWS
   parity and live validation remain incomplete, as recorded in PARITY.md.
+
+## 2026-10-13 — SES domain verification and layout cancellation
+
+- `uv run pytest -q`: **434 passed**. Thirty-five SES cases cover 101-domain
+  pagination, required totals, normalized duplicate identities, selected metadata,
+  malformed list/detail responses, independent denials, account isolation, exact
+  public DNS links, the three documented regional endpoints, unsupported Frankfurt
+  and the exclusion of sending/template/recipient/credential APIs.
+- Native collection coverage now counts each successfully retained row even if a
+  later row in the same page is invalid. The complete synthetic collection checks
+  **70 coverage rows**, including explicit unsupported SES coverage for Frankfurt.
+- Ruff and all **896 official icon** integrity checks passed. `npm ci`, **7 frontend
+  tests**, production build and npm audit passed with **0 vulnerabilities**. The
+  existing bundle-size warning remains.
+- `.local/ses-demo.json` rendered **5 resources / 4 relationships**, including
+  domain verification, two DNS checks, and an exact collected DNSPod record match.
+  The coverage dialog displayed Frankfurt as unsupported with the supported regions.
+  Preview: `.local/ses-preview.png`.
+- Rapid Auto-to-Grid switching exposed an unfinished animation overwriting the new
+  positions. Layout changes now stop the preceding layout and queued animations.
+  A delayed-layout regression and browser review after the prior animation duration
+  both confirmed stable Grid positions.
+- Browser export `tencent-cloud-cartography (18).drawio` read back as **10 vertices,
+  4 edges and 5 embedded official SVGs**.
+- This was synthetic metadata. No live Tencent request, DNS lookup, email access or
+  send operation occurred. Full AWS parity and live validation remain incomplete;
+  see PARITY.md for the domain/address and DKIM semantic distinctions.

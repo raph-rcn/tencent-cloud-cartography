@@ -138,11 +138,19 @@ class CollectorRunner:
             cfs_ids = set()
             cmq_ids, cmq_names = set(), set()
             eb_ids = set()
+            ses_ids = set()
             kafka_ids, kafka_names = set(), set()
             for items, request_id in pages(self.transport, spec, region, params):
                 if request_id:
                     record["request_ids"].append(request_id)
                 for item in items:
+                    if spec.service == "ses":
+                        from .ses import prepare
+
+                        item = prepare(item)
+                        if item["IdentityName"] in ses_ids:
+                            raise CollectionError("DuplicateSesIdentity")
+                        ses_ids.add(item["IdentityName"])
                     if spec.service == "eb":
                         from .eventbridge import prepare
 
@@ -250,7 +258,7 @@ class CollectorRunner:
                     collected.append((nid, item))
                     if parent:
                         self.graph.edge(parent, nid, relation or "CONTAINS", source)
-                record["count"] += len(items)
+                    record["count"] += 1
 
         self.scope(
             spec.service, spec.action, region, operation, json.dumps(params) if params else ""
@@ -335,6 +343,11 @@ class CollectorRunner:
             if services and spec.service not in services:
                 continue
             for region in self.regions if spec.regional else ["global"]:
+                if spec.kind == "ses.domain":
+                    from .ses import collect_domains
+
+                    collect_domains(self, spec, region)
+                    continue
                 if spec.kind == "cls.topic":
                     for biz_type in (0, 1):
                         self.native(spec, region, {"BizType": biz_type})
@@ -492,6 +505,9 @@ def collect(
     from .dns import link_dns
 
     link_dns(graph)
+    from .ses import link_dns_checks
+
+    link_dns_checks(graph)
     from .scf import link_trigger_sources
 
     link_trigger_sources(graph)

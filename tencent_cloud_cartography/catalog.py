@@ -18,7 +18,24 @@ class Collector:
     page_size: int = 100
 
 
+# Official SES regional endpoints differ between mainland and international APIs.
+SES_ENDPOINTS = {
+    "ap-guangzhou": "ses.tencentcloudapi.com",
+    "ap-hongkong": "ses.tencentcloudapi.com",
+    "ap-singapore": "ses.intl.tencentcloudapi.com",
+}
+
 COLLECTORS = (
+    Collector(
+        "ses",
+        "ListEmailIdentities",
+        "EmailIdentities",
+        "ses.domain",
+        ("IdentityName",),
+        ("IdentityName",),
+        total="Total",
+        require_total=True,
+    ),
     Collector(
         "eb",
         "ListEventBuses",
@@ -607,6 +624,7 @@ ALLOWED_ACTIONS = {
         SCF_FUNCTIONS,
     )
 } | {
+    ("ses", "GetEmailIdentity"),
     ("eb", "GetEventBus"),
     ("eb", "ListRules"),
     ("eb", "GetRule"),
@@ -639,6 +657,7 @@ ALLOWED_ACTIONS = {
 
 # Official archive titles; all assets are verified by tests against the manifest.
 SERVICE_ICONS = {
+    "ses": ("Simple Email Service", "Simple Email Service"),
     "eb": ("EventBridge", "Event Bridge"),
     "tdmq": ("TDMQ for CMQ", "TDMQ for CMQ"),
     "monitor": ("Cloud Monitor", "Cloud Monitor"),
@@ -682,6 +701,7 @@ KIND_ICONS = {
     "vpc.peeringconnection": "Peering Connection",
 }
 DETAIL_KINDS = {
+    "ses.dnscheck",
     "eb.rule",
     "eb.target",
     "tdmq.cmqsubscription",
@@ -750,6 +770,7 @@ DETAIL_KINDS = {
 }
 
 API_VERSIONS = {
+    "ses": "2020-10-02",
     "eb": "2021-04-16",
     "tdmq": "2020-02-17",
     "monitor": "2018-07-24",

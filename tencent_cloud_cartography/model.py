@@ -225,7 +225,9 @@ class Graph:
         rid = first(raw, spec.ids)
         # Dedicated selectors own persisted configuration and links for these kinds;
         # nested configuration must not feed recursive network inference.
-        explicit_configuration = spec.kind.startswith(("ckafka.", "tdmq.", "eb.")) or spec.kind in {
+        explicit_configuration = spec.kind.startswith(
+            ("ckafka.", "tdmq.", "eb.", "ses.")
+        ) or spec.kind in {
             "cls.alarm",
             "cls.alarmnotice",
             "cls.scheduledsql",

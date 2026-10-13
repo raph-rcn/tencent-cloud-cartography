@@ -1,7 +1,7 @@
 import cytoscape from 'cytoscape';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
-import { arrangeCompoundGrid, clearRelationshipFocus, focusRelationships, filterServices, serializeForDrawio } from './graph.js';
+import { layoutOptions, runLayout, arrangeCompoundGrid, clearRelationshipFocus, focusRelationships, filterServices, serializeForDrawio } from './graph.js';
 
 function graph() {
   return cytoscape({
@@ -146,4 +146,29 @@ describe('compound grid', () => {
     expect(cy.nodes().map(n => n.position())).toEqual(positions);
     cy.destroy();
   });
+});
+
+
+it('stops an unfinished layout before its delayed update can overwrite Grid', () => {
+  vi.useFakeTimers();
+  function DelayedLayout(options) { this.cy = options.cy; }
+  DelayedLayout.prototype.run = function () {
+    this.timer = setTimeout(() => this.cy.nodes().positions({x: 9999, y: 9999}), 100);
+  };
+  DelayedLayout.prototype.stop = function () { clearTimeout(this.timer); };
+  cytoscape('layout', 'delayed-regression', DelayedLayout);
+  layoutOptions.delayed = {name: 'delayed-regression'};
+  const cy = graph();
+  try {
+    runLayout(cy, 'delayed');
+    runLayout(cy, 'grid');
+    const positions = cy.nodes().map(n => ({...n.position()}));
+    vi.advanceTimersByTime(150);
+    expect(cy.nodes().map(n => n.position())).toEqual(positions);
+    expect(cy.$id('volume').position()).not.toEqual(cy.$id('instance').position());
+  } finally {
+    cy.destroy();
+    delete layoutOptions.delayed;
+    vi.useRealTimers();
+  }
 });

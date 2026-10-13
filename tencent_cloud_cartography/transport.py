@@ -5,7 +5,7 @@ import re
 import subprocess
 import time
 
-from .catalog import ALLOWED_ACTIONS, API_VERSIONS
+from .catalog import ALLOWED_ACTIONS, API_VERSIONS, SES_ENDPOINTS
 
 
 class CollectionError(RuntimeError):
@@ -48,6 +48,10 @@ class TccliTransport:
             "--timeout",
             str(self.timeout),
         ]
+        if service == "ses":
+            if region not in SES_ENDPOINTS:
+                raise CollectionError("UnsupportedSesRegion")
+            args.extend(["--endpoint", SES_ENDPOINTS[region]])
         if service in API_VERSIONS:
             args.extend(["--version", API_VERSIONS[service]])
         if region and region != "global":
