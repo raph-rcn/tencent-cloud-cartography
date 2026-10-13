@@ -15,6 +15,7 @@ class Collector:
     paging: str = "offset"
     regional: bool = True
     require_total: bool = False
+    page_size: int = 100
 
 
 COLLECTORS = (
@@ -310,6 +311,7 @@ COLLECTORS = (
         ("InstanceId",),
         ("InstanceName",),
         "Result.TotalCount",
+        require_total=True,
     ),
     Collector(
         "apigateway",
@@ -576,6 +578,9 @@ ALLOWED_ACTIONS = {
         SCF_FUNCTIONS,
     )
 } | {
+    ("ckafka", "DescribeTopic"),
+    ("ckafka", "DescribeInstanceAttributes"),
+    ("ckafka", "DescribeTopicAttributes"),
     ("sts", "GetCallerIdentity"),
     ("cloudrc", "SearchResources"),
     ("vpc", "DescribeSecurityGroupPolicies"),
@@ -639,6 +644,8 @@ KIND_ICONS = {
     "vpc.peeringconnection": "Peering Connection",
 }
 DETAIL_KINDS = {
+    "ckafka.topic",
+    "ckafka.partition",
     "cfs.permissiongroup",
     "cfs.permissionrule",
     "cls.scheduledsql",

@@ -351,3 +351,29 @@ def link_trigger_sources(graph):
                     "SCF trigger configuration + collected resource",
                 )
             props["event_source_resolved"] = bool(matches)
+
+            if kind == "ckafka":
+                parents = {n["id"] for n in matches if n["status"] == "enriched"}
+                topics = [
+                    n
+                    for n in graph.nodes.values()
+                    if n["kind"] == "ckafka.topic"
+                    and n["status"] == "enriched"
+                    and n["account"] == node["account"]
+                    and n["region"] == node["region"]
+                    and n["name"] == props["topic_name"]
+                    and any(
+                        e["source"] in parents
+                        and e["target"] == n["id"]
+                        and e["relationship"] == "HAS_TOPIC"
+                        for e in graph.edges.values()
+                    )
+                ]
+                props["event_topic_resolved"] = len(topics) == 1
+                if len(topics) == 1:
+                    graph.edge(
+                        topics[0]["id"],
+                        node["id"],
+                        "CONFIGURED_EVENT_SOURCE",
+                        "SCF trigger configuration + collected Kafka topic",
+                    )

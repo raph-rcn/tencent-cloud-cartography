@@ -143,7 +143,22 @@
     },
     {
       "service": "ckafka",
+      "action": "DescribeInstanceAttributes",
+      "api_version": "2019-08-19"
+    },
+    {
+      "service": "ckafka",
       "action": "DescribeInstances",
+      "api_version": "2019-08-19"
+    },
+    {
+      "service": "ckafka",
+      "action": "DescribeTopic",
+      "api_version": "2019-08-19"
+    },
+    {
+      "service": "ckafka",
+      "action": "DescribeTopicAttributes",
       "api_version": "2019-08-19"
     },
     {

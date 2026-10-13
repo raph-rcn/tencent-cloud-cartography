@@ -132,11 +132,11 @@ def pages(transport, spec, region, params=None, max_pages=10000):
     for _ in range(max_pages):
         query = dict(base)
         if spec.paging == "offset":
-            query.update(Offset=cursor, Limit=100)
+            query.update(Offset=cursor, Limit=spec.page_size)
         elif spec.paging == "page":
-            query.update(Page=cursor + 1, Rp=100)
+            query.update(Page=cursor + 1, Rp=spec.page_size)
         elif spec.paging == "offset-page":
-            query.update(Offset=cursor + 1, Limit=100)
+            query.update(Offset=cursor + 1, Limit=spec.page_size)
         elif spec.paging == "number-page":
             query.update(PageNumber=cursor + 1, PageSize=10)
         response = transport.call(spec.service, spec.action, region=region, **query)
@@ -170,7 +170,7 @@ def pages(transport, spec, region, params=None, max_pages=10000):
             if total is not None and count < total:
                 raise CollectionError("IncompletePagination")
             return
-        if total is None and len(items) < 100:
+        if total is None and len(items) < (10 if spec.paging == "number-page" else spec.page_size):
             return
         cursor = (
             cursor + 1

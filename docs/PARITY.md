@@ -195,3 +195,31 @@ lifecycle/snapshot configuration and live validation remain incomplete. Sources:
 [groups](https://cloud.tencent.com/document/product/582/38157),
 [rules](https://cloud.tencent.com/document/product/582/38156),
 [data types](https://cloud.tencent.com/document/api/582/38175).
+
+## CKafka configuration and integration links
+
+CKafka instance details now retain version, lifecycle, capacity, topic defaults,
+explicit VPC/subnet placement, endpoint metadata and an optional global SSL
+certificate reference. Per-instance topic lists use the documented maximum of 50
+items per page, require totals and reject duplicate IDs/names. Topic IDs are scoped
+to the instance, account and region. Detail responses must echo the requested
+instance ID or the listed topic ID before enrichment.
+
+Topics retain retention/cleanup/replication configuration, IP allowlists, quota
+configuration and selected preset ACL rule summaries. Partition nodes retain
+leader state, ISR count and replica count; duplicate or truncated partition lists
+make collection partial. These API fields do not identify individual brokers.
+Opaque ACL entry strings are not treated as evaluated authorization; full ACL
+entry collection, route/security-protocol configuration, consumer groups and
+brokers remain gaps. No message contents or offsets are collected.
+
+CloudAudit destination names and SCF trigger names now resolve to native topics
+only through a matching collected instance/topic relationship in the same account
+and region. Configured delivery/invocation does not establish successful delivery,
+consumption or effective permissions. Live validation and full AWS parity remain
+incomplete.
+
+Sources: [topic attributes](https://cloud.tencent.com/document/product/597/40846),
+[topic listing](https://cloud.tencent.com/document/product/597/40847),
+[custom SSL certificate integration](https://intl.cloud.tencent.com/zh/document/product/597/81299),
+and the installed Tencent SDK 2019-08-19 request/response models.

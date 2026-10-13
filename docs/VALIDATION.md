@@ -223,3 +223,23 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
   7 edges and 5 embedded service SVGs**, with VPC/subnet represented as containers.
 - No live Tencent request, share mount or file access occurred. AWS access-point
   equivalence and other documented parity/validation gaps remain incomplete.
+
+## 2026-10-13 — CKafka topics, partitions and integration links
+
+- `uv run pytest -q`: **303 passed**. Twenty-three new Kafka cases cover
+  51-topic pagination at the 50-item API maximum, scoped identities and duplicate
+  names, instance/topic detail identity checks, missing/truncated/duplicate
+  partitions, independent access denials, selected configuration boundaries,
+  cross-account/region link controls, and excluded message/credential APIs.
+- Ruff and all **896 official icon** integrity checks passed. `npm ci`, **5
+  frontend tests**, production build and npm audit passed with **0 vulnerabilities**.
+  The existing bundle-size warning remains.
+- Synthetic `.local/ckafka-demo.json` on loopback 8788 rendered **8 resources / 9
+  relationships** in the full graph. The instance is contained in its explicit
+  VPC/subnet, with topic/partition, global SSL certificate, CloudAudit delivery and
+  SCF trigger relationships preserved. Preview: `.local/ckafka-preview.png`.
+- Browser export `tencent-cloud-cartography (14).drawio` read back as **16 vertices,
+  9 edges and 6 embedded service SVGs**. VPC/subnet remain containers.
+- These are synthetic checks; no live Tencent request or Kafka message access was
+  performed. Effective ACL evaluation, fuller Kafka configuration and the broader
+  AWS capability comparison remain incomplete as detailed in PARITY.md.

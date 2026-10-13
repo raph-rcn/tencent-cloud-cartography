@@ -222,9 +222,13 @@ class Graph:
 
     def native(self, account, region, spec, raw, source):
         rid = first(raw, spec.ids)
-        # Dedicated CLS selectors own all persisted configuration and links;
-        # callback/template fields must not feed recursive network inference.
-        explicit_configuration = spec.kind in {"cls.alarm", "cls.alarmnotice", "cls.scheduledsql"}
+        # Dedicated selectors own persisted configuration and links for these kinds;
+        # nested configuration must not feed recursive network inference.
+        explicit_configuration = spec.kind.startswith("ckafka.") or spec.kind in {
+            "cls.alarm",
+            "cls.alarmnotice",
+            "cls.scheduledsql",
+        }
         nid = self.add(
             account,
             region,

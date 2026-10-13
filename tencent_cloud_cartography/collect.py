@@ -137,10 +137,21 @@ class CollectorRunner:
             cls_alarm_ids = set()
             scheduled_sql_ids = set()
             cfs_ids = set()
+            kafka_ids, kafka_names = set(), set()
             for items, request_id in pages(self.transport, spec, region, params):
                 if request_id:
                     record["request_ids"].append(request_id)
                 for item in items:
+                    if spec.service == "ckafka":
+                        from .ckafka import prepare
+
+                        item = prepare(spec.kind, item, params or {})
+                        rid = first(item, spec.ids)
+                        name = item.get("TopicName")
+                        if rid in kafka_ids or (name is not None and name in kafka_names):
+                            raise CollectionError("DuplicateKafkaResource")
+                        kafka_ids.add(rid)
+                        kafka_names.add(name)
                     if spec.service == "cfs":
                         from .cfs import prepare
 
@@ -316,6 +327,11 @@ class CollectorRunner:
                     collect_keys(self, spec, region)
                     continue
                 collected = self.native(spec, region)
+                if spec.kind == "ckafka.instance":
+                    from .ckafka import collect_instance
+
+                    for nid, item in collected:
+                        collect_instance(self, nid)
                 if spec.kind == "monitor.policy":
                     from .monitor import collect_bindings
 
