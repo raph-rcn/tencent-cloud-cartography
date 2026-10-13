@@ -216,6 +216,11 @@ def link_tags(graph):
             if not rid:
                 continue
         index[node["account"], node["region"], node["kind"], rid].append(node)
+        if node["kind"] == "ssm.secret" and node["properties"].get("CreateUinString"):
+            creator = node["properties"]["CreateUinString"]
+            index[
+                node["account"], node["region"], node["kind"], f"creatorUin/{creator}/{rid}"
+            ].append(node)
     for binding in bindings:
         p = binding["properties"]
         matches = index.get(

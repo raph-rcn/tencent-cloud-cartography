@@ -482,3 +482,52 @@ Sources: [GetResources](https://cloud.tencent.com/document/product/651/72278),
 [CAM role identifiers](https://cloud.tencent.com/document/product/1312/48197),
 [TKE resource identifiers](https://intl.cloud.tencent.com/zh/document/product/598/57168),
 [international resource table](https://intl.cloud.tencent.com/zh/document/product/651/55662).
+
+
+## Secrets Manager lifecycle, versions and rotation
+
+The AWS collector lists secrets and all available version IDs, with lifecycle,
+rotation, encryption and version-stage metadata. Tencent's `ListSecrets` defaults
+to custom secrets and KMS encryption. Collection now explicitly queries the four
+documented request categories (custom, cloud product, SSH and cloud API keys)
+with both encryption modes (KMS and software-key), retaining all states. Each of
+the eight combinations has independent required-total offset pagination and
+coverage. Cloud-product responses can retain the separately reported Redis type.
+Unexpected category/encryption fields and duplicate secret names remain partial.
+
+Metadata includes description, creation/deletion/next-rotation times, state,
+creator/target UINs, product IDs and rotation frequency. String UINs are validated
+against returned integer forms; creators and target users never replace the
+account proven by STS. SSH associations use explicit CVM IDs only for SSH secrets.
+MySQL, Redis and cloud API user relationships require exact existing same-account
+resources, in the explicit region (or global CAM scope). Other product names are
+retained without guessed relationships. KMS references use the existing explicit
+key configuration rules; software encryption does not imply a KMS relationship.
+
+`ListSecretVersionIds` has no pagination parameters in Tencent's schema. Its
+returned secret name must match the request; versions are validated as a complete
+array before graph mutation, scoped by parent secret/account/region, and linked
+with `VERSION_OF`. A version's KMS key and stage cannot be inferred from the
+current secret, so neither is fabricated. Missing/deleted/denied detail requests
+remain independent incomplete coverage while inventory survives.
+
+`DescribeRotationDetail` supplies reported enablement, frequency and timestamps.
+List and detail observations stay separate and enablement changes are flagged.
+These fields do not prove a rotation completed or that a credential works.
+Creator-qualified `secret/creatorUin/.../...` QCS tag bindings resolve using the
+collected creator and full secret name. The Secrets Manager icon covers both
+secrets and versions in the full graph and draw.io export.
+
+AWS version-stage/historical-key, replication/primary-region, rotation-function,
+last-access/change and broader database-product equivalence remain gaps. Current
+metadata comes from list/version/rotation APIs; DescribeSecret is not required
+and its opaque additional configuration is not collected. Neither secret values,
+SSH key material, rotation mutation nor credential validation operations are
+allowlisted. Live verification, including product-specific filtering and detail
+API availability, remains pending.
+
+Sources: [ListSecrets](https://cloud.tencent.com/document/product/1140/40519),
+[version IDs](https://cloud.tencent.com/document/product/1140/40520),
+[rotation metadata](https://cloud.tencent.com/document/product/1140/58264),
+[data types](https://cloud.tencent.com/document/product/1140/40530),
+[QCS identity](https://cloud.tencent.com/document/product/598/70019).

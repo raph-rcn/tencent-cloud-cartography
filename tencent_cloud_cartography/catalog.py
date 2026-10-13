@@ -391,7 +391,14 @@ COLLECTORS = (
         "Result.TotalCount",
     ),
     Collector(
-        "ssm", "ListSecrets", "SecretMetadatas", "ssm.secret", ("SecretName",), ("SecretName",)
+        "ssm",
+        "ListSecrets",
+        "SecretMetadatas",
+        "ssm.secret",
+        ("SecretName",),
+        ("SecretName",),
+        require_total=True,
+        page_size=20,
     ),
     Collector("kms", "ListKeys", "Keys", "kms.key", ("KeyId",)),
     Collector(
@@ -646,6 +653,8 @@ ALLOWED_ACTIONS = {
         SCF_FUNCTIONS,
     )
 } | {
+    ("ssm", "ListSecretVersionIds"),
+    ("ssm", "DescribeRotationDetail"),
     ("tag", "GetResources"),
     ("emr", "DescribeClusterNodes"),
     ("config", "DescribeConfigRule"),
@@ -799,6 +808,7 @@ DETAIL_KINDS = {
     "cam.truststatement",
     "cam.principal",
     "cam.rootprincipal",
+    "ssm.version",
     "ssm.secret",
     "kms.key",
     "kms.alias",

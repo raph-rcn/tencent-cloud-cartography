@@ -337,7 +337,7 @@
       "source_enabled": true,
       "tencent_counterpart": "Secrets Manager",
       "status": "incomplete",
-      "evidence_or_gap": "Names/metadata list only; versions and encryption relationships pending."
+      "evidence_or_gap": "Eight explicit ListSecrets type/encryption scopes, required-total pagination, lifecycle and rotation metadata, version ID/time nodes, KMS configuration, SSH instance associations and exact collected MySQL/Redis/CAM-user links implemented. Creator-qualified QCS tags resolve from returned creator UIN metadata without changing account ownership. No secret values/key material requested. Version stages/historical KMS, replication/primary-region, rotation-function and last-access/change equivalents, broader database products and live validation remain incomplete."
     },
     {
       "aws_collector": "ecr:pull_through_cache_rules",

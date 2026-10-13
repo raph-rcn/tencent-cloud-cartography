@@ -351,6 +351,11 @@ class CollectorRunner:
             if services and spec.service not in services:
                 continue
             for region in self.regions if spec.regional else ["global"]:
+                if spec.kind == "ssm.secret":
+                    from .secrets import collect_secrets
+
+                    collect_secrets(self, spec, region)
+                    continue
                 if spec.kind == "emr.cluster":
                     from .emr import collect_clusters
 
@@ -525,6 +530,9 @@ def collect(
     from .tags import link_tags
 
     link_tags(graph)
+    from .secrets import link_resources
+
+    link_resources(graph)
     from .kms import link_policy_resources
 
     link_policy_resources(graph)

@@ -412,3 +412,28 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
   **12 vertices / 4 edges / 5 embedded SVGs**. Preview: `.local/tags-preview.png`.
 - Validation uses synthetic metadata; no live Tencent collection was performed.
   Unknown/composite resource mappings and product-specific fallback remain gaps.
+
+
+## 2026-10-13 — Secrets Manager inventory, versions and rotation
+
+- Backend: **570 tests passed**, including **30** new Secrets Manager cases for
+  all eight type/encryption combinations, offset pagination, metadata validation,
+  creator/owner separation, SSH associations, exact database/user matching,
+  version identity/time/duplicate checks, independent detail failures, rotation
+  changes and creator-qualified QCS tag matching.
+- Full synthetic collector: **83 coverage rows**. The prior single default
+  ListSecrets request is replaced by eight explicit independent inventory scopes.
+- Pre-commit lint/format and **896 official icon checksum checks passed**.
+  Secret/version nodes use the existing official Secrets Manager SVG.
+- Frontend: **7 tests passed**, production build succeeded, dependency audit
+  reported **0 vulnerabilities**; the existing bundle-size advisory remains.
+- `.local/secrets-demo.json` rendered **5 resources / 4 relationships** with the
+  Frankfurt secret, two versions, configured KMS key and MySQL association.
+  Inspector verified lifecycle/rotation fields, both incoming version edges,
+  metadata provenance and `secret_value_collected=false`.
+- Browser export `Downloads/tencent-cloud-cartography (22).drawio` preserved
+  **10 vertices / 4 edges / 5 embedded SVGs**. Screenshot: `.local/secrets-preview.png`.
+- No secret contents or key material APIs were allowed or called. Validation is
+  synthetic; live API availability/filter behavior, version stages and historical
+  per-version encryption metadata remain unverified or unsupported by the
+  collected schema.
