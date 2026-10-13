@@ -351,6 +351,11 @@ class CollectorRunner:
             if services and spec.service not in services:
                 continue
             for region in self.regions if spec.regional else ["global"]:
+                if spec.kind in {"vpc.networkinterface", "vpc.eip"}:
+                    from .network_addresses import collect as collect_network_addresses
+
+                    collect_network_addresses(self, spec, region)
+                    continue
                 if spec.kind in {"cvm.image", "cbs.snapshot"}:
                     from .image_snapshots import collect_owned
 
@@ -554,6 +559,9 @@ def collect(
     from .kms import link_policy_resources
 
     link_policy_resources(graph)
+    from .network_addresses import link as link_network_addresses
+
+    link_network_addresses(graph)
     from .dns import link_dns
 
     link_dns(graph)

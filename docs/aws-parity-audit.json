@@ -127,14 +127,14 @@
       "source_enabled": true,
       "tencent_counterpart": "VPC ENIs",
       "status": "incomplete",
-      "evidence_or_gap": "Inventory and basic associations exist; per-IP modeling pending."
+      "evidence_or_gap": "Typed ENI metadata, explicit VPC/subnet/security-group relationships and interface-scoped IPv4/IPv6 address nodes implemented. Primary flags, public/EIP association, blocked/state/QoS and attachment metadata retained; IPv6 response aliases reconciled. CVM attachment requires a collected same-account/region instance and matching VPC. Opaque InstanceAccountId is not interpreted as UIN. AWS source/destination checks, requester-managed/ELB identity equivalents, non-CVM attachment mapping and live validation remain incomplete."
     },
     {
       "aws_collector": "ec2:load_balancer_v2:expose",
       "source_enabled": true,
       "tencent_counterpart": "CLB target relationships",
       "status": "incomplete",
-      "evidence_or_gap": "Target IDs retained; target IP-to-instance reconciliation and exposure analysis pending."
+      "evidence_or_gap": "CLB target IPs now match unique collected ENI address nodes using account, region and the parent CLB VPC. CVM resolution additionally requires a corroborated collected ENI attachment. Reused/ambiguous addresses remain unresolved. These are configuration relationships, not proof of public reachability; cross-VPC backend configuration, effective exposure analysis and live validation remain incomplete."
     },
     {
       "aws_collector": "ec2:tgw",
@@ -239,7 +239,7 @@
       "source_enabled": true,
       "tencent_counterpart": "VPC EIP",
       "status": "incomplete",
-      "evidence_or_gap": "EIPs and returned references implemented; per-IP reconciliation pending."
+      "evidence_or_gap": "Typed EIP lifecycle/billing/blocking/direct-connection metadata and explicit CVM/NAT/ENI/CLB instance references implemented. EIP-to-interface-address reconciliation requires the returned ENI ID and private IP, checks public-IP/EIP-ID contradictions and never joins by public IP alone. Unsupported target types remain metadata; broader IPv6 variants and live validation remain incomplete."
     },
     {
       "aws_collector": "emr",

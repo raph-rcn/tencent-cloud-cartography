@@ -615,3 +615,30 @@ Sources: [image sharing](https://intl.cloud.tencent.com/zh/document/product/213/
 [recipient identity](https://cloud.tencent.com/document/product/362/40469),
 [image API](https://cloud.tencent.com/document/api/213/15715),
 [snapshot schema](https://cloud.tencent.com/document/product/362/15669).
+
+## ENI addresses, EIP bindings and CLB target resolution
+
+Network interfaces now retain typed lifecycle/MAC/primary/QoS and attachment
+metadata, explicit VPC/subnet/security groups, and separate interface-scoped IPv4
+and IPv6 address nodes. The address carries its primary/blocked/state flags and
+reported public-IP/EIP association. IPv6 is canonicalized; duplicate or
+contradictory alias rows fail before adding that page. Nullable IPv6 metadata is
+marked unavailable. The official ENI icon covers both interface and address nodes.
+
+EIP collection retains selected lifecycle/billing/blocking/direct-connection
+metadata. Instance type and ID determine CVM/NAT/ENI/CLB references; unsupported
+types remain raw identifiers. Binding to an address requires the explicit ENI ID
+and private address within the same account/region. Contradictory EIP ID or
+public-IP reports prevent reconciliation and remain visible as a conflict.
+
+CLB IP targets resolve only against a unique address in the parent CLB's account,
+region and VPC. The graph retains both the original target and its address match.
+A CVM edge additionally requires the ENI attachment instance ID to match collected
+CVM inventory in that account/region/VPC. Opaque `InstanceAccountId` is preserved
+as metadata without treating it as a UIN. Non-CVM attachments are not forced into
+CVM nodes. No route, health-check, firewall or actual reachability conclusion is
+inferred; cross-VPC targets remain unresolved under this matching rule.
+
+Sources: [ENI inventory](https://cloud.tencent.com/document/api/215/15817),
+[EIP inventory](https://intl.cloud.tencent.com/zh/document/product/215/16702),
+[network schemas](https://cloud.tencent.com/document/product/215/15824).

@@ -496,3 +496,22 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
 - No live API calls, snapshot/image contents, sharing mutations or access attempts
   occurred. AWS public-permission semantics and broader source metadata parity
   remain incomplete and are tracked in the parity audit.
+
+## 2026-10-13 — Interface addresses, EIP binding and CLB IP targets
+
+- Backend **653 tests passed**, including **22** new cases for canonical IPv4/IPv6,
+  ENI-scoped identity, explicit EIP bindings, IPv6 alias/availability handling,
+  metadata validation/pagination, account/region/VPC isolation, overlapping IPs,
+  non-CVM attachments and conflicting EIP associations.
+- Frontend **7 tests passed**, production build succeeded, dependency audit
+  reported **0 vulnerabilities**. The existing bundle-size advisory remains.
+- Synthetic `.local/network-addresses-demo.json` rendered **9 resources / 18 relationships**.
+  Interface/address/CVM placement followed explicit subnet and VPC references.
+  The target inspector showed both address and instance resolution edges and
+  `reachability_verified=false`.
+- Browser export `Downloads/tencent-cloud-cartography (26).drawio` preserved the
+  full relationship set; screenshot `.local/network-addresses-preview.png`.
+  Address nodes use the official ENI SVG, alongside EIP, CVM and CLB assets.
+- No live Tencent collection, connectivity probes or configuration mutations were
+  performed. Cross-VPC target mappings, effective reachability, undocumented owner
+  identifier semantics and non-CVM attachment counterparts remain gaps.
