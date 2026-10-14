@@ -325,6 +325,7 @@ def test_drawio_rejects_invalid_geometry_or_cycles(mutate):
 def test_end_to_end_collection_all_scopes_and_clb_field_selection():
     from tencent_cloud_cartography.catalog import (
         CHILDREN,
+        EXTRA_COLLECTORS,
         SCF_DETAILS,
         SCF_FUNCTIONS,
         SCF_NAMESPACES,
@@ -334,6 +335,7 @@ def test_end_to_end_collection_all_scopes_and_clb_field_selection():
         (s.service, s.action): s
         for s in (
             *COLLECTORS,
+            *EXTRA_COLLECTORS,
             *CHILDREN.values(),
             *SCF_DETAILS.values(),
             SCF_FUNCTIONS,
@@ -367,8 +369,27 @@ def test_end_to_end_collection_all_scopes_and_clb_field_selection():
                 return {}
             if action == "DescribeHostCdnInstanceList":
                 return dict(InstanceList=[], TotalCount=0)
+            if action == "DescribeIdentityCenter":
+                return dict(ServiceStatus="Disabled")
+            if action == "DescribeRepositoryOwnerPersonal":
+                return dict(Data=dict(RepoInfo=[], TotalCount=0, Server="ccr.ccs.tencentyun.com"))
+            if service == "lke":
+                return {
+                    "KnowledgeList" if action == "ListSharedKnowledge" else "List": [],
+                    "Total": "0" if action == "ListApp" else 0,
+                }
             if service == "tag":
                 return dict(ResourceTagMappingList=[], PaginationToken="", RequestId="tags")
+            if action == "DescribeTargetGroups":
+                return dict(TargetGroupSet=[], TotalCount=0)
+            if action == "DescribeRewrite":
+                return dict(RewriteSet=[])
+            if action == "DescribeUserOIDCConfig":
+                return dict(Status=0)
+            if action == "DescribeLicenseStatus":
+                return dict(List=[], AutoRepurchaseSwitch=0)
+            if action == "DescribeEdrAlertSummary":
+                return dict(CriticalPendingCount=0, TotalPendingCount=0)
             spec = specs[service, action]
             result = {}
             current = result
@@ -413,23 +434,40 @@ def test_end_to_end_collection_all_scopes_and_clb_field_selection():
         transport_factory=lambda _: InventoryTransport(),
     )
     assert data["status"] == "partial"
-    assert len(data["nodes"]) == 5
-    assert len(data["coverage"]) == 102
+    assert len(data["nodes"]) == 15
+    observed = {(r["service"], r["action"]) for r in data["coverage"]}
+    assert {(s.service, s.action) for s in (*COLLECTORS, *EXTRA_COLLECTORS)} <= observed
     exposure = next(r for r in data["coverage"] if r["action"] == "AnalyzeClbExposure")
     assert exposure["status"] == "error" and exposure["error"] == "UnresolvedClbBackend"
     assert {"DescribeCmqQueues", "DescribeCmqTopics"} <= {c["action"] for c in data["coverage"]}
     assert any(c["action"] == "ListLayers" and c["status"] == "empty" for c in data["coverage"])
     assert any(e["relationship"] == "FORWARDS_TO" for e in data["edges"])
     assert all(
-        n["region"] == ("global" if n["kind"].startswith("config.") else "eu-frankfurt")
+        n["region"]
+        == (
+            "global"
+            if n["kind"].startswith(
+                ("config.", "cam.useroidc", "csip.", "cos.accountaccesssummary")
+            )
+            else "eu-frankfurt"
+        )
         for n in data["nodes"]
     )
-    assert [c["action"] for c in data["coverage"] if c["status"] not in {"empty", "complete"}] == [
+    assert [
+        c["action"]
+        for c in data["coverage"]
+        if c["status"] not in {"empty", "complete"}
+        and c.get("error") != "UnsupportedMetadataOnlyProjection"
+    ] == [
         "ListEmailIdentities",
         "DescribeLaunchConfigurations",
         "DescribeDomains",
         "get_bucket_policy",
         "AnalyzeClbExposure",
+        "AnalyzeCosAnonymousAccess",
+        "SummarizeCosAccountControls",
     ]
+    public = [n for n in data["nodes"] if n["kind"] == "cos.publicaccessdecision"]
+    assert len(public) == 6 and all(n["properties"]["decision"] == "incomplete" for n in public)
     ses_scope = next(c for c in data["coverage"] if c["action"] == "ListEmailIdentities")
     assert ses_scope["status"] == "unsupported" and ses_scope["error"] == "UnsupportedSesRegion"

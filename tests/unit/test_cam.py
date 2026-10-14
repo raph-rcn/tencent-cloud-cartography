@@ -151,6 +151,16 @@ def test_end_to_end_cam_memberships_attachments_details_and_owner_isolation():
                     SecretKey="omit-secret",
                     RequestId="policy",
                 )
+            if action == "ListAccessKeys":
+                return dict(AccessKeys=[])
+            if action == "DescribeSafeAuthFlagColl":
+                return dict(PromptTrust=0)
+            if action in ("GetUserPermissionBoundary", "GetRolePermissionBoundary"):
+                return dict(PolicyId=1, PolicyDocument=policy())
+            if action == "ListSAMLProviders":
+                return dict(SAMLProviderSet=[], TotalCount=0)
+            if action == "DescribeUserOIDCConfig":
+                return dict(Status=0)
             spec = specs[action]
             if action == "ListPolicies":
                 assert params["Scope"] == "Local"
@@ -189,5 +199,5 @@ def test_end_to_end_cam_memberships_attachments_details_and_owner_isolation():
     assert len(attachments) == 3
     assert len([c for c in calls if c[1] == "GetPolicy"]) == 3  # Shared policy fetched once.
     assert len([c for c in calls if c[1] == "GetRole"]) == 1  # No request for foreign role 8.
-    assert len([n for n in graph.values() if n["kind"] == "cam.policystatement"]) == 3
+    assert len([n for n in graph.values() if n["kind"] == "cam.policystatement"]) == 5
     assert all(c["status"] in {"complete", "empty", "not-queried"} for c in snapshot["coverage"])

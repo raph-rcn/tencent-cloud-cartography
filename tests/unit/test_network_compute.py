@@ -8,7 +8,11 @@ from tencent_cloud_cartography.topology import topology
 
 
 def native(graph, action, raw, account="1", region="eu-frankfurt"):
-    spec = next(s for s in (*COLLECTORS, *CHILDREN.values()) if s.action == action)
+    spec = next(
+        s
+        for s in (*COLLECTORS, *CHILDREN.values())
+        if s.action == action and (action != "DescribeInstances" or s.service == "cvm")
+    )
     return graph.native(account, region, spec, raw, action)
 
 
@@ -217,21 +221,13 @@ def test_keypair_and_snapshot_relationships_never_persist_key_material():
     assert "material" not in graph.dump()
 
 
-def test_launch_versions_composite_ids_and_private_image_filter():
+def test_launch_versions_workload_api_is_not_called_and_private_image_filter():
     class Transport:
         def call(self, service, action, region=None, **params):
             if action == "DescribeImages":
                 assert params["Filters"] == [dict(Name="image-type", Values=["PRIVATE_IMAGE"])]
                 return dict(ImageSet=[], TotalCount=0)
-            return dict(
-                LaunchTemplateVersionSet=[
-                    dict(
-                        LaunchTemplateVersion=1,
-                        LaunchTemplateVersionData=dict(ImageId="img-1", UserData="do-not-save"),
-                    )
-                ],
-                TotalCount=1,
-            )
+            raise AssertionError("Workload-bearing version API must not be called")
 
     graph = Graph()
     runner = CollectorRunner(graph, Transport(), "1", ["eu-frankfurt"], lambda _: None)
@@ -243,7 +239,12 @@ def test_launch_versions_composite_ids_and_private_image_filter():
     versions = [
         n["resource_id"] for n in graph.nodes.values() if n["kind"] == "cvm.launchtemplateversion"
     ]
-    assert sorted(versions) == ["lt-1/1", "lt-2/1"]
+    assert versions == []
+    assert all(
+        r["error"] == "UnsupportedMetadataOnlyProjection"
+        for r in graph.coverage
+        if r["action"] == "DescribeLaunchTemplateVersions"
+    )
     assert "do-not-save" not in graph.dump()
 
 

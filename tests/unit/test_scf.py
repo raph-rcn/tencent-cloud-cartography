@@ -365,7 +365,14 @@ def test_end_to_end_function_alias_trigger_layer_collection():
     )
     assert len(data["nodes"]) == 8
     assert "SECRET" not in json.dumps(data)
-    assert all(c["status"] == "complete" for c in data["coverage"] if c["service"] == "scf")
+    assert all(
+        c["status"] == "complete"
+        for c in data["coverage"]
+        if c["service"] == "scf" and c["action"] != "GetFunction"
+    )
+    assert (
+        next(c for c in data["coverage"] if c["action"] == "GetFunction")["status"] == "unsupported"
+    )
     assert all(n["status"] == "enriched" for n in data["nodes"])
 
 

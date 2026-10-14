@@ -99,6 +99,14 @@ class TccliTransport:
             from .cos_transport import call
 
             return call(self.profile, action, region, params, self.timeout)
+        if service == "tic":
+            from .tic_transport import call
+
+            return call(self.profile, action, region, params, self.timeout)
+        if service == "cvm" and action == "DescribeReservedInstances":
+            from .international import call
+
+            return call(self.profile, action, region, params, self.timeout)
         for attempt in range(4):
             try:
                 raw = self._run(service, action, region, params)
@@ -137,6 +145,8 @@ def pages(transport, spec, region, params=None, max_pages=10000):
         query = dict(base)
         if spec.paging in {"offset", "zero-offset-page"}:
             query.update(Offset=cursor, Limit=spec.page_size)
+        elif spec.paging == "page-size":
+            query.update(Page=cursor + 1, PageSize=spec.page_size)
         elif spec.paging == "page":
             query.update(Page=cursor + 1, Rp=spec.page_size)
         elif spec.paging == "offset-page":
@@ -178,7 +188,8 @@ def pages(transport, spec, region, params=None, max_pages=10000):
             return
         cursor = (
             cursor + 1
-            if spec.paging in {"page", "offset-page", "zero-offset-page", "number-page"}
+            if spec.paging
+            in {"page", "page-size", "offset-page", "zero-offset-page", "number-page"}
             else cursor + len(items)
         )
     raise CollectionError("PageLimit")

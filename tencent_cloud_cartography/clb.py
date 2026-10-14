@@ -45,6 +45,9 @@ def listener(graph, lb, raw, source):
             "KeepaliveEnable",
         ),
     )
+    from .clb_depth import configuration
+
+    configuration(graph, graph.nodes[nid], raw, source)
     graph.edge(lb["id"], nid, "HAS_LISTENER", source)
     return nid
 
@@ -81,6 +84,9 @@ def rule(graph, parent, raw, source):
         ):
             raise CollectionError("InvalidResponse")
         graph.nodes[nid]["properties"]["Domains"] = json.dumps(raw["Domains"])
+    from .clb_depth import configuration
+
+    configuration(graph, graph.nodes[nid], raw, source)
     graph.edge(parent["id"], nid, "HAS_RULE", source)
     return nid
 
@@ -132,6 +138,19 @@ def collect_listeners(runner):
         and n["status"] == "enriched"
     ]
     for lb in lbs:
+        forward = lb["properties"].get("Forward")
+        if forward is not None and (type(forward) is not int or forward not in (0, 1)):
+
+            def invalid(record):
+                raise CollectionError("InvalidClbGeneration")
+
+            runner.scope("clb", "DescribeListeners", lb["region"], invalid, lb["resource_id"])
+            continue
+        if lb["properties"].get("Forward") == 0:
+            from .clb_classic import collect as collect_classic
+
+            collect_classic(runner, lb)
+            continue
 
         def operation(record, lb=lb):
             source = "clb.DescribeListeners"

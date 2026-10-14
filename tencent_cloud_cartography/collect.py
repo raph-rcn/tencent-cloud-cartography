@@ -2,7 +2,14 @@
 
 import json
 
-from .catalog import CHILDREN, COLLECTORS, DNS_RECORDS, SCF_FUNCTIONS, SCF_NAMESPACES
+from .catalog import (
+    CHILDREN,
+    COLLECTORS,
+    DNS_RECORDS,
+    EXTRA_COLLECTORS,
+    SCF_FUNCTIONS,
+    SCF_NAMESPACES,
+)
 from .model import Graph, first, stable_id
 from .transport import CollectionError, TccliTransport, pages
 
@@ -132,6 +139,10 @@ class CollectorRunner:
         source = f"{spec.service}.{spec.action}"
 
         def operation(record):
+            from .catalog import ALLOWED_ACTIONS
+
+            if (spec.service, spec.action) not in ALLOWED_ACTIONS:
+                raise CollectionError("UnsupportedMetadataOnlyProjection")
             monitor_ids = set()
             cls_alarm_ids = set()
             scheduled_sql_ids = set()
@@ -309,6 +320,36 @@ class CollectorRunner:
             if services and spec.service not in services:
                 continue
             for region in self.regions if spec.regional else ["global"]:
+                if spec.service in {
+                    "cdb",
+                    "postgres",
+                    "redis",
+                    "mongodb",
+                    "mariadb",
+                    "sqlserver",
+                    "cdwpg",
+                }:
+                    from dataclasses import replace
+
+                    from .databases import collect as collect_database
+
+                    collect_database(
+                        self,
+                        replace(spec, require_total=True),
+                        region,
+                        {"PaginationType": "offset"} if spec.service == "sqlserver" else None,
+                    )
+                    continue
+                if spec.kind == "tke.cluster":
+                    from .tke import collect as collect_tke
+
+                    collect_tke(self, spec, region)
+                    continue
+                if spec.kind == "es.instance":
+                    from .elasticsearch import collect as collect_elasticsearch
+
+                    collect_elasticsearch(self, spec, region)
+                    continue
                 if spec.kind == "vpc.peeringconnection":
                     from .peering import collect as collect_peering
 
@@ -471,10 +512,17 @@ class CollectorRunner:
             from .clb import collect_listeners
 
             collect_listeners(self)
+            from .clb_depth import collect as collect_clb_depth
+
+            for region in self.regions:
+                collect_clb_depth(self, region)
         if not services or "cam" in services:
             from .cam import collect_details
 
             collect_details(self)
+            from .cam_security import collect as collect_cam_security
+
+            collect_cam_security(self)
         if not services or "scf" in services:
             from .scf import collect_function, collect_layers
 
@@ -496,8 +544,22 @@ class CollectorRunner:
             from .tags import collect_tags
 
             collect_tags(self)
+        from .families import run as collect_families
+
+        collect_families(self, services)
+        if not services or "tcr" in services:
+            from .tcr_personal import collect as personal_repositories
+
+            for region in self.regions:
+                personal_repositories(self, region)
+        from .exclusions import record as record_exclusions
+
+        record_exclusions(self.graph, self.account, self.regions, services)
         # Explicit exclusions remain visible, rather than being represented as zero resources.
-        for service in sorted({s.service for s in COLLECTORS} | {"scf", "cos", "tag"}):
+        for service in sorted(
+            {s.service for s in (*COLLECTORS, *EXTRA_COLLECTORS)}
+            | {"scf", "cos", "tag", "lke", "tcaplusdb", "coding", "hunyuan"}
+        ):
             if services and service not in services:
                 self.graph.coverage.append(
                     dict(
@@ -513,7 +575,14 @@ class CollectorRunner:
 
 
 def collect(
-    profiles, regions, services=None, tccli="tccli", progress=print, transport_factory=None
+    profiles,
+    regions,
+    services=None,
+    tccli="tccli",
+    progress=print,
+    transport_factory=None,
+    kube_contexts=None,
+    kube_transport_factory=None,
 ):
     graph = Graph()
     seen_accounts = set()
@@ -538,6 +607,10 @@ def collect(
         )
         runner = CollectorRunner(graph, transport, account, regions, progress)
         runner.run(services)
+        if not services or "tke" in services:
+            from .tke import collect_access_mappings
+
+            collect_access_mappings(runner)
         final_identity = transport.call("sts", "GetCallerIdentity")
         if any(
             final_identity.get(k) != identity.get(k) for k in ("AccountId", "PrincipalId", "Arn")
@@ -600,10 +673,16 @@ def collect(
     from .monitor import link_bindings
 
     link_bindings(graph)
+    from .kubernetes_metadata import collect_contexts
+
+    collect_contexts(graph, kube_contexts, kube_transport_factory)
     from .exposure import analyze as analyze_exposure
 
     analyze_exposure(graph)
     from .permissions import analyze as analyze_permissions
 
     analyze_permissions(graph)
+    from .public_access import analyze as analyze_public_access
+
+    analyze_public_access(graph)
     return graph.snapshot()

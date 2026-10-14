@@ -22,7 +22,7 @@ def analyze(graph):
     outgoing, parents, vpcs = {}, {}, {}
     for edge in edges:
         outgoing.setdefault(edge["source"], []).append(edge)
-        if edge["relationship"] in {"HAS_LISTENER", "HAS_RULE"}:
+        if edge["relationship"] in {"HAS_LISTENER", "HAS_RULE", "HAS_TARGET_GROUP", "HAS_BACKEND"}:
             parents.setdefault(edge["target"], set()).add(edge["source"])
         if edge["relationship"] == "IN_VPC":
             vpcs.setdefault(edge["source"], set()).add(edge["target"])
@@ -46,7 +46,10 @@ def analyze(graph):
         if edge["relationship"] != "FORWARDS_TO":
             continue
         frontend, backend = graph.nodes[edge["source"]], graph.nodes[edge["target"]]
-        if frontend["kind"] not in {"clb.listener", "clb.rule"} or frontend["status"] != "enriched":
+        if (
+            frontend["kind"] not in {"clb.listener", "clb.rule", "clb.targetbinding"}
+            or frontend["status"] != "enriched"
+        ):
             continue
         ancestry, pending = set(), list(parents.get(frontend["id"], ()))
         while pending:
@@ -55,7 +58,14 @@ def analyze(graph):
                 continue
             node = graph.nodes[parent]
             if (
-                node["kind"] not in {"clb.clb", "clb.listener", "clb.rule"}
+                node["kind"]
+                not in {
+                    "clb.clb",
+                    "clb.listener",
+                    "clb.rule",
+                    "clb.targetgroup",
+                    "clb.targetbinding",
+                }
                 or node["status"] != "enriched"
                 or (node["account"], node["region"]) != (frontend["account"], frontend["region"])
             ):

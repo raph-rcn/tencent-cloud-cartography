@@ -8,385 +8,601 @@
     "registry_sha256": "2102c4667d969921948dc9d1f8ed753008de00f6a791dee97161ecc33d3e4451",
     "enabled_collectors": 66
   },
-  "audited_at": "2026-10-13",
+  "audited_at": "2026-10-14",
   "collectors": [
     {
       "aws_collector": "resourceexplorer",
       "source_enabled": true,
       "tencent_counterpart": "Cloud Resource Center",
       "status": "incomplete",
-      "evidence_or_gap": "Mandatory CloudRC baseline, documented CBS/CKafka/MySQL type aliases, strict ownership, duplicate/pagination checks and native global reconciliation implemented. Missing region stays unknown and ambiguous SCF type remains inventory-only. Composite IDs, remaining provider ambiguities and live reconciliation remain incomplete."
+      "evidence_or_gap": "Mandatory CloudRC baseline, documented CBS/CKafka/MySQL type aliases, strict ownership, duplicate/pagination checks and native global reconciliation implemented. Missing region stays unknown and ambiguous SCF type remains inventory-only. Composite IDs, remaining provider ambiguities and live reconciliation remain incomplete.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "iam",
       "source_enabled": true,
       "tencent_counterpart": "CAM",
       "status": "incomplete",
-      "evidence_or_gap": "Users, groups, roles, local and attached policies, direct attachments, group membership, policy statements and role trust conditions are modeled. Deny and conditions are retained without claiming effective access. Permission boundaries, credential metadata, federation inventory, resource permission analyses and live validation remain incomplete."
+      "evidence_or_gap": "Users/groups/roles, attachments, membership, identity/trust statements, SAML and selected OIDC configuration, key identifiers/status, protection flags and permission boundaries implemented. Boundary intersection applies when collected; denied/null boundaries remain unknown. Request context, resource/trust/session/cross-account constraints and complete effective authorization remain gaps.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "iaminstanceprofiles",
       "source_enabled": true,
       "tencent_counterpart": "CVM CAM roles",
       "status": "incomplete",
-      "evidence_or_gap": "CVM CamRoleName configuration now resolves to a unique collected same-account CAM role. Missing or ambiguous roles remain named references; no effective role assumption is inferred. Tencent attaches roles directly rather than using AWS instance-profile resources. Template/scaling role configuration and live validation remain incomplete."
+      "evidence_or_gap": "CVM CamRoleName configuration now resolves to a unique collected same-account CAM role. Missing or ambiguous roles remain named references; no effective role assumption is inferred. Tencent attaches roles directly rather than using AWS instance-profile resources. Template/scaling role configuration and live validation remain incomplete.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "kms",
       "source_enabled": true,
       "tencent_counterpart": "KMS",
       "status": "incomplete",
-      "evidence_or_gap": "Customer- and service-created keys, descriptions, aliases, lifecycle/rotation metadata, explicit CBS/Secrets Manager configuration edges and exact CAM resource references implemented. Tencent uses CAM authorization; AWS key-policy/grant analysis is not reproduced by configuration edges. Dedicated HSM inventory, broader encryption consumers and live validation remain incomplete."
+      "evidence_or_gap": "Customer- and service-created keys, descriptions, aliases, lifecycle/rotation metadata, explicit CBS/Secrets Manager configuration edges and exact CAM resource references implemented. Tencent uses CAM authorization; AWS key-policy/grant analysis is not reproduced by configuration edges. Dedicated HSM inventory, broader encryption consumers and live validation remain incomplete.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "s3",
       "source_enabled": true,
       "tencent_counterpart": "COS",
       "status": "incomplete",
-      "evidence_or_gap": "Bucket inventory, ACL grants, policy statements/principals/conditions/denies, default encryption/KMS key references, versioning and logging destinations implemented. COS XML metadata uses official SDK with static TCCLI profile or unmixed environment credentials. Effective public access, notification configuration, public-access-block/ownership equivalence, dynamic credential refresh and live validation remain incomplete."
+      "evidence_or_gap": "Bucket ACL/policy/encryption/versioning/logging metadata plus conservative anonymous access decisions with explicit deny/conditions/incomplete controls implemented. COS policy casing normalized independently of CAM. Object ACL overrides and anonymous data access are not tested; notification, ownership and global block equivalence remain gaps. Static credential adapter only; live unverified.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "dynamodb",
       "source_enabled": true,
-      "tencent_counterpart": "TencentDB / TcaplusDB",
+      "tencent_counterpart": "TcaplusDB",
       "status": "incomplete",
-      "evidence_or_gap": "Equivalent database product mapping and collection pending."
+      "evidence_or_gap": "Table-group metadata collected for CloudRC-discovered numeric cluster IDs. Native cluster and table APIs excluded because they include Password or IDL file content. Full tables/index/schema/ownership and DynamoDB authorization semantics unavailable under retained restriction.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "ec2:launch_templates",
       "source_enabled": true,
       "tencent_counterpart": "CVM launch templates / AS launch configurations",
       "status": "incomplete",
-      "evidence_or_gap": "CVM templates and versions added. Auto Scaling launch configuration IDs/names retained from group/member metadata; DescribeLaunchConfigurations excluded because it returns UserData without a metadata-only projection. Safe launch-configuration detail source and full template schema/property audit remain incomplete."
+      "evidence_or_gap": "Template header inventory and AS referenced configuration IDs implemented. DescribeLaunchTemplateVersions is now excluded (nested UserData), as is DescribeLaunchConfigurations. Legacy imported version graph support is not native collection. Version and launch configuration detail is unavailable under retained metadata restriction.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "ec2:autoscalinggroup",
       "source_enabled": true,
       "tencent_counterpart": "Auto Scaling",
       "status": "incomplete",
-      "evidence_or_gap": "Typed group cooldown/capacity/health-check/replacement/rebalance settings, explicit multi-subnet and cross-region CLB links, and independent instance membership/protection metadata implemented with required-total pagination. Membership cannot overwrite CVM state or claim CVM enrichment. Source collector does not collect scaling policies; removed that unsupported parity requirement. Launch configuration ID/name references remain, but full details are excluded because DescribeLaunchConfigurations returns UserData without output projection. Source launch-configuration property equivalence and live validation remain incomplete."
+      "evidence_or_gap": "Typed group cooldown/capacity/health-check/replacement/rebalance settings, explicit multi-subnet and cross-region CLB links, and independent instance membership/protection metadata implemented with required-total pagination. Membership cannot overwrite CVM state or claim CVM enrichment. Source collector does not collect scaling policies; removed that unsupported parity requirement. Launch configuration ID/name references remain, but full details are excluded because DescribeLaunchConfigurations returns UserData without output projection. Source launch-configuration property equivalence and live validation remain incomplete.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "ec2:instance",
       "source_enabled": true,
       "tencent_counterpart": "CVM",
       "status": "incomplete",
-      "evidence_or_gap": "Core instances and network relationships implemented; full AWS property/relationship comparison pending."
+      "evidence_or_gap": "Typed compute capacity, architecture, lifecycle, billing/protection, address/network, system/data disk and explicit role/network/image links implemented. Other source attributes/provider semantics and live account behavior remain unverified; no user-data collection.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "ec2:images",
       "source_enabled": true,
       "tencent_counterpart": "CVM images",
       "status": "incomplete",
-      "evidence_or_gap": "Owned private images and targeted referenced public/shared image lookups implemented with required-total pagination, identity matching and independent failures. Selected architecture, lifecycle, license, cloud-init and deprecation metadata retained; owned images link backing snapshots. Recipient account/time sharing nodes and explicit CAM root-principal links implemented. Shared/public resources are query-account views explicitly marked not owned; unknown foreign snapshot ownership is not guessed. AWS-only hardware/boot fields, effective/public access equivalence and live validation remain incomplete."
+      "evidence_or_gap": "Owned private images and targeted referenced public/shared image lookups implemented with required-total pagination, identity matching and independent failures. Selected architecture, lifecycle, license, cloud-init and deprecation metadata retained; owned images link backing snapshots. Recipient account/time sharing nodes and explicit CAM root-principal links implemented. Shared/public resources are query-account views explicitly marked not owned; unknown foreign snapshot ownership is not guessed. AWS-only hardware/boot fields, effective/public access equivalence and live validation remain incomplete.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "ec2:keypair",
       "source_enabled": true,
       "tencent_counterpart": "CVM key pairs",
       "status": "incomplete",
-      "evidence_or_gap": "Key pair inventory and instance links added; private/public key contents excluded from snapshots."
+      "evidence_or_gap": "Key pair inventory and instance links added; private/public key contents excluded from snapshots.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "ec2:security_group",
       "source_enabled": true,
       "tencent_counterpart": "VPC security groups",
       "status": "incomplete",
-      "evidence_or_gap": "Typed security-group descriptions/default/project/time metadata and policy version/priority/direction/action/description retained. Rules now link to referenced groups and canonical IPv4/IPv6/host/range selector nodes; reusable address/service templates and template-group membership are collected with member remarks. Per-group rule responses validate atomically. Source security_groups.py collects IPv4 ranges and referenced groups but does not collect prefix-list dependencies; removed that unsupported parity requirement. Provider-specific SG scoping and effective rule semantics, cross-account ownership where absent from Tencent responses, and live collection remain unverified."
+      "evidence_or_gap": "Typed security-group descriptions/default/project/time metadata and policy version/priority/direction/action/description retained. Rules now link to referenced groups and canonical IPv4/IPv6/host/range selector nodes; reusable address/service templates and template-group membership are collected with member remarks. Per-group rule responses validate atomically. Source security_groups.py collects IPv4 ranges and referenced groups but does not collect prefix-list dependencies; removed that unsupported parity requirement. Provider-specific SG scoping and effective rule semantics, cross-account ownership where absent from Tencent responses, and live collection remain unverified.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "ec2:subnet",
       "source_enabled": true,
       "tencent_counterpart": "VPC subnets",
       "status": "incomplete",
-      "evidence_or_gap": "Typed IPv4/IPv6, default/broadcast/SNAT, address-capacity, CDC and stack metadata implemented, with explicit VPC, AZ, route-table and network-ACL relationships. Zone/region mismatch and malformed identifiers fail before page mutation. AWS launch-time public/customer-owned-IP and IPv6 auto-assignment, subnet lifecycle state and default-for-AZ semantic equivalence remain unverified, along with live collection."
+      "evidence_or_gap": "Typed IPv4/IPv6, default/broadcast/SNAT, address-capacity, CDC and stack metadata implemented, with explicit VPC, AZ, route-table and network-ACL relationships. Zone/region mismatch and malformed identifiers fail before page mutation. AWS launch-time public/customer-owned-IP and IPv6 auto-assignment, subnet lifecycle state and default-for-AZ semantic equivalence remain unverified, along with live collection.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "ec2:load_balancer",
       "source_enabled": true,
-      "tencent_counterpart": "CLB",
+      "tencent_counterpart": "Traditional CLB",
       "status": "incomplete",
-      "evidence_or_gap": "Load balancers, distinct listeners/rules, targets and server/client certificate links implemented. Classic CLB differences, health-check/target-group depth and live validation remain incomplete."
+      "evidence_or_gap": "Explicit Forward=0 selects traditional listener/target/health APIs. Listener-wide bindings, certificates, private target addresses and strictly corroborated vendor-reported health implemented. Custom probe payloads omitted; public reachability, unsupported target types and AWS Classic field equivalence are not established.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "ec2:load_balancer_v2",
       "source_enabled": true,
       "tencent_counterpart": "CLB",
       "status": "incomplete",
-      "evidence_or_gap": "Load balancers, distinct listeners/rules, targets and server/client certificate links implemented. Target groups, rewrite rules, health-check depth and live validation remain incomplete."
+      "evidence_or_gap": "Modern listener/rule/certificate configuration plus native target groups, scoped target bindings, selected health-check configuration, corroborated reported health and rewrite associations implemented. Cross-VPC, non-CVM target resolution and broader AWS field semantics remain gaps; no probe/execution.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "ec2:network_acls",
       "source_enabled": true,
       "tencent_counterpart": "VPC network ACLs",
       "status": "incomplete",
-      "evidence_or_gap": "Typed ACL metadata, explicit VPC/subnet associations and three-field ingress/egress rules implemented. Five-field rules are independently paginated per ACL with source/destination ports and IPv4/IPv6 selectors, direction, provider identity and priority. Missing legacy IDs/order use labeled response positions. Malformed pages, duplicates, missing totals and denied scopes remain partial. AWS default flag, association identity/provider semantics and live Frankfurt validation remain incomplete; configuration does not prove reachability."
+      "evidence_or_gap": "Typed ACL metadata, explicit VPC/subnet associations and three-field ingress/egress rules implemented. Five-field rules are independently paginated per ACL with source/destination ports and IPv4/IPv6 selectors, direction, provider identity and priority. Missing legacy IDs/order use labeled response positions. Malformed pages, duplicates, missing totals and denied scopes remain partial. AWS default flag, association identity/provider semantics and live Frankfurt validation remain incomplete; configuration does not prove reachability.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "ec2:network_interface",
       "source_enabled": true,
       "tencent_counterpart": "VPC ENIs",
       "status": "incomplete",
-      "evidence_or_gap": "Typed ENI metadata, explicit VPC/subnet/security-group relationships and interface-scoped IPv4/IPv6 address nodes implemented. Primary flags, public/EIP association, blocked/state/QoS and attachment metadata retained; IPv6 response aliases reconciled. CVM attachment requires a collected same-account/region instance and matching VPC. Opaque InstanceAccountId is not interpreted as UIN. AWS source/destination checks, requester-managed/ELB identity equivalents, non-CVM attachment mapping and live validation remain incomplete."
+      "evidence_or_gap": "Typed ENI metadata, explicit VPC/subnet/security-group relationships and interface-scoped IPv4/IPv6 address nodes implemented. Primary flags, public/EIP association, blocked/state/QoS and attachment metadata retained; IPv6 response aliases reconciled. CVM attachment requires a collected same-account/region instance and matching VPC. Opaque InstanceAccountId is not interpreted as UIN. AWS source/destination checks, requester-managed/ELB identity equivalents, non-CVM attachment mapping and live validation remain incomplete.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "ec2:load_balancer_v2:expose",
       "source_enabled": true,
-      "tencent_counterpart": "CLB target relationships",
+      "tencent_counterpart": "CLB configured exposure",
       "status": "incomplete",
-      "evidence_or_gap": "Configured EXPOSE relationships and per-frontend evidence paths implemented for explicit CVM and corroborated ENI-address/attachment targets. Exact account/region/common-VPC scope, IP consistency, unique matches and collected status are required; missing backends mark partial analysis. Reanalysis removes stale paths/edges. The AWS source phase describes configured backends, not actual public reachability. Cross-VPC backend configuration, other target types, target-group depth and live validation remain incomplete."
+      "evidence_or_gap": "Configured listener/rule/target-group/binding paths to explicitly identified CVM or uniquely corroborated scoped ENI targets produce EXPOSE and evidence path nodes. Same-account/region/common-VPC gates enforced. This is configuration, not reachability; unsupported and cross-VPC target paths remain partial.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "ec2:tgw",
       "source_enabled": true,
       "tencent_counterpart": "Cloud Connect Network",
       "status": "incomplete",
-      "evidence_or_gap": "CCN lifecycle/billing/routing-feature metadata and owner-qualified attachments implemented. Explicit network UIN/region, CIDRs, reported state and route-table identifier are retained; parent/owner mismatches fail the scope, and configured associations do not establish connectivity. Source tgw.py collects gateways and attachments, not route tables/routes. Shared CCN discovery, source SHARED_WITH ownership correspondence, provider-specific subnet association semantics and live validation remain incomplete."
+      "evidence_or_gap": "CCN lifecycle/billing/routing-feature metadata and owner-qualified attachments implemented. Explicit network UIN/region, CIDRs, reported state and route-table identifier are retained; parent/owner mismatches fail the scope, and configured associations do not establish connectivity. Source tgw.py collects gateways and attachments, not route tables/routes. Shared CCN discovery, source SHARED_WITH ownership correspondence, provider-specific subnet association semantics and live validation remain incomplete.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "ec2:vpc",
       "source_enabled": true,
       "tencent_counterpart": "VPC",
       "status": "incomplete",
-      "evidence_or_gap": "Typed VPC default/multicast/DHCP/DNS/route-publication metadata and VPC-scoped primary/auxiliary IPv4 and multi-provider IPv6 CIDR nodes implemented. Legacy/provider IPv6 aliases merge without duplicate nodes; auxiliary subnet references follow explicit parent IDs and verified CIDR membership. Recursive nested-subnet placement removed. AWS tenancy/state and CIDR association ID/state/message equivalents are not present in these Tencent schemas; live validation remains incomplete."
+      "evidence_or_gap": "Typed VPC default/multicast/DHCP/DNS/route-publication metadata and VPC-scoped primary/auxiliary IPv4 and multi-provider IPv6 CIDR nodes implemented. Legacy/provider IPv6 aliases merge without duplicate nodes; auxiliary subnet references follow explicit parent IDs and verified CIDR membership. Recursive nested-subnet placement removed. AWS tenancy/state and CIDR association ID/state/message equivalents are not present in these Tencent schemas; live validation remains incomplete.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "ec2:vpc_endpoint",
       "source_enabled": true,
       "tencent_counterpart": "Private Link",
       "status": "incomplete",
-      "evidence_or_gap": "Typed endpoint/service metadata and explicit VPC/subnet/security-group links implemented. All three IP-family scopes and four documented backend service types are queried; dual-stack uses token pagination. Exact authorized service lookups require returned ServiceUin, never APPID conversion. Cross-account collected services reconcile by region/service ID with VPC consistency; CLB/CDB/CRS/GWLB backend references are typed. AWS endpoint policy/private-DNS/requester-managed/ENI/route-table counterparts, GWLB backend enrichment and live validation remain incomplete."
+      "evidence_or_gap": "Typed endpoint/service metadata and explicit VPC/subnet/security-group links implemented. All three IP-family scopes and four documented backend service types are queried; dual-stack uses token pagination. Exact authorized service lookups require returned ServiceUin, never APPID conversion. Cross-account collected services reconcile by region/service ID with VPC consistency; CLB/CDB/CRS/GWLB backend references are typed. AWS endpoint policy/private-DNS/requester-managed/ENI/route-table counterparts, GWLB backend enrichment and live validation remain incomplete.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "ec2:route_table",
       "source_enabled": true,
       "tencent_counterpart": "VPC routes",
       "status": "incomplete",
-      "evidence_or_gap": "Typed main/table/local-publication metadata, explicit subnet association nodes and paginated DescribeRouteList implemented. Embedded routes survive denied listing; conflicting/disappearing rows mark partial coverage. Routes preserve descriptions, enabled/type/publication state and stable IPv6 identity. CCN owner matching uses uniquely collected global CCNs; LOCAL_GATEWAY/GWLB_ENDPOINT are typed. NORMAL_CVM IPs resolve only to unique collected ENI addresses and corroborated CVMs within the route account/region/VPC. AWS association IDs/state and route origin/blackhole-state equivalents, INTRANAT gateway identity, effective route evaluation and live validation remain incomplete."
+      "evidence_or_gap": "Typed main/table/local-publication metadata, explicit subnet association nodes and paginated DescribeRouteList implemented. Embedded routes survive denied listing; conflicting/disappearing rows mark partial coverage. Routes preserve descriptions, enabled/type/publication state and stable IPv6 identity. CCN owner matching uses uniquely collected global CCNs; LOCAL_GATEWAY/GWLB_ENDPOINT are typed. NORMAL_CVM IPs resolve only to unique collected ENI addresses and corroborated CVMs within the route account/region/VPC. AWS association IDs/state and route origin/blackhole-state equivalents, INTRANAT gateway identity, effective route evaluation and live validation remain incomplete.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "ec2:vpc_peering",
       "source_enabled": true,
       "tencent_counterpart": "VPC peering",
       "status": "incomplete",
-      "evidence_or_gap": "Typed state/controller/bandwidth/QoS/billing metadata, required-total pagination and owner/region-qualified VPC endpoints implemented. Documented legacy region abbreviations normalize without guessing unknown regions; DestinationVpcId/PeerVpcId aliases must agree. Bare-metal/unknown network types require unique collected VPC/BMVPC inventory. CIDR edges join exact enriched endpoint-VPC inventory only; no reachability inferred. Source DNS/ClassicLink options, status messages, peer-returned CIDR association state, inaccessible remote CIDRs and live validation remain incomplete."
+      "evidence_or_gap": "Typed state/controller/bandwidth/QoS/billing metadata, required-total pagination and owner/region-qualified VPC endpoints implemented. Documented legacy region abbreviations normalize without guessing unknown regions; DestinationVpcId/PeerVpcId aliases must agree. Bare-metal/unknown network types require unique collected VPC/BMVPC inventory. CIDR edges join exact enriched endpoint-VPC inventory only; no reachability inferred. Source DNS/ClassicLink options, status messages, peer-returned CIDR association state, inaccessible remote CIDRs and live validation remain incomplete.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "ec2:internet_gateway",
       "source_enabled": true,
       "tencent_counterpart": "Tencent VPC public egress model",
       "status": "incomplete",
-      "evidence_or_gap": "Provider architecture differs; equivalent EIP/public-IP/egress configuration analysis pending. Do not fabricate AWS-style IGW resources."
+      "evidence_or_gap": "Tencent public egress uses collected CVM public-address configuration, EIP/NAT bindings and VPC route next hops. Those metadata relationships are implemented without fabricated AWS-style IGW resources. Routing/public reachability and exact AWS gateway-state correspondence are not established.",
+      "implementation_status": "provider-difference-with-metadata",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "ec2:reserved_instances",
       "source_enabled": true,
       "tencent_counterpart": "CVM reserved capacity",
       "status": "incomplete",
-      "evidence_or_gap": "Product/API equivalence research pending."
+      "evidence_or_gap": "Typed reservation metadata and selected zone placement implemented through fixed international endpoint and official international SDK, since installed mainland TCCLI lacks this action. Regional/account availability and AWS reservation field/economics equivalence remain unverified.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "ec2:volumes",
       "source_enabled": true,
       "tencent_counterpart": "CBS",
       "status": "incomplete",
-      "evidence_or_gap": "Disks/attachments exist; KMS and lifecycle metadata pending."
+      "evidence_or_gap": "Typed lifecycle, encryption, size/type, sharing and snapshot/backup metadata implemented. Explicit current shared-instance IDs become attachment links; last attachment remains history metadata. Encryption flag alone does not identify KMS key. Other source attachment/placement semantics and live validation remain open.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "ec2:snapshots",
       "source_enabled": true,
       "tencent_counterpart": "CBS snapshots",
       "status": "incomplete",
-      "evidence_or_gap": "Explicit owned private snapshot inventory, referenced snapshot lookup, lifecycle/retention/encryption/size metadata and selected owned disk links implemented. Per-snapshot share recipients/timestamps link explicit recipient root accounts; empty sharing is not treated as AWS Public=false. Shared snapshots retain their foreign DiskId as metadata without creating a guessed current-account disk edge. Source-disk creation snapshot provenance, AWS public permission/KMS semantics, full sharing visibility and live validation remain incomplete."
+      "evidence_or_gap": "Explicit owned private snapshot inventory, referenced snapshot lookup, lifecycle/retention/encryption/size metadata and selected owned disk links implemented. Per-snapshot share recipients/timestamps link explicit recipient root accounts; empty sharing is not treated as AWS Public=false. Shared snapshots retain their foreign DiskId as metadata without creating a guessed current-account disk edge. Source-disk creation snapshot provenance, AWS public permission/KMS semantics, full sharing visibility and live validation remain incomplete.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "ecr",
       "source_enabled": true,
-      "tencent_counterpart": "TCR",
+      "tencent_counterpart": "TCR Enterprise / Personal Edition",
       "status": "incomplete",
-      "evidence_or_gap": "TCR Enterprise registries, namespaces, repositories, tags and digest metadata implemented with isolated account/region/registry identities and page-number pagination. Multi-platform manifests, attestations, workload image links, Personal Edition, policy analysis and live verification remain incomplete."
+      "evidence_or_gap": "Enterprise registry/namespaces/repositories/tag refs/digest content nodes, selected replication policy and image-acceleration metadata implemented; exact Table container image links supported. Personal owned repositories and tag OS/architecture/size metadata implemented separately, without inventing digest equality from ImageId/TagId. Manifests, multi-platform members, config/layers/attestations remain excluded or unresolved.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "ecr:image_layers",
       "source_enabled": true,
-      "tencent_counterpart": "TCR image metadata and supply-chain inspection",
+      "tencent_counterpart": "TCR image summary metadata",
       "status": "incomplete",
-      "evidence_or_gap": "Source supports image-layer analysis; no Tencent counterpart implemented. Needs explicit design matching source behavior and data scope."
+      "evidence_or_gap": "Image summary and Personal Edition platform metadata implemented. Manifest/config/layer/supply-chain contents are excluded by metadata-only policy; no pulls or layer inspection and no equivalent AWS attestations/architecture graph claim.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "ecs",
       "source_enabled": true,
-      "tencent_counterpart": "Tencent container workload services",
+      "tencent_counterpart": "TKE / TCSS container metadata",
       "status": "incomplete",
-      "evidence_or_gap": "Workload/task/container inventory beyond TKE clusters pending."
+      "evidence_or_gap": "Explicit Kubernetes contexts collect fixed metadata Tables for nodes/pods/services/controllers/jobs, container name/image summaries, exact scheduling/image references and current-context pods/exec authorization reviews with identity controls. TCSS cluster/image summaries collected. Full task/container definitions, UIDs/owners, bootstrap/env/volume/service-account/network detail and TCSS commands cannot be retrieved by this restricted design.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "eks",
       "source_enabled": true,
       "tencent_counterpart": "TKE",
       "status": "incomplete",
-      "evidence_or_gap": "TKE clusters and CVM worker references implemented. AWS eks.py collects cluster configuration, authentication/access entries, endpoint/logging and certificate-authority metadata; it does not collect Kubernetes workloads/services/pods. These source cluster/access equivalents and live validation remain incomplete. ECS-equivalent workload inventory is tracked separately."
+      "evidence_or_gap": "Typed cluster/network/version/lifecycle inventory, endpoint ACL/SG, public CA metadata, service-account/OIDC options, control-plane logging and subaccount common-name mappings implemented. Optional existing Kubernetes contexts collect summaries/reviews. TKE instance API includes bootstrap UserScript and remains excluded; full node config, role mappings, RBAC/all-principal semantics and live behavior remain gaps.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "elasticache",
       "source_enabled": true,
       "tencent_counterpart": "TencentDB Redis",
       "status": "incomplete",
-      "evidence_or_gap": "Instance metadata exists; topology and encryption detail review pending."
+      "evidence_or_gap": "Typed Redis instance and private/public endpoint metadata, SSL/security-group checks, replication groups/nodes/shards and scoped network links implemented. AWS cluster/parameter/replication field equivalence and runtime behavior remain unverified; no database operations.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "elastic_ip_addresses",
       "source_enabled": true,
       "tencent_counterpart": "VPC EIP",
       "status": "incomplete",
-      "evidence_or_gap": "Typed EIP lifecycle/billing/blocking/direct-connection metadata and explicit CVM/NAT/ENI/CLB instance references implemented. EIP-to-interface-address reconciliation requires the returned ENI ID and private IP, checks public-IP/EIP-ID contradictions and never joins by public IP alone. Unsupported target types remain metadata; broader IPv6 variants and live validation remain incomplete."
+      "evidence_or_gap": "Typed EIP lifecycle/billing/blocking/direct-connection metadata and explicit CVM/NAT/ENI/CLB instance references implemented. EIP-to-interface-address reconciliation requires the returned ENI ID and private IP, checks public-IP/EIP-ID contradictions and never joins by public IP alone. Unsupported target types remain metadata; broader IPv6 variants and live validation remain incomplete.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "emr",
       "source_enabled": true,
       "tencent_counterpart": "Elastic MapReduce",
       "status": "incomplete",
-      "evidence_or_gap": "Paginated standard/TKE cluster inventory and host, database and isolated-node views implemented. Selected version/status/billing/tags/node protection metadata and explicit VPC/subnet/CVM/TKE links are collected with strict scope validation. DescribeInstances is excluded because its nested schema includes MetaDataPass. Cluster roles, log/KMS settings, security configuration, image and termination-policy equivalence, destroyed-cluster history and live validation remain incomplete."
+      "evidence_or_gap": "Paginated standard/TKE cluster inventory and host, database and isolated-node views implemented. Selected version/status/billing/tags/node protection metadata and explicit VPC/subnet/CVM/TKE links are collected with strict scope validation. DescribeInstances is excluded because its nested schema includes MetaDataPass. Cluster roles, log/KMS settings, security configuration, image and termination-policy equivalence, destroyed-cluster history and live validation remain incomplete.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "lambda_function",
       "source_enabled": true,
       "tencent_counterpart": "SCF",
       "status": "incomplete",
-      "evidence_or_gap": "SCF namespaces/functions, versions, aliases with weighted/rule routing, trigger metadata and layer version inventory implemented. Selected COS/CKafka/API Gateway source links require collected resource identity. GetFunction remains excluded under metadata policy; role/VPC/image configuration, function-layer usage, full trigger integrations, permission analysis and live validation remain incomplete."
+      "evidence_or_gap": "SCF namespaces/functions, versions, aliases with weighted/rule routing, trigger metadata and layer version inventory implemented. Selected COS/CKafka/API Gateway source links require collected resource identity. GetFunction remains excluded under metadata policy; role/VPC/image configuration, function-layer usage, full trigger integrations, permission analysis and live validation remain incomplete.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "rds",
       "source_enabled": true,
-      "tencent_counterpart": "TencentDB relational databases",
+      "tencent_counterpart": "TencentDB MySQL / PostgreSQL / SQL Server / MariaDB",
       "status": "incomplete",
-      "evidence_or_gap": "MySQL/PostgreSQL basic inventory; SQL Server/MariaDB and deeper relationships pending."
+      "evidence_or_gap": "Native typed inventory for four relational products; capacity/version/lifecycle/encryption and separate public/private endpoints, explicit network/parent associations, supported MySQL/PostgreSQL SSL/SG and MySQL key references. Selected documented admin-action CAM decisions implemented. AWS IAM database-connect authentication, parameter/option/proxy/backup and cluster-field equivalence remain gaps.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "redshift",
       "source_enabled": true,
-      "tencent_counterpart": "Tencent cloud data warehouse services",
+      "tencent_counterpart": "CDWPG / DLC",
       "status": "incomplete",
-      "evidence_or_gap": "Product mapping and native collection pending."
+      "evidence_or_gap": "Native CDWPG warehouse and DLC engine metadata, selected network/capacity/state/version fields and documented CDWPG admin CAM actions implemented. DLC queries generation/type/execution combinations independently. This does not implement Redshift temporary DB credentials, query authorization or identical warehouse semantics.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "route53",
       "source_enabled": true,
       "tencent_counterpart": "DNSPod / Private DNS",
       "status": "incomplete",
-      "evidence_or_gap": "Owned DNSPod domains, Private DNS zones, paginated records, assigned nameservers, configured subzones and explicit region/owner VPC bindings implemented. Record types/TTL/weight/line/status retained; scoped names and address matches prevent public/private or VPC conflation. Cross-zone private resolver precedence, remaining managed-service endpoint aliases, shared public-domain ownership and live validation remain incomplete."
+      "evidence_or_gap": "Owned DNSPod domains, Private DNS zones, paginated records, assigned nameservers, configured subzones and explicit region/owner VPC bindings implemented. Record types/TTL/weight/line/status retained; scoped names and address matches prevent public/private or VPC conflation. Cross-zone private resolver precedence, remaining managed-service endpoint aliases, shared public-domain ownership and live validation remain incomplete.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "elasticsearch",
       "source_enabled": true,
       "tencent_counterpart": "Elasticsearch Service",
       "status": "incomplete",
-      "evidence_or_gap": "Instances implemented; relationship depth review pending."
+      "evidence_or_gap": "Typed ES version/lifecycle/capacity/node-configuration/access/ACL/endpoint metadata and explicit VpcUid/SubnetUid/security-group links implemented with scope/duplicate/page validation. Free-form ES/Kibana configs are not saved. Public OPEN and ACL metadata are not effective internet access or anonymous query authorization; AWS OpenSearch/access-policy/logging/provider equivalence and live behavior remain gaps.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "cloudformation",
       "source_enabled": true,
-      "tencent_counterpart": "Infrastructure as Code / TIC",
+      "tencent_counterpart": "Legacy TIC",
       "status": "incomplete",
-      "evidence_or_gap": "Product mapping and stack/resource collection pending."
+      "evidence_or_gap": "Fixed read-only CommonClient adapter for audited legacy DescribeStacks/StackVersions/StackEvents contract, typed metadata, exact parent links and global-wildcard ApplyStack identity-policy decisions implemented. Source/state/variable bodies never read. Current provider availability and full AWS stack/QCS equivalence unverified; SDK deletion alone is not claimed as deprecation.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "permission_relationships",
       "source_enabled": true,
-      "tencent_counterpart": "CAM effective permission graph",
+      "tencent_counterpart": "CAM / COS / Kubernetes analysis",
       "status": "incomplete",
-      "evidence_or_gap": "Initial offline/automatic collected identity-policy analysis implemented for COS object read/write, Secrets Manager values and CAM role passing. Direct/group policies combine with explicit deny precedence; conditions, unsupported syntax and incomplete reads remain conditional/incomplete. Decision nodes preserve exact scopes, evidence and role aliases. Remaining source permission mappings, resource-policy/boundary/session/trust evaluation, cross-account semantics and live validation remain incomplete."
+      "evidence_or_gap": "Direct/group identity-policy and collected-boundary decisions for COS read/write, secret value, PassRole, selected DB admin, TIC wildcard execution and online-TAT session/command scopes; COS anonymous resource-policy/ACL analysis; CLB configured exposure; current-context pod exec authorization review. No privileged API is executed. Resource/trust/session/cross-account policy composition, SQL query/temporary-credential equivalence, complete syntax and effective execution remain gaps.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "resourcegroupstaggingapi",
       "source_enabled": true,
       "tencent_counterpart": "Tag / CloudRC tags",
       "status": "incomplete",
-      "evidence_or_gap": "Account-wide Tencent Tag GetResources inventory, token pagination and shared account-scoped tag nodes with TAGGED relationships implemented. Exact documented QCS prefixes bind to collected account/region/resource identities, including CAM/global resources, CBS aliases and COS AppId forms; unknown, ambiguous and conflicting bindings remain inventory-only. Tag case, Unicode and empty values preserved. Composite provider IDs, remaining type mappings, native-only tag fallback and live API validation remain incomplete."
+      "evidence_or_gap": "Account-wide Tencent Tag GetResources inventory, token pagination and shared account-scoped tag nodes with TAGGED relationships implemented. Exact documented QCS prefixes bind to collected account/region/resource identities, including CAM/global resources, CBS aliases and COS AppId forms; unknown, ambiguous and conflicting bindings remain inventory-only. Tag case, Unicode and empty values preserved. Composite provider IDs, remaining type mappings, native-only tag fallback and live API validation remain incomplete.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "apigateway",
       "source_enabled": true,
       "tencent_counterpart": "API Gateway",
       "status": "incomplete",
-      "evidence_or_gap": "API Gateway services, APIs/method paths, environments, release versions, domains/certificate references and selected backend configuration implemented. SCF/WebSocket qualifier and COS relationships resolve against collected identities. Upstream/TSF details, domain path mappings, broader policy/permission analysis, historical deployment API contents, Cloud Native API Gateway equivalence and live verification remain incomplete."
+      "evidence_or_gap": "API Gateway services, APIs/method paths, environments, release versions, domains/certificate references and selected backend configuration implemented. SCF/WebSocket qualifier and COS relationships resolve against collected identities. Upstream/TSF details, domain path mappings, broader policy/permission analysis, historical deployment API contents, Cloud Native API Gateway equivalence and live verification remain incomplete.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "apigatewayv2",
       "source_enabled": true,
       "tencent_counterpart": "API Gateway",
       "status": "incomplete",
-      "evidence_or_gap": "API Gateway services, APIs/method paths, environments, release versions, domains/certificate references and selected backend configuration implemented. SCF/WebSocket qualifier and COS relationships resolve against collected identities. Upstream/TSF details, domain path mappings, broader policy/permission analysis, historical deployment API contents, Cloud Native API Gateway equivalence and live verification remain incomplete."
+      "evidence_or_gap": "API Gateway services, APIs/method paths, environments, release versions, domains/certificate references and selected backend configuration implemented. SCF/WebSocket qualifier and COS relationships resolve against collected identities. Upstream/TSF details, domain path mappings, broader policy/permission analysis, historical deployment API contents, Cloud Native API Gateway equivalence and live verification remain incomplete.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "bedrock",
       "source_enabled": true,
-      "tencent_counterpart": "Hunyuan / TI services",
+      "tencent_counterpart": "LKE / Agent Development Platform / TI metadata",
       "status": "incomplete",
-      "evidence_or_gap": "Model and deployment inventory pending."
+      "evidence_or_gap": "LKE application summary, scoped model/configuration views and shared knowledge metadata implemented with exact unambiguous associations. No prompt/document/agent/tool/model payloads or inference. Hunyuan account asset census and Bedrock agent/entitlement equivalence not established. Agent detail API excluded; pinned icon archive lacks ADP product logo, uses labeled official generic API asset.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "cloudfront",
       "source_enabled": true,
       "tencent_counterpart": "CDN / EdgeOne",
       "status": "incomplete",
-      "evidence_or_gap": "CDN certificate-deployment domain/status/billing metadata and explicit deployed SSL certificate edges implemented via ssl.DescribeHostCdnInstanceList. Sensitive cdn.DescribeDomains/DescribeDomainsConfig excluded because their schemas contain TLS private keys. Complete domain inventory, origins, cache/TLS/WAF settings, EdgeOne and live API validation remain gaps; collection explicitly partial."
+      "evidence_or_gap": "CDN certificate-deployment domain/status/billing metadata and explicit deployed SSL certificate edges implemented via ssl.DescribeHostCdnInstanceList. Sensitive cdn.DescribeDomains/DescribeDomainsConfig excluded because their schemas contain TLS private keys. Complete domain inventory, origins, cache/TLS/WAF settings, EdgeOne and live API validation remain gaps; collection explicitly partial.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "secretsmanager",
       "source_enabled": true,
       "tencent_counterpart": "Secrets Manager",
       "status": "incomplete",
-      "evidence_or_gap": "Eight explicit ListSecrets type/encryption scopes, required-total pagination, lifecycle and rotation metadata, version ID/time nodes, KMS configuration, SSH instance associations and exact collected MySQL/Redis/CAM-user links implemented. Creator-qualified QCS tags resolve from returned creator UIN metadata without changing account ownership. No secret values/key material requested. Version stages/historical KMS, replication/primary-region, rotation-function and last-access/change equivalents, broader database products and live validation remain incomplete."
+      "evidence_or_gap": "Eight explicit ListSecrets type/encryption scopes, required-total pagination, lifecycle and rotation metadata, version ID/time nodes, KMS configuration, SSH instance associations and exact collected MySQL/Redis/CAM-user links implemented. Creator-qualified QCS tags resolve from returned creator UIN metadata without changing account ownership. No secret values/key material requested. Version stages/historical KMS, replication/primary-region, rotation-function and last-access/change equivalents, broader database products and live validation remain incomplete.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "ecr:pull_through_cache_rules",
       "source_enabled": true,
-      "tencent_counterpart": "TCR proxy/cache configuration",
+      "tencent_counterpart": "TCR replication / image acceleration",
       "status": "incomplete",
-      "evidence_or_gap": "Not implemented."
+      "evidence_or_gap": "Native replication policy and CFS image-acceleration state metadata implemented, explicitly marked unverified operationally. Neither is represented as AWS upstream pull-through cache rules; no upstream credentials or content reads and no proven equivalent audited rule API.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "securityhub",
       "source_enabled": true,
-      "tencent_counterpart": "Security Center / CSPM",
+      "tencent_counterpart": "CSIP / CWP / TCSS",
       "status": "incomplete",
-      "evidence_or_gap": "Product mapping and metadata collection pending."
+      "evidence_or_gap": "CSIP configuration-check rules, license/service state and aggregate alert counts plus vendor-reported asset/security/vulnerability metadata implemented. No independent exploit validation. Alert detail includes leaked credentials/private payload fields and is excluded; AWS finding/integration/control equivalence not established.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "s3accountpublicaccessblock",
       "source_enabled": true,
-      "tencent_counterpart": "COS public access controls",
+      "tencent_counterpart": "COS account controls summary",
       "status": "incomplete",
-      "evidence_or_gap": "Not implemented."
+      "evidence_or_gap": "Account-level summary of selected-region bucket controls/decisions/completeness implemented without inventing global block flags. Bucket ACL/policy analyses available. No audited S3-style account-wide block API equivalence; global_block_state_verified=false and explicit unsupported equivalence coverage.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "sagemaker",
       "source_enabled": true,
       "tencent_counterpart": "TI Platform",
       "status": "incomplete",
-      "evidence_or_gap": "Not implemented."
+      "evidence_or_gap": "Billing resource groups, notebook summary/capacity metadata and exact selected resource-group/CFS/network associations implemented. Training/service/model-version responses containing Envs/Env/ImageSecret excluded. Full SageMaker job/model/config/resource-role equivalence unavailable under retained restriction.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "ses",
       "source_enabled": true,
       "tencent_counterpart": "Simple Email Service",
       "status": "incomplete",
-      "evidence_or_gap": "SES sending domains, required-total pagination, independent details, verification and DKIM key-size metadata, quota/reputation/tags and provider DNS checks implemented. Exact same-account public DNSPod name/type/value links preserve configuration without delivery claims. Explicit mainland Guangzhou/Hong Kong and international Singapore endpoints; Frankfurt recorded unsupported. Individual email-address identity correspondence, AWS DKIM signing-state semantics and live validation remain incomplete."
+      "evidence_or_gap": "SES sending domains, required-total pagination, independent details, verification and DKIM key-size metadata, quota/reputation/tags and provider DNS checks implemented. Exact same-account public DNSPod name/type/value links preserve configuration without delivery claims. Explicit mainland Guangzhou/Hong Kong and international Singapore endpoints; Frankfurt recorded unsupported. Individual email-address identity correspondence, AWS DKIM signing-state semantics and live validation remain incomplete.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "sns",
       "source_enabled": true,
       "tencent_counterpart": "TDMQ for CMQ topics/subscriptions",
       "status": "incomplete",
-      "evidence_or_gap": "CMQ topic lists/details and paginated subscriptions implemented with filter tags/binding keys, retry/content format configuration, queue links and HTTP destination origins. IDs bind to topic/account/region; TopicOwner remains AppId metadata. HTTP paths/query/userinfo omitted as potentially secret-bearing. AWS encryption/confirmation-state/delivery-policy correspondence, effective permissions, wider protocol support and live validation remain incomplete."
+      "evidence_or_gap": "CMQ topic lists/details and paginated subscriptions implemented with filter tags/binding keys, retry/content format configuration, queue links and HTTP destination origins. IDs bind to topic/account/region; TopicOwner remains AppId metadata. HTTP paths/query/userinfo omitted as potentially secret-bearing. AWS encryption/confirmation-state/delivery-policy correspondence, effective permissions, wider protocol support and live validation remain incomplete.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "sqs",
       "source_enabled": true,
       "tencent_counterpart": "TDMQ for CMQ queues",
       "status": "incomplete",
-      "evidence_or_gap": "CMQ regional queue lists/details, retention, visibility, polling, capacity, transaction and redrive configuration, with uniquely scoped dead-letter links now implemented. AWS resource policy, KMS encryption, FIFO/deduplication feature correspondence, broader messaging product coverage and live validation remain incomplete."
+      "evidence_or_gap": "CMQ regional queue lists/details, retention, visibility, polling, capacity, transaction and redrive configuration, with uniquely scoped dead-letter links now implemented. AWS resource policy, KMS encryption, FIFO/deduplication feature correspondence, broader messaging product coverage and live validation remain incomplete.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "ssm",
@@ -399,84 +615,135 @@
       "source_enabled": true,
       "tencent_counterpart": "SSL Certificates",
       "status": "incomplete",
-      "evidence_or_gap": "Global SSL certificate list metadata, domain/SANs, lifecycle dates/status, algorithm and renewal flags implemented. Explicit CLB listener/rule server and client-CA certificate links plus API Gateway certificate references reconcile with inventory. DescribeCertificateDetail is excluded because it can return private keys. Signature algorithm, other consumers and live verification remain incomplete."
+      "evidence_or_gap": "Global SSL certificate list metadata, domain/SANs, lifecycle dates/status, algorithm and renewal flags implemented. Explicit CLB listener/rule server and client-CA certificate links plus API Gateway certificate references reconcile with inventory. DescribeCertificateDetail is excluded because it can return private keys. Signature algorithm, other consumers and live verification remain incomplete.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "inspector",
       "source_enabled": true,
-      "tencent_counterpart": "Cloud Workload/Container Security",
+      "tencent_counterpart": "Cloud Workload Protection / Tencent Container Security",
       "status": "incomplete",
-      "evidence_or_gap": "Not implemented."
+      "evidence_or_gap": "CWP machines, package versions and selected vendor vulnerability/CVE/status/score metadata; TCSS cluster/image and vendor image vulnerability metadata implemented with exact asset scope and partial failures. independently_validated=false. Container list includes command content and is excluded; no working exploit or AWS coverage equivalence claimed.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "config",
       "source_enabled": true,
       "tencent_counterpart": "CloudConfig",
       "status": "incomplete",
-      "evidence_or_gap": "Account-scoped CloudConfig recorder/resource-type scope, delivery settings, paginated rules/details, parameter/condition/trigger definitions and explicit COS/CLS destination links implemented. Rule region/tag/exclusion scopes and provider compliance state are preserved without effective evaluation claims; no resource snapshots or remediation operations. Recorder CAM-role, delivery encryption/frequency, organization aggregators, custom function binding semantics and live validation remain incomplete."
+      "evidence_or_gap": "Account-scoped CloudConfig recorder/resource-type scope, delivery settings, paginated rules/details, parameter/condition/trigger definitions and explicit COS/CLS destination links implemented. Rule region/tag/exclusion scopes and provider compliance state are preserved without effective evaluation claims; no resource snapshots or remediation operations. Recorder CAM-role, delivery encryption/frequency, organization aggregators, custom function binding semantics and live validation remain incomplete.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "identitycenter",
       "source_enabled": true,
-      "tencent_counterpart": "Cloud Identity Governance / CAM federation",
+      "tencent_counterpart": "Cloud Identity Governance / organization / CAM federation",
       "status": "incomplete",
-      "evidence_or_gap": "Not implemented."
+      "evidence_or_gap": "CIC space, groups, safe group-member users, permission configs, custom/system policy attachments, account assignments, selected external-SAML metadata; organization units/members and CAM SAML/OIDC configuration implemented. ListUsers/GetUser include Password and are excluded, leaving ungrouped users unavailable. Provisioning status, managed-policy bodies and full federation semantics remain gaps; assignments do not scan foreign accounts.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "cloudtrail",
       "source_enabled": true,
       "tencent_counterpart": "CloudAudit",
       "status": "incomplete",
-      "evidence_or_gap": "Regional CloudAudit track lists/details, event selectors, status and organization-delivery flag implemented. Explicit CLS topic references and unambiguous collected COS destination links preserve destination owner/region without converting AppId to UIN. CKafka topic inventory now resolves configured destinations by collected instance, topic name, account and region. Legacy audit API equivalence, actual delivery verification and live account validation remain incomplete."
+      "evidence_or_gap": "Regional CloudAudit track lists/details, event selectors, status and organization-delivery flag implemented. Explicit CLS topic references and unambiguous collected COS destination links preserve destination owner/region without converting AppId to UIN. CKafka topic inventory now resolves configured destinations by collected instance, topic name, account and region. Legacy audit API equivalence, actual delivery verification and live account validation remain incomplete.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "cloudwatch",
       "source_enabled": true,
       "tencent_counterpart": "Cloud Monitor / CLS",
       "status": "incomplete",
-      "evidence_or_gap": "CLS logsets, log/metric topics, retention/index/web-tracking flags, KMS, COS shippers, regional alarms with queries/schedules/conditions, CLS notification groups with selected channel/escalation configuration and explicit cross-region delivery-topic references implemented. Cloud Monitor account-scoped policies, metric/event rules, embedded notice metadata, instance groups and object bindings are implemented, with strict CVM account/region links. CLS scheduled SQL tasks now retain query/schedule/output mappings with explicit topic-region links and declared metric nodes. Other monitored-product dimension mappings, current alarm-state equivalence, legacy/template rule expansion, detailed action delivery and live validation remain incomplete. No log contents, metric samples or effective evaluation/delivery claims."
+      "evidence_or_gap": "CLS logsets, log/metric topics, retention/index/web-tracking flags, KMS, COS shippers, regional alarms with queries/schedules/conditions, CLS notification groups with selected channel/escalation configuration and explicit cross-region delivery-topic references implemented. Cloud Monitor account-scoped policies, metric/event rules, embedded notice metadata, instance groups and object bindings are implemented, with strict CVM account/region links. CLS scheduled SQL tasks now retain query/schedule/output mappings with explicit topic-region links and declared metric nodes. Other monitored-product dimension mappings, current alarm-state equivalence, legacy/template rule expansion, detailed action delivery and live validation remain incomplete. No log contents, metric samples or effective evaluation/delivery claims.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "efs",
       "source_enabled": true,
       "tencent_counterpart": "CFS",
       "status": "incomplete",
-      "evidence_or_gap": "CFS file-system lifecycle/capacity/protocol/encryption metadata, explicit UUID KMS links, per-file-system mount targets with VPC/subnet or Turbo CCN links, permission groups and export rules now implemented. Mounts preserve endpoint/root/state and truncated allocated-IP metadata; rules preserve client selectors, read/write mode, user squash and priority. AWS access-point POSIX/root-directory equivalence, KMS ARN resolution, wider lifecycle/snapshot policy detail and live validation remain incomplete; no mounted-client or effective-access claims."
+      "evidence_or_gap": "CFS file-system lifecycle/capacity/protocol/encryption metadata, explicit UUID KMS links, per-file-system mount targets with VPC/subnet or Turbo CCN links, permission groups and export rules now implemented. Mounts preserve endpoint/root/state and truncated allocated-IP metadata; rules preserve client selectors, read/write mode, user squash and priority. AWS access-point POSIX/root-directory equivalence, KMS ARN resolution, wider lifecycle/snapshot policy detail and live validation remain incomplete; no mounted-client or effective-access claims.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "guardduty",
       "source_enabled": true,
-      "tencent_counterpart": "Tencent threat detection services",
+      "tencent_counterpart": "CSIP / CWP / TCSS security metadata",
       "status": "incomplete",
-      "evidence_or_gap": "Product mapping and metadata collection pending."
+      "evidence_or_gap": "Vendor-reported security state, CSIP license/check-rule metadata and aggregate pending-alert counts, CWP/TCSS vulnerability summaries implemented. Alert-detail response includes private payload/credential fields and is excluded. No detector-equivalent feature inventory or actual finding/attack execution claimed.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "codebuild",
       "source_enabled": true,
       "tencent_counterpart": "CODING CI",
       "status": "incomplete",
-      "evidence_or_gap": "Not implemented."
+      "evidence_or_gap": "Audited official CODING OpenAPI list/detail schemas include JenkinsFileStaticContent and EnvList without a verified server-side metadata projection. Both deliberately excluded and reported unsupported. No CI project/job list is silently marked empty or equivalent.",
+      "implementation_status": "metadata-restricted-unsupported",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "cognito",
       "source_enabled": true,
       "tencent_counterpart": "Customer Identity and Access Management",
       "status": "incomplete",
-      "evidence_or_gap": "Not implemented."
+      "evidence_or_gap": "CIAM user-store metadata/counts/domain summary implemented. No identity records or client secrets fetched. Full user-pool app/client/provider/domain/federation and Cognito authorization correspondence remain unestablished provider semantics.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "eventbridge",
       "source_enabled": true,
       "tencent_counterpart": "EventBridge",
       "status": "incomplete",
-      "evidence_or_gap": "Event buses, rules, exact JSON event-pattern configuration, enabled/lifecycle state, targets and scoped child identities now implemented. Explicit QCS ownership/region binds SCF qualifiers, collected Kafka topics, CLS and ES references; rule dead-letter targets and bus logging metadata retained. AWS schedule/role/managed-by correspondence and live validation remain incomplete. ListConnections is excluded because DTSParams can contain a password; safe connection summaries remain metadata."
+      "evidence_or_gap": "Event buses, rules, exact JSON event-pattern configuration, enabled/lifecycle state, targets and scoped child identities now implemented. Explicit QCS ownership/region binds SCF qualifiers, collected Kafka topics, CLS and ES references; rule dead-letter targets and bus logging metadata retained. AWS schedule/role/managed-by correspondence and live validation remain incomplete. ListConnections is excluded because DTSParams can contain a password; safe connection summaries remain metadata.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     },
     {
       "aws_collector": "glue",
       "source_enabled": true,
-      "tencent_counterpart": "WeData / Data Lake services",
+      "tencent_counterpart": "WeData / Data Lake Compute",
       "status": "incomplete",
-      "evidence_or_gap": "Product mapping and native collection pending."
+      "evidence_or_gap": "WeData projects/workflow/task summaries with explicit project/workflow relationships and DLC engine metadata for documented generation/type/execution scopes implemented. No scripts, credential-bearing connections or query execution. Catalog/crawler/schema/job-definition and Glue permissions equivalence remain gaps.",
+      "implementation_status": "metadata-implemented-with-gaps",
+      "parity_verified": false,
+      "gap_report": "METADATA-PARITY.md",
+      "live_validation": "not-performed"
     }
-  ]
+  ],
+  "operator_constraint": "Keep metadata-only restriction; report resulting parity gaps. No mixed workload/secret response opt-in.",
+  "implementation_report": "METADATA-PARITY.md",
+  "validation_boundary": "Offline contract/negative-control tests, local browser/export and CI Neo4j integration. Live Tencent/Kubernetes/Frankfurt validation not performed."
 }

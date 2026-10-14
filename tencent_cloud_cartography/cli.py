@@ -51,6 +51,11 @@ def main(argv=None):
         "--services", help="Comma-separated native services; CloudRC baseline is always queried"
     )
     sync.add_argument("--tccli", default="tccli")
+    sync.add_argument(
+        "--kube-context",
+        action="append",
+        help="Explicit ACCOUNT/REGION/CLUSTER=CONTEXT; reads only Kubernetes Tables without objects",
+    )
     sync.add_argument("--output", type=Path, default=Path(".local/inventory.json"))
     sync.add_argument(
         "--neo4j-uri", help="Optional loopback Neo4j mirror, e.g. bolt://127.0.0.1:7688"
@@ -93,7 +98,15 @@ def main(argv=None):
                     "Unknown service; supported native services: "
                     + ", ".join(sorted(SERVICE_ICONS))
                 )
-            snapshot = collect(args.profile or ["default"], regions, services, args.tccli)
+            from .kubernetes_metadata import parse_contexts
+
+            snapshot = collect(
+                args.profile or ["default"],
+                regions,
+                services,
+                args.tccli,
+                kube_contexts=parse_contexts(args.kube_context),
+            )
             save(snapshot, args.output)
             print(
                 f"Saved {len(snapshot['nodes'])} resources, {len(snapshot['edges'])} relationships; coverage={snapshot['status']}: {args.output}"

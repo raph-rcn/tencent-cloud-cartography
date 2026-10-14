@@ -61,7 +61,7 @@ def acl(graph, bucket, data, source):
 
 
 def policy(graph, bucket, data, source):
-    document = parse_document(data.get("Policy"))
+    document = parse_document(data.get("Policy"), cos=True)
     if any("principal" not in statement for statement in document["statement"]):
         raise CollectionError("InvalidPolicyDocument")
     add_document(graph, bucket["id"], document, source)

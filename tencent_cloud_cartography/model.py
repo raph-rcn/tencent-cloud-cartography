@@ -38,6 +38,7 @@ def walk_values(data, keys):
 
 
 SAFE_FIELDS = {
+    "Forward",
     "CamRoleName",
     "RoleName",
     "KmsKeyId",
@@ -281,6 +282,10 @@ class Graph:
                         source,
                     )
                 self.edge(lid, tid, "FORWARDS_TO", source)
+        if (spec.service, spec.action) in {("cvm", "DescribeInstances"), ("cbs", "DescribeDisks")}:
+            from .compute_metadata import enrich as enrich_compute
+
+            enrich_compute(self, nid, raw, source)
         from .relationships import enrich
 
         enrich(self, account, region, spec.kind, nid, raw, source)

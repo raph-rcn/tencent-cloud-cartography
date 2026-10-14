@@ -51,6 +51,10 @@ More options:
 # Faster focused enrichment; Cloud Resource Center baseline still runs
 ./landscape/local.sh sync --services vpc,cvm,cbs,clb,cos --regions eu-frankfurt
 
+# Existing Kubernetes context, matched to a collected TKE endpoint
+./landscape/local.sh sync --services tke,cam,tcr --regions eu-frankfurt \
+  --kube-context ACCOUNT_UIN/eu-frankfurt/cls-CLUSTER_ID=EXISTING_CONTEXT
+
 # Keep multiple snapshots
 ./landscape/local.sh sync --output .local/frankfurt.json
 ./landscape/local.sh serve --input .local/frankfurt.json --port 8788
@@ -58,15 +62,22 @@ More options:
 
 ## What is collected
 
-The **Cloud Resource Center** `SearchResources` API supplies a baseline of supported resource types. Native collectors enrich the services below and derive relationships from returned identifiers. Documented CloudRC CBS, CKafka and MySQL type aliases share their native identities; original inventory metadata and provenance remain visible. Missing regions stay unknown until a matching global native resource is collected. CloudRC’s ambiguous SCF type stays unresolved instead of being merged with an SCF namespace. Baseline-only products are available through **Show unresolved inventory** with `inventory-only` status. Referenced resources that could not be enumerated remain `reference` nodes. Unknown products use a clearly generic question-mark icon; every registered native service maps to an official product asset.
+The latest extension adds permission boundaries and identity-policy decisions,
+COS public-access configuration analysis, TKE/Kubernetes summaries and current
+context authorization reviews, traditional/modern CLB target and health metadata,
+deeper database/compute configuration, and the additional service families below.
+See [implemented capabilities and exact metadata parity gaps](docs/METADATA-PARITY.md).
+Full AWS parity and live Frankfurt collection are not claimed.
+
+The **Cloud Resource Center** `SearchResources` API supplies a baseline of supported resource types. Native collectors enrich the services below and derive relationships from returned identifiers. Documented CloudRC CBS, CKafka and MySQL type aliases share their native identities; original inventory metadata and provenance remain visible. Missing regions stay unknown until a matching global native resource is collected. CloudRC’s ambiguous SCF type stays unresolved instead of being merged with an SCF namespace. Baseline-only products are available through **Show unresolved inventory** with `inventory-only` status. Referenced resources that could not be enumerated remain `reference` nodes. Unknown products use a clearly generic question-mark icon; every registered kind maps to a bundled official asset, including the explicitly generic LKE/ADP fallback.
 
 | Area | Native services and relationships |
 |---|---|
 | Network | VPC, subnets, security groups and rules, route tables and typed next hops, ACL rules, NAT, EIP, network interfaces and individual IPv4/IPv6 addresses, scoped CLB target matches, Private Link, peering, CCN attachments; returned VPC/subnet/group/route/NAT/interface references |
-| Compute | CVM, Lighthouse, owned/in-use images and snapshot sharing metadata, key pairs, launch templates/versions, Auto Scaling group settings and memberships (launch configuration references only; user-data API excluded), CBS disks/snapshots and attachments |
+| Compute | CVM, Lighthouse, owned/in-use images and snapshot sharing metadata, key pairs, launch-template headers, Auto Scaling group settings and memberships (launch configuration references only; version/configuration APIs containing user data excluded), CBS disks/snapshots and attachments |
 | Load balancing | CLB, listeners/rules and returned backend target IDs or endpoint addresses |
-| Containers | TKE clusters and CVM worker references; TCR Enterprise registries, namespaces, repositories, tags and image digests |
-| Databases | TencentDB MySQL, PostgreSQL, Redis, MongoDB, Elasticsearch |
+| Registry inventory | TCR Enterprise registries, namespaces, repositories, tags and image digests |
+| Databases | TencentDB MySQL, PostgreSQL, Redis, MongoDB, SQL Server, MariaDB, CDWPG and typed Elasticsearch configuration |
 | Storage | COS buckets, ACL/policy, encryption/KMS, versioning and logging; CFS file systems, mount targets, permission groups and export rules |
 | Serverless and integration | SCF namespaces/functions, versions, aliases, triggers and layer versions; API Gateway services/APIs/environments/releases/domains and selected backend links; CKafka instances, topics, partitions and delivery/trigger links; TDMQ for CMQ queues, topics, subscriptions and dead-letter routes; EventBridge buses, rules, targets and resource links |
 | Email | SES sending domains, verification state, DKIM key size and DNS checks; exact collected DNSPod record links |
@@ -77,6 +88,11 @@ The **Cloud Resource Center** `SearchResources` API supplies a baseline of suppo
 | Configuration audit | CloudConfig recorder and resource-type scope, rules/parameters/triggers, delivery settings and explicit COS/CLS destinations |
 | Monitoring | Cloud Monitor policies, metric/event rules, notices and object bindings with explicit CVM links; CLS alarms, query/topic links, schedules, notice channels and escalation configuration; scheduled SQL tasks and declared metric outputs |
 | Edge and DNS | CDN certificate-deployment domain metadata and deployed certificate links (partial coverage); owned DNSPod domains and Private DNS zones with records, nameservers, subzones and explicit VPC bindings |
+| Containers | TKE network/version/lifecycle, endpoints/ACL/SG/public CA/OIDC/logging metadata; optional existing Kubernetes contexts collect fixed Tables for nodes, pods, services, controllers and jobs, container summaries and current-context pod exec authorization reviews |
+| Database depth | Typed MySQL, PostgreSQL, Redis, MongoDB, SQL Server, MariaDB and CDWPG lifecycle/capacity/network/endpoints; supported independent SSL/SG/encryption and Redis replica/node/shard checks |
+| Identity and security extensions | CAM boundaries, key identifiers/protection flags and SAML/OIDC; CIC spaces/groups/safe memberships/permission configs/account assignments; organization units/members; CIAM user stores; CWP/TCSS asset/package/vendor vulnerability metadata; CSIP rules/license/aggregate alert counts |
+| Infrastructure and data/AI | International CVM reservations, legacy TIC stack/version/event metadata, CloudRC-scoped Tcaplus table groups, WeData projects/workflows/tasks, DLC engines, TI resource-group/notebook summaries and LKE/ADP app/model/shared-knowledge summaries |
+| Registry extensions | TCR replication and image-acceleration metadata; Personal Edition owned repository/tag summaries; manifest/config/layer content excluded |
 
 See [the exact API catalog](tencent_cloud_cartography/catalog.py). API versions are pinned. Global services are queried once per account, regional services once per selected region. The global CloudRC pass queries the account inventory but only retains global or unknown-region resources. COS lists bucket metadata account-wide and retains the selected regions.
 
@@ -86,7 +102,7 @@ SES supports `ap-guangzhou` and `ap-hongkong` on the mainland API endpoint, and 
 
 - Cloud Resource Center covers [supported resource types](https://cloud.tencent.com/document/product/1791/115765), can lag, and is not a complete cloud asset census. [Tencent FAQ](https://cloud.tencent.com/document/product/1791/115771).
 - Denied, unsupported, failed, excluded, empty and completed queries are distinguishable in **Collection coverage**. Pagination detects stalled pages, count changes, missing arrays, and premature EOF. Request IDs are retained when the API supplies them.
-- The graph shows collected configuration relationships. It does not calculate IAM effective permissions, public reachability, routing outcomes, application dependencies, or exploitable attack paths.
+- The graph includes conservative identity-policy/boundary matches, anonymous COS policy/ACL decisions and configured CLB exposure paths with evidence and completeness flags. It does not establish complete effective cloud authorization, public reachability, routing outcomes or exploitable attack paths. Kubernetes authorization reviews apply only to the selected current context and never execute a command.
 - Multi-subnet resources remain at their common returned VPC/region with explicit subnet edges. References may be incomplete when APIs omit IDs or use unsupported formats.
 - COS listing uses TCCLI's current table-format plugin because it ignores `--output json`; unexpected output fails visibly. Five bucket configuration operations use the bundled official COS Python SDK over verified HTTPS. The SDK reads the selected static TCCLI profile credential or a complete environment credential pair/token in memory. Mixed sources are rejected; SSO/OAuth/role refresh is not yet supported for these COS checks. Credentials and raw SDK errors are never saved. These SDK methods and the listing plugin do not expose successful request IDs.
 - Native collectors are schema-checked against the installed Tencent SDK and covered by offline tests. **Live account validation requires your own authenticated profile.** API availability and permissions can differ between accounts and regions.
@@ -98,13 +114,13 @@ Grant metadata list/describe permissions for the APIs in the catalog, plus `sts:
 
 No collector retrieves COS objects, secret values, SCF source, database contents, or decrypts keys. The saved property allowlist excludes credentials, function environment variables and user data. CAM policy and role trust documents are retained as configuration, including conditions, actions, resources and explicit deny statements. Resource names, identifiers, IP addresses, network rules and policy conditions are infrastructure-sensitive. Keep `.local/` private. APIs can return more metadata than is retained, so normal read permissions are still needed.
 
-CAM collection includes group membership, direct user/role/group policy attachments, local policies and attached preset policies. Full graph view exposes policy/trust statements and the principals they name. `MEMBER_OF` and `HAS_POLICY` describe collected associations; `NAMES_PRINCIPAL` includes conditional and deny statements. These edges do not establish effective access or permission to assume a role. Permission boundaries, federation inventory and effective permission analysis remain incomplete.
+CAM collection includes group membership, direct user/role/group attachments, policy/trust statements, permission boundaries, credential identifiers/protection flags and selected SAML/OIDC configuration. Analysis intersects collected boundaries and identity policies, retaining explicit denies, conditions, unsupported expressions and scope. Missing boundary data does not establish absence. These decisions do not establish complete effective authorization or role assumption.
 
 KMS collection queries both customer-created and service-created keys, then retains key descriptions, aliases, lifecycle, origin and rotation metadata. CBS disks and Secrets Manager metadata link to explicitly configured KMS key IDs. A disk's encryption flag alone does not identify a key. Exact regional CAM key-resource expressions link policy statements to known keys; `NAMES_RESOURCE` and `CONFIGURED_KMS_KEY` describe configuration, not permission to decrypt. Tencent key aliases are key attributes; AWS key-policy and grant analysis still needs provider-specific authorization work.
 
 DNS collection retains record values, TTL, weight, routing line and enabled state. Public names, private zone views and VPC address scopes remain separate. Subzone links require an enabled NS record matching the child zone's assigned nameserver. IP matches use collected resource addresses and explicit network scope. These links describe configuration; they do not establish DNS resolution or network reachability. Shared public domains, cross-zone private resolver precedence and additional managed-service aliases remain incomplete.
 
-TCR collection keeps repository/tag identities scoped to each registry and separates mutable tags from content digests. Namespace and repository public flags, registry anonymous-access configuration, image size and artifact kind remain visible; they do not alone establish effective anonymous access. Repository collection continues if namespace metadata is denied. Multi-platform manifests, attestations, workload image links and image-layer analysis remain incomplete.
+Enterprise TCR separates registry-scoped mutable tags from digest content nodes. Public/anonymous flags do not establish effective access. Repository discovery survives a denied namespace query. Replication and acceleration configuration have their native semantics, without claiming pull-through cache equivalence. Personal Edition collects owned repository/tag summaries separately; its ImageId/TagId is not treated as a digest. Exact Kubernetes Table image references can link to collected Enterprise tags. Manifests/config/layers/attestations remain excluded.
 
 SCF collects version and alias routing, trigger configuration and layer version metadata. Trigger targets distinguish numeric versions from aliases; weighted and rule-based routes retain their conditions. Selected COS, CKafka and API Gateway source links require matching collected resources in the same account and the correct region. Disabled triggers remain configuration nodes. Custom event arguments, credential-bearing trigger fields and unfiltered function configuration are excluded. Function-to-layer usage, execution-role/VPC/image details and effective invocation permissions remain incomplete.
 
@@ -140,6 +156,10 @@ Both `sync`, `import` and `serve` support `--neo4j-user`, `--neo4j-database`, an
 Older mirrors from the initial release lack the required metadata. Re-sync or use `import` to upgrade them. The publication transaction changes only this application's graph and state; unrelated graph data is retained.
 
 ## Icons and attribution
+
+All registered kinds map to bundled official assets. The pinned archive lacks an
+LKE/ADP product logo; those nodes use the official generic API asset, as recorded
+in the parity report. It is not labeled as a product-specific logo.
 
 Open [/icons.html](http://127.0.0.1:8787/icons.html) in the local viewer. Click an asset to download its original SVG. The [manifest](landscape/web/public/icons/tencent/manifest.json) records source archive, filenames, SHA-256 hashes and retrieval date.
 

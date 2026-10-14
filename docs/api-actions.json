@@ -53,6 +53,16 @@
     },
     {
       "service": "cam",
+      "action": "DescribeSafeAuthFlagColl",
+      "api_version": "2019-01-16"
+    },
+    {
+      "service": "cam",
+      "action": "DescribeUserOIDCConfig",
+      "api_version": "2019-01-16"
+    },
+    {
+      "service": "cam",
       "action": "GetGroup",
       "api_version": "2019-01-16"
     },
@@ -64,6 +74,21 @@
     {
       "service": "cam",
       "action": "GetRole",
+      "api_version": "2019-01-16"
+    },
+    {
+      "service": "cam",
+      "action": "GetRolePermissionBoundary",
+      "api_version": "2019-01-16"
+    },
+    {
+      "service": "cam",
+      "action": "GetUserPermissionBoundary",
+      "api_version": "2019-01-16"
+    },
+    {
+      "service": "cam",
+      "action": "ListAccessKeys",
       "api_version": "2019-01-16"
     },
     {
@@ -93,6 +118,11 @@
     },
     {
       "service": "cam",
+      "action": "ListSAMLProviders",
+      "api_version": "2019-01-16"
+    },
+    {
+      "service": "cam",
       "action": "ListUsers",
       "api_version": "2019-01-16"
     },
@@ -113,8 +143,28 @@
     },
     {
       "service": "cdb",
+      "action": "DescribeDBInstanceInfo",
+      "api_version": "2017-03-20"
+    },
+    {
+      "service": "cdb",
       "action": "DescribeDBInstances",
       "api_version": "2017-03-20"
+    },
+    {
+      "service": "cdb",
+      "action": "DescribeDBSecurityGroups",
+      "api_version": "2017-03-20"
+    },
+    {
+      "service": "cdb",
+      "action": "DescribeSSLStatus",
+      "api_version": "2017-03-20"
+    },
+    {
+      "service": "cdwpg",
+      "action": "DescribeInstances",
+      "api_version": "2020-12-30"
     },
     {
       "service": "cfs",
@@ -135,6 +185,11 @@
       "service": "cfs",
       "action": "DescribeMountTargets",
       "api_version": "2019-07-19"
+    },
+    {
+      "service": "ciam",
+      "action": "ListUserStore",
+      "api_version": "2022-03-31"
     },
     {
       "service": "ckafka",
@@ -158,6 +213,21 @@
     },
     {
       "service": "clb",
+      "action": "DescribeClassicalLBHealthStatus",
+      "api_version": "2018-03-17"
+    },
+    {
+      "service": "clb",
+      "action": "DescribeClassicalLBListeners",
+      "api_version": "2018-03-17"
+    },
+    {
+      "service": "clb",
+      "action": "DescribeClassicalLBTargets",
+      "api_version": "2018-03-17"
+    },
+    {
+      "service": "clb",
       "action": "DescribeListeners",
       "api_version": "2018-03-17"
     },
@@ -169,6 +239,26 @@
     {
       "service": "clb",
       "action": "DescribeLoadBalancersDetail",
+      "api_version": "2018-03-17"
+    },
+    {
+      "service": "clb",
+      "action": "DescribeRewrite",
+      "api_version": "2018-03-17"
+    },
+    {
+      "service": "clb",
+      "action": "DescribeTargetGroupInstanceStatus",
+      "api_version": "2018-03-17"
+    },
+    {
+      "service": "clb",
+      "action": "DescribeTargetGroupInstances",
+      "api_version": "2018-03-17"
+    },
+    {
+      "service": "clb",
+      "action": "DescribeTargetGroups",
       "api_version": "2018-03-17"
     },
     {
@@ -273,6 +363,21 @@
       "cam_action": "cos:GetService"
     },
     {
+      "service": "csip",
+      "action": "DescribeConfigCheckRules",
+      "api_version": "2022-11-21"
+    },
+    {
+      "service": "csip",
+      "action": "DescribeEdrAlertSummary",
+      "api_version": "2022-11-21"
+    },
+    {
+      "service": "csip",
+      "action": "DescribeLicenseStatus",
+      "api_version": "2022-11-21"
+    },
+    {
       "service": "cvm",
       "action": "DescribeImageSharePermission",
       "api_version": "2017-03-12"
@@ -294,13 +399,33 @@
     },
     {
       "service": "cvm",
-      "action": "DescribeLaunchTemplateVersions",
+      "action": "DescribeLaunchTemplates",
       "api_version": "2017-03-12"
     },
     {
       "service": "cvm",
-      "action": "DescribeLaunchTemplates",
+      "action": "DescribeReservedInstances",
       "api_version": "2017-03-12"
+    },
+    {
+      "service": "cwp",
+      "action": "DescribeAssetSystemPackageList",
+      "api_version": "2018-02-28"
+    },
+    {
+      "service": "cwp",
+      "action": "DescribeMachines",
+      "api_version": "2018-02-28"
+    },
+    {
+      "service": "cwp",
+      "action": "DescribeVulList",
+      "api_version": "2018-02-28"
+    },
+    {
+      "service": "dlc",
+      "action": "DescribeDataEngines",
+      "api_version": "2021-01-25"
     },
     {
       "service": "dnspod",
@@ -368,6 +493,26 @@
       "api_version": "2020-03-24"
     },
     {
+      "service": "lke",
+      "action": "ListApp",
+      "api_version": "2023-11-30"
+    },
+    {
+      "service": "lke",
+      "action": "ListModel",
+      "api_version": "2023-11-30"
+    },
+    {
+      "service": "lke",
+      "action": "ListSharedKnowledge",
+      "api_version": "2023-11-30"
+    },
+    {
+      "service": "mariadb",
+      "action": "DescribeDBInstances",
+      "api_version": "2017-03-12"
+    },
+    {
       "service": "mongodb",
       "action": "DescribeDBInstances",
       "api_version": "2019-07-25"
@@ -381,6 +526,61 @@
       "service": "monitor",
       "action": "DescribeBindingPolicyObjectList",
       "api_version": "2018-07-24"
+    },
+    {
+      "service": "organization",
+      "action": "DescribeIdentityCenter",
+      "api_version": "2021-03-31"
+    },
+    {
+      "service": "organization",
+      "action": "DescribeOrganizationMembers",
+      "api_version": "2021-03-31"
+    },
+    {
+      "service": "organization",
+      "action": "DescribeOrganizationNodes",
+      "api_version": "2021-03-31"
+    },
+    {
+      "service": "organization",
+      "action": "GetExternalSAMLIdentityProvider",
+      "api_version": "2021-03-31"
+    },
+    {
+      "service": "organization",
+      "action": "ListGroupMembers",
+      "api_version": "2021-03-31"
+    },
+    {
+      "service": "organization",
+      "action": "ListGroups",
+      "api_version": "2021-03-31"
+    },
+    {
+      "service": "organization",
+      "action": "ListPermissionPoliciesInRoleConfiguration",
+      "api_version": "2021-03-31"
+    },
+    {
+      "service": "organization",
+      "action": "ListRoleAssignments",
+      "api_version": "2021-03-31"
+    },
+    {
+      "service": "organization",
+      "action": "ListRoleConfigurations",
+      "api_version": "2021-03-31"
+    },
+    {
+      "service": "postgres",
+      "action": "DescribeDBInstanceSSLConfig",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "postgres",
+      "action": "DescribeDBInstanceSecurityGroups",
+      "api_version": "2017-03-12"
     },
     {
       "service": "postgres",
@@ -399,7 +599,27 @@
     },
     {
       "service": "redis",
+      "action": "DescribeInstanceSecurityGroup",
+      "api_version": "2018-04-12"
+    },
+    {
+      "service": "redis",
+      "action": "DescribeInstanceShards",
+      "api_version": "2018-04-12"
+    },
+    {
+      "service": "redis",
+      "action": "DescribeInstanceZoneInfo",
+      "api_version": "2018-04-12"
+    },
+    {
+      "service": "redis",
       "action": "DescribeInstances",
+      "api_version": "2018-04-12"
+    },
+    {
+      "service": "redis",
+      "action": "DescribeSSLStatus",
       "api_version": "2018-04-12"
     },
     {
@@ -448,6 +668,11 @@
       "api_version": "2020-10-02"
     },
     {
+      "service": "sqlserver",
+      "action": "DescribeDBInstances",
+      "api_version": "2018-03-28"
+    },
+    {
       "service": "ssl",
       "action": "DescribeCertificates",
       "api_version": "2019-12-05"
@@ -483,6 +708,26 @@
       "api_version": "2018-08-13"
     },
     {
+      "service": "tat",
+      "action": "DescribeAutomationAgentStatus",
+      "api_version": "2020-10-28"
+    },
+    {
+      "service": "tcaplusdb",
+      "action": "DescribeTableGroups",
+      "api_version": "2019-08-23"
+    },
+    {
+      "service": "tcr",
+      "action": "DescribeImageAccelerateService",
+      "api_version": "2019-09-24"
+    },
+    {
+      "service": "tcr",
+      "action": "DescribeImagePersonal",
+      "api_version": "2019-09-24"
+    },
+    {
       "service": "tcr",
       "action": "DescribeImages",
       "api_version": "2019-09-24"
@@ -499,8 +744,33 @@
     },
     {
       "service": "tcr",
+      "action": "DescribeReplicationPolicies",
+      "api_version": "2019-09-24"
+    },
+    {
+      "service": "tcr",
       "action": "DescribeRepositories",
       "api_version": "2019-09-24"
+    },
+    {
+      "service": "tcr",
+      "action": "DescribeRepositoryOwnerPersonal",
+      "api_version": "2019-09-24"
+    },
+    {
+      "service": "tcss",
+      "action": "DescribeAssetClusterList",
+      "api_version": "2020-11-01"
+    },
+    {
+      "service": "tcss",
+      "action": "DescribeAssetImageSimpleList",
+      "api_version": "2020-11-01"
+    },
+    {
+      "service": "tcss",
+      "action": "DescribeAssetImageVulList",
+      "api_version": "2020-11-01"
     },
     {
       "service": "tdmq",
@@ -528,13 +798,53 @@
       "api_version": "2020-02-17"
     },
     {
+      "service": "tic",
+      "action": "DescribeStackEvents",
+      "api_version": "2020-11-17"
+    },
+    {
+      "service": "tic",
+      "action": "DescribeStackVersions",
+      "api_version": "2020-11-17"
+    },
+    {
+      "service": "tic",
+      "action": "DescribeStacks",
+      "api_version": "2020-11-17"
+    },
+    {
+      "service": "tione",
+      "action": "DescribeBillingResourceGroups",
+      "api_version": "2021-11-11"
+    },
+    {
+      "service": "tione",
+      "action": "DescribeNotebooks",
+      "api_version": "2021-11-11"
+    },
+    {
       "service": "tke",
-      "action": "DescribeClusterInstances",
+      "action": "DescribeClusterAuthenticationOptions",
+      "api_version": "2018-05-25"
+    },
+    {
+      "service": "tke",
+      "action": "DescribeClusterCommonNames",
+      "api_version": "2018-05-25"
+    },
+    {
+      "service": "tke",
+      "action": "DescribeClusterEndpoints",
       "api_version": "2018-05-25"
     },
     {
       "service": "tke",
       "action": "DescribeClusters",
+      "api_version": "2018-05-25"
+    },
+    {
+      "service": "tke",
+      "action": "DescribeControlPlaneLogs",
       "api_version": "2018-05-25"
     },
     {
@@ -636,6 +946,21 @@
       "service": "vpc",
       "action": "DescribeVpcs",
       "api_version": "2017-03-12"
+    },
+    {
+      "service": "wedata",
+      "action": "ListProjects",
+      "api_version": "2025-08-06"
+    },
+    {
+      "service": "wedata",
+      "action": "ListTasks",
+      "api_version": "2025-08-06"
+    },
+    {
+      "service": "wedata",
+      "action": "ListWorkflows",
+      "api_version": "2025-08-06"
     }
   ]
 }

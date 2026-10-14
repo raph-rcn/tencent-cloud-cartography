@@ -27,7 +27,7 @@ def _strings(value):
     return values
 
 
-def parse_document(raw, trust=False):
+def parse_document(raw, trust=False, cos=False):
     """Validate the entire document before adding any statements to the graph."""
     if not isinstance(raw, str) or len(raw.encode()) > 1_000_000:
         raise CollectionError("InvalidPolicyDocument")
@@ -36,6 +36,34 @@ def parse_document(raw, trust=False):
         json.dumps(document, allow_nan=False)
     except (ValueError, TypeError, RecursionError) as exc:
         raise CollectionError("InvalidPolicyDocument") from exc
+    if cos:
+
+        def lowercase_keys(value):
+            if not isinstance(value, dict):
+                raise CollectionError("InvalidPolicyDocument")
+            result = {}
+            for key, item in value.items():
+                lowered = key.lower()
+                if lowered in result:
+                    raise CollectionError("DuplicatePolicySyntaxKey")
+                result[lowered] = item
+            return result
+
+        document = lowercase_keys(document)
+        rows = document.get("statement")
+        single = isinstance(rows, dict)
+        if single:
+            rows = [rows]
+        if not isinstance(rows, list):
+            raise CollectionError("InvalidPolicyDocument")
+        normalized_rows = []
+        for row in rows:
+            normalized = lowercase_keys(row)
+            effect = normalized.get("effect")
+            if isinstance(effect, str):
+                normalized["effect"] = effect.lower()
+            normalized_rows.append(normalized)
+        document["statement"] = normalized_rows
     if not isinstance(document, dict) or document.get("version") != "2.0":
         raise CollectionError("UnsupportedPolicySyntax")
     if set(document) - {"version", "statement", "principal"}:

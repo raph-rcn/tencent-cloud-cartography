@@ -91,6 +91,12 @@ def test_repository_and_images_use_page_numbers_and_do_not_require_namespace_per
 
     class Transport:
         def call(self, service, action, region=None, **params):
+            if action == "DescribeImageAccelerateService":
+                assert params == dict(RegistryId="tcr-one")
+                return dict(Status="Disabled", IsEnable=False)
+            if action == "DescribeReplicationPolicies":
+                assert params == dict(RegistryId="tcr-one", Page=1, PageSize=100)
+                return dict(ReplicationPolicyInfoList=[], TotalCount=0)
             calls.append((action, params))
             assert service == "tcr" and region == "eu-frankfurt"
             assert "Filters" not in params
@@ -116,8 +122,9 @@ def test_repository_and_images_use_page_numbers_and_do_not_require_namespace_per
             return dict(ImageInfoList=rows, TotalCount=101)
 
     collect_registry(CollectorRunner(g, Transport(), "100", [], lambda _: None), reg["id"], {})
-    assert g.coverage[0]["status"] == "denied"
-    assert g.coverage[1]["count"] == 101 and g.coverage[1]["request_ids"] == ["1", "2"]
+    assert next(r for r in g.coverage if r["action"] == "DescribeNamespaces")["status"] == "denied"
+    repositories = next(r for r in g.coverage if r["action"] == "DescribeRepositories")
+    assert repositories["count"] == 101 and repositories["request_ids"] == ["1", "2"]
     assert g.coverage[-1]["count"] == 101
     assert [
         p["Offset"]
@@ -135,6 +142,12 @@ def test_duplicate_tag_does_not_overwrite_prior_digest_and_marks_partial_scope()
 
     class Transport:
         def call(self, service, action, region=None, **params):
+            if action == "DescribeImageAccelerateService":
+                assert params == dict(RegistryId="tcr-one")
+                return dict(Status="Disabled", IsEnable=False)
+            if action == "DescribeReplicationPolicies":
+                assert params == dict(RegistryId="tcr-one", Page=1, PageSize=100)
+                return dict(ReplicationPolicyInfoList=[], TotalCount=0)
             if action == "DescribeNamespaces":
                 return dict(NamespaceList=[], TotalCount=0)
             if action == "DescribeRepositories":
@@ -158,18 +171,35 @@ def test_all_namespaces_truncation_is_visible_but_repositories_continue():
 
     class Transport:
         def call(self, service, action, region=None, **params):
+            if action == "DescribeImageAccelerateService":
+                assert params == dict(RegistryId="tcr-one")
+                return dict(Status="Disabled", IsEnable=False)
+            if action == "DescribeReplicationPolicies":
+                assert params == dict(RegistryId="tcr-one", Page=1, PageSize=100)
+                return dict(ReplicationPolicyInfoList=[], TotalCount=0)
             if action == "DescribeNamespaces":
                 return dict(NamespaceList=[dict(Name="team")], TotalCount=2)
             return dict(RepositoryList=[], TotalCount=0)
 
     collect_registry(CollectorRunner(g, Transport(), "100", [], lambda _: None), reg["id"], {})
-    assert g.coverage[0]["error"] == "CountMismatch"
-    assert g.coverage[1]["status"] == "empty"
+    assert (
+        next(r for r in g.coverage if r["action"] == "DescribeNamespaces")["error"]
+        == "CountMismatch"
+    )
+    assert next(r for r in g.coverage if r["action"] == "DescribeRepositories")["status"] == "empty"
 
 
 def test_end_to_end_collector_includes_tcr_children_without_credentials_or_payloads():
     class Transport:
         def call(self, service, action, region=None, **params):
+            if action == "DescribeRepositoryOwnerPersonal":
+                return dict(Data=dict(RepoInfo=[], TotalCount=0, Server="ccr.ccs.tencentyun.com"))
+            if action == "DescribeImageAccelerateService":
+                assert params == dict(RegistryId="tcr-one")
+                return dict(Status="Disabled", IsEnable=False)
+            if action == "DescribeReplicationPolicies":
+                assert params == dict(RegistryId="tcr-one", Page=1, PageSize=100)
+                return dict(ReplicationPolicyInfoList=[], TotalCount=0)
             assert (service, action) in ALLOWED_ACTIONS
             if service == "sts":
                 return dict(AccountId="100", PrincipalId="reader")
@@ -231,7 +261,7 @@ def test_end_to_end_collector_includes_tcr_children_without_credentials_or_paylo
     assert all(
         c["status"] in {"empty", "complete"}
         for c in snapshot["coverage"]
-        if c["service"] in {"tcr", "sts", "cloudrc"}
+        if c["service"] in {"tcr", "sts", "cloudrc"} and c["action"] != "DescribeImageManifests"
     )
     reg = next(n for n in snapshot["nodes"] if n["kind"] == "tcr.instance")
     assert reg["properties"]["EnableAnonymous"] is False

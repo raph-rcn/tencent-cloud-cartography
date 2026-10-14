@@ -700,3 +700,34 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
 - No cloud API permission, probe or mutation was introduced. Complete permission
   analysis, public/resource-policy exposure, containers, CLB/database depth and
   missing service-family implementation remain incomplete.
+
+## 2026-10-14 — Metadata permission/container/depth/family extension
+
+- Backend **1,046 tests passed**. New cases cover COS policy casing/ACL/public
+  decisions, boundaries, TKE endpoint/CA/auth/logging metadata, Kubernetes Table
+  projections/pagination/context checks and current-context authorization reviews,
+  CLB groups/traditional targets/health/rewrite configuration, typed database/ES/
+  compute metadata, identity-center memberships/policies/assignments, vendor
+  security metadata, new data/AI/identity families, legacy TIC/international
+  reservations, Personal Edition TCR scope checks and exact API exclusions.
+- Frontend **7 tests passed**, production build succeeded, npm audit reported
+  **0 vulnerabilities**, and pre-commit/lint/icon integrity passed. The existing
+  714 kB bundle advisory remains. The exact API manifest contains 191 actions;
+  all 186 registered kinds map to existing assets and all 896 official SVG hashes
+  remain intact. LKE/ADP uses the documented official generic API fallback.
+- Synthetic `.local/metadata-demo.json` renders **59 nodes / 65 relationships /
+  43 kinds / 21 services** in the full graph. Browser inspector confirms pod
+  exec authorization review scope, identity controls and execution=false;
+  coverage explicitly shows metadata-only exclusions and account-block
+  non-equivalence. Service filtering and refresh were verified. Browser warning/
+  error logs were empty. No live cloud or Kubernetes account was used.
+- Browser export `Downloads/tencent-cloud-cartography (38).drawio` retains all
+  59 resource labels and 65 relationships. It embeds 58 official SVGs; the VPC
+  resource is a grouping container. PNG exported at **3,510 × 3,419**. Preview:
+  `.local/metadata-preview.png`; inspector: `.local/metadata-authorization-inspector.png`.
+- Current implementation and remaining differences are in METADATA-PARITY.md
+  and the reconciled 67-slot aws-parity-audit.json. Workload/secret response APIs
+  remain excluded, with no opt-in override. Live Frankfurt behavior, provider
+  equivalence and complete effective authorization remain unverified.
+- CI also runs the separate actual Neo4j transaction/isolation/viewer integration
+  suite; the exact published-head result is reported after publication.

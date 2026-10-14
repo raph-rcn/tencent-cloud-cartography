@@ -1,5 +1,18 @@
 # AWS capability parity audit
 
+## Current implementation — 2026-10-14
+
+The permission/exposure, container, CLB/database and additional service-family
+metadata implementation is delivered. The operator retained the metadata-only
+restriction: APIs known to return workload or secret content stay excluded.
+Read [the current capability and gap report](METADATA-PARITY.md) and
+[the updated per-collector audit](aws-parity-audit.json). **Full AWS equivalence
+and live Frankfurt behavior remain unverified.**
+
+The sections below preserve earlier source comparison and implementation
+history. Statements describing features as future work predate this extension;
+the current report and per-collector audit supersede those status statements.
+
 **Full parity is not achieved.** The initial Tencent implementation reproduced the main diagram UI and a useful subset of collection. It did not replace the complete AWS backend capability set. Passing its initial tests did not establish that broader requirement.
 
 The authoritative comparison is the AWS checkout's collector registry, model/analysis code and Landscape implementation, including its current Resource Explorer changes. The original checkout is read-only throughout this work. [The audit](aws-parity-audit.json) records all 67 source collector slots, 66 enabled by its Landscape script, the source revision/file hash, current counterpart, and remaining work. Product counterparts labeled pending require further API research; they are not claims of equivalent behavior.

@@ -132,6 +132,8 @@ def collect_registry(runner, registry_id, raw):
             "EnableCosVersioning",
         ),
     )
+    collect_replication(runner, registry)
+    collect_acceleration(runner, registry)
     base = {"RegistryId": registry["resource_id"]}
 
     def collect_rows(kind, params, add, detail):
@@ -187,3 +189,109 @@ def collect_registry(runner, registry_id, raw):
             lambda row, src: image(graph, registry, repo, row, src),
             repo["resource_id"],
         )
+
+
+def collect_replication(runner, registry):
+    """Registry replication configuration; no upstream credentials or image config."""
+    import json
+
+    from .catalog import Collector
+    from .vpc import fields
+
+    spec = Collector(
+        "tcr",
+        "DescribeReplicationPolicies",
+        "ReplicationPolicyInfoList",
+        "tcr.replicationpolicy",
+        ("ID",),
+        total="TotalCount",
+        paging="page-size",
+        require_total=True,
+    )
+
+    def operation(record):
+        seen = set()
+        for batch, request in pages(
+            runner.transport, spec, registry["region"], dict(RegistryId=registry["resource_id"])
+        ):
+            if request:
+                record["request_ids"].append(request)
+            prepared = []
+            for raw in batch:
+                props = fields(
+                    raw,
+                    (
+                        "Name",
+                        "Description",
+                        "SrcResource",
+                        "DestResource",
+                        "CreationTime",
+                        "UpdateTime",
+                    ),
+                    ("Override", "Enabled"),
+                    ("ID",),
+                )
+                if type(props.get("ID")) is not int or props["ID"] in seen:
+                    raise CollectionError("InvalidTcrReplicationIdentity")
+                seen.add(props["ID"])
+                filters = raw.get("Filters") or []
+                if not isinstance(filters, list):
+                    raise CollectionError("InvalidTcrReplicationFilters")
+                props["filters"] = json.dumps(
+                    [fields(f, ("Type", "Value")) for f in filters], sort_keys=True
+                )
+                prepared.append(props)
+            for props in prepared:
+                nid = runner.graph.add(
+                    runner.account,
+                    registry["region"],
+                    "tcr.replicationpolicy",
+                    registry["resource_id"] + "/" + str(props["ID"]),
+                    props.get("Name"),
+                    source="tcr.DescribeReplicationPolicies",
+                )
+                runner.graph.nodes[nid]["properties"].update(props, replication_verified=False)
+                runner.graph.edge(
+                    registry["id"], nid, "HAS_REPLICATION_POLICY", "tcr.DescribeReplicationPolicies"
+                )
+                record["count"] += 1
+
+    runner.scope(
+        "tcr", "DescribeReplicationPolicies", registry["region"], operation, registry["resource_id"]
+    )
+
+
+def collect_acceleration(runner, registry):
+    import ipaddress
+    import json
+
+    from .vpc import fields
+
+    def operation(record):
+        data = runner.transport.call(
+            "tcr",
+            "DescribeImageAccelerateService",
+            registry["region"],
+            RegistryId=registry["resource_id"],
+        )
+        if data.get("RequestId"):
+            record["request_ids"].append(data["RequestId"])
+        props = fields(data, ("Status", "CFSVIP"), ("IsEnable",))
+        if "IsEnable" not in props:
+            raise CollectionError("MissingTcrAccelerationStatus")
+        if props.get("CFSVIP"):
+            props["CFSVIP"] = str(ipaddress.ip_address(props["CFSVIP"]))
+        registry["properties"]["image_acceleration_configuration"] = json.dumps(
+            props, sort_keys=True
+        )
+        registry["properties"]["acceleration_verified"] = False
+        registry["properties"]["pull_through_cache_rule_equivalence"] = False
+        record["count"] = 1
+
+    runner.scope(
+        "tcr",
+        "DescribeImageAccelerateService",
+        registry["region"],
+        operation,
+        registry["resource_id"],
+    )

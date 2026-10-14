@@ -9,9 +9,28 @@ from .transport import CollectionError
 
 SOURCE = "analysis.identity-policies"
 RULES = {
+    "tic.stack": (("tic:ApplyStack", "EXECUTE_STACK"),),
+    "cvm.instance": (("tat:StartSession", "START_SESSION"), ("tat:RunCommand", "EXECUTE_COMMAND")),
     "cos.bucket": (("cos:GetObject", "READ"), ("cos:PutObject", "WRITE")),
     "ssm.secret": (("ssm:GetSecretValue", "GET_SECRET"),),
     "cam.role": (("cam:PassRole", "PASS_ROLE"),),
+    "cdb.instance": (
+        ("cdb:ResetRootAccount", "ADMINISTER"),
+        ("cdb:UpgradeDBInstanceEngineVersion", "ADMINISTER"),
+    ),
+    "postgres.dbinstanceid": (
+        ("postgres:RestartDBInstance", "ADMINISTER"),
+        ("postgres:ResetAccountPassword", "ADMINISTER"),
+    ),
+    "sqlserver.instance": (
+        ("sqlserver:TerminateDBInstance", "ADMINISTER"),
+        ("sqlserver:RestartDBInstance", "ADMINISTER"),
+    ),
+    "mariadb.instance": (("mariadb:RestartDBInstances", "ADMINISTER"),),
+    "cdwpg.instance": (
+        ("cdwpg:RestartInstance", "ADMINISTER"),
+        ("cdwpg:ResetAccountPassword", "ADMINISTER"),
+    ),
 }
 
 
@@ -138,6 +157,30 @@ def identities(node):
         if arn in permitted:
             result.append(arn)
         return sorted(set(result))
+    elif node["kind"] == "tic.stack":
+        # Prove only an all-resource grant. No undocumented TIC QCS resource
+        # identity is invented; narrower resources remain conditional.
+        return ["*"]
+    elif node["kind"] == "cvm.instance" and re.fullmatch(r"ins-[a-z0-9]+", rid):
+        return [f"qcs::cvm:{region}:uin/{owner}:instance/{rid}"]
+    elif node["kind"] in {
+        "cdb.instance",
+        "postgres.dbinstanceid",
+        "sqlserver.instance",
+        "mariadb.instance",
+        "cdwpg.instance",
+    }:
+        service = node["kind"].split(".")[0]
+        resource = {
+            "cdb": "instanceId",
+            "postgres": "DBInstanceId",
+            "sqlserver": "instance",
+            "mariadb": "instance",
+            "cdwpg": "cdwpg-instance",
+        }[service]
+        if re.fullmatch(r"[A-Za-z0-9-]+", rid):
+            scope_region = "" if service == "cdwpg" else region
+            return [f"qcs::{service}:{scope_region}:uin/{owner}:{resource}/{rid}"]
     return []
 
 
@@ -242,6 +285,51 @@ def inventory_complete(graph, principal, records):
     return True
 
 
+def boundary_statements(graph, principal, outgoing):
+    boundaries = [
+        graph.nodes[e["target"]]
+        for e in outgoing.get(principal["id"], ())
+        if e["relationship"] == "HAS_PERMISSION_BOUNDARY"
+    ]
+    if not boundaries:
+        return [], False, principal["properties"].get("boundary_collection_status") != "collected"
+    if (
+        len(boundaries) != 1
+        or boundaries[0]["kind"] != "cam.boundary"
+        or boundaries[0]["account"] != principal["account"]
+    ):
+        return [], True, False
+    boundary = boundaries[0]
+    try:
+        document = parse_document(boundary["properties"].get("policy_document"))
+    except CollectionError:
+        return [], True, False
+    statements = [
+        (
+            stable_id(
+                principal["account"], "global", "cam.policystatement", f"{boundary['id']}/{i}"
+            ),
+            row,
+        )
+        for i, row in enumerate(document["statement"])
+    ]
+    return statements, True, all(sid in graph.nodes for sid, _ in statements)
+
+
+def intersect_boundary(identity_decision, boundary_decision):
+    if identity_decision == "explicit_deny" or boundary_decision == "explicit_deny":
+        return "explicit_deny"
+    if boundary_decision == "implicit_deny_from_collected_identity_policies":
+        return "denied_by_collected_permission_boundary"
+    if "incomplete" in (identity_decision, boundary_decision):
+        return "incomplete"
+    if identity_decision == "implicit_deny_from_collected_identity_policies":
+        return identity_decision
+    if "conditional" in (identity_decision, boundary_decision):
+        return "conditional"
+    return "allow_from_collected_identity_and_boundary_policies"
+
+
 def analyze(graph):
     # Re-running analysis replaces only its own generated nodes/edges/coverage.
     obsolete = {nid for nid, n in graph.nodes.items() if n["kind"] == "cam.permissiondecision"}
@@ -263,10 +351,27 @@ def analyze(graph):
     targets = [n for n in graph.nodes.values() if n["kind"] in RULES and n["status"] == "enriched"]
     for principal in principals:
         statements, complete = policy_statements(graph, principal, outgoing)
+        boundary, boundary_present, boundary_complete = boundary_statements(
+            graph, principal, outgoing
+        )
         records = [
             r
             for r in graph.coverage
-            if r.get("account") == principal["account"] and r.get("service") == "cam"
+            if r.get("account") == principal["account"]
+            and r.get("service") == "cam"
+            and r.get("action")
+            in {
+                "ListUsers",
+                "ListGroups",
+                "DescribeRoleList",
+                "ListAttachedUserPolicies",
+                "ListAttachedGroupPolicies",
+                "ListAttachedRolePolicies",
+                "GetGroup",
+                "GetPolicy",
+                "GetRole",
+                "ListPolicies",
+            }
         ]
         # No CAM collection evidence, denied lists, missing membership/details or
         # uncollected attached policies may hide an explicit deny.
@@ -278,6 +383,21 @@ def analyze(graph):
         for target in targets:
             if target["account"] != principal["account"]:
                 continue
+            if target["kind"] == "cvm.instance":
+                agents = [
+                    graph.nodes[e["target"]]
+                    for e in outgoing.get(target["id"], ())
+                    if e["relationship"] == "HAS_AGENT_INFORMATION"
+                    and graph.nodes[e["target"]]["kind"] == "tat.agent"
+                ]
+                if not any(
+                    agent["status"] == "enriched"
+                    and (agent["account"], agent["region"]) == (target["account"], target["region"])
+                    and agent["resource_id"] == target["resource_id"]
+                    and agent["properties"].get("AgentStatus") == "Online"
+                    for agent in agents
+                ):
+                    continue
             for action, capability in RULES[target["kind"]]:
                 try:
                     selections = scopes(target, statements, action)
@@ -288,6 +408,12 @@ def analyze(graph):
                     continue
                 for scope in selections:
                     decision, evidence = evaluate(statements, action, scope, complete)
+                    if boundary_present:
+                        boundary_decision, boundary_evidence = evaluate(
+                            boundary, action, scope, boundary_complete
+                        )
+                        decision = intersect_boundary(decision, boundary_decision)
+                        evidence.extend(boundary_evidence)
                     unsupported_analysis |= decision == "incomplete"
                     rid = stable_id(principal["id"], target["id"], action, scope)
                     nid = graph.add(
@@ -302,9 +428,19 @@ def analyze(graph):
                         action=action,
                         capability=capability,
                         resource_scope=json.dumps(scope) if isinstance(scope, list) else scope,
+                        resource_identity_verified=target["kind"] != "tic.stack",
+                        resource_resolution="global_wildcard_only"
+                        if target["kind"] == "tic.stack"
+                        else "documented_qcs_identity",
                         decision=decision,
-                        evaluation_scope="collected_identity_policies",
+                        evaluation_scope="collected_identity_and_boundary_policies"
+                        if boundary_present
+                        else "collected_identity_policies",
+                        boundary_evaluated=boundary_present and boundary_complete,
                         effective_access_verified=False,
+                        target_precondition="collected_online_tat_agent"
+                        if target["kind"] == "cvm.instance"
+                        else "",
                         policy_collection_complete=complete,
                         conditions=json.dumps(
                             [row[2] for row in evidence if row[2]], sort_keys=True
@@ -351,4 +487,7 @@ def analyze_snapshot(snapshot):
 
     analyze_exposure(graph)
     analyze(graph)
+    from .public_access import analyze as analyze_public_access
+
+    analyze_public_access(graph)
     return validate({**data, **graph.snapshot()})
