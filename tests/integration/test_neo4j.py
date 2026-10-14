@@ -200,3 +200,75 @@ def test_real_http_neo4j_refresh_and_missing_graph(database):
         server.server_close()
         thread.join()
         repository.close()
+
+
+def test_real_collection_plan_roundtrip_and_coverage_overview(database):
+    uri, options, _ = database
+    original = demo()
+    account = original["accounts"][0]["id"]
+    scopes = []
+    for service, state, success, failed in [
+        ("cvm", "scanned", 1, 0),
+        ("cos", "failed", 0, 1),
+        ("scf", "excluded", 0, 0),
+        ("tke", "unscanned", 0, 0),
+    ]:
+        scopes.append(
+            dict(
+                profile="fixture",
+                account=account,
+                region="eu-frankfurt",
+                service=service,
+                state=state,
+                reason="integration_fixture",
+                query_count=success + failed,
+                successful_queries=success,
+                failed_queries=failed,
+                excluded_queries=0,
+                resource_count=1 if success else 0,
+                partial=False,
+                errors=["UnauthorizedOperation"] if failed else [],
+            )
+        )
+    original["collection"] = dict(
+        version=1,
+        region_mode="automatic",
+        requested_profiles=["fixture"],
+        requested_regions=None,
+        requested_services=None,
+        profiles=[
+            dict(
+                profile="fixture",
+                account=account,
+                status="partial",
+                committed=True,
+                identity_verified=True,
+                error="",
+            )
+        ],
+        scopes=scopes,
+        organization=[],
+        organization_discovery=[],
+    )
+    mirror(original, uri, **options)
+    repository = Neo4jRepository(uri, **options)
+    server = create_server(port=0, repository=repository)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        read = repository.read_snapshot()
+        assert read["collection"] == original["collection"]
+        assert fingerprint(read) == fingerprint(original)
+        connection = http.client.HTTPConnection("127.0.0.1", server.server_port)
+        connection.request("GET", "/api/coverage")
+        response = connection.getresponse()
+        body = json.loads(response.read())
+        assert response.status == 200
+        assert body["overview"]["counts"] == dict(scanned=1, failed=1, excluded=1, unscanned=1)
+        assert body["overview"]["profiles"][0]["account"] == account
+        connection.close()
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join()
+        repository.close()

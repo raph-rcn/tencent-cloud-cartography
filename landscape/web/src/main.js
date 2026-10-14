@@ -8,6 +8,7 @@ import {
   runLayout,
   serializeForDrawio,
 } from './graph.js';
+import { showCoverage } from './coverage.js';
 import './styles.css';
 
 const state = {
@@ -151,7 +152,7 @@ document.querySelector('#app').innerHTML = `
         </div>
       </aside>
     </div>
-    <dialog id="coverage-dialog"><button id="close-coverage" class="button secondary">Close</button><h2>Collection coverage</h2><p>Complete means this API query finished. It does not mean all Tencent products or relationships are covered. Inventory-only and reference resources remain unresolved.</p><div id="coverage-content"></div></dialog>
+    <dialog id="coverage-dialog"><button id="close-coverage" class="button secondary">Close</button><h2>Collection coverage</h2><p>Review the scopes collected and the reasons for gaps. Profile identity, organization members and API evidence are listed below.</p><div id="coverage-content"></div></dialog>
     <div id="toast" class="toast" role="status"></div>
   </div>
 `;
@@ -212,7 +213,11 @@ function setHealth(health) {
   $('#status-label').textContent = state.setup ? 'Ready to connect' : health.mode === 'demo' ? 'EXAMPLE DATA' : `Snapshot · ${health.status}`;
   $('#snapshot-status').textContent = `${health.unresolved} unresolved resources · ${new Date(health.created_at).toLocaleString()}`;
   $('#source-label').textContent = health.backend === 'neo4j' ? 'Local graph database · read-only' : 'Local snapshot file · metadata only';
-  if (state.setup) {
+  if (health.latest_attempt_failed) {
+    $('#status-label').textContent = health.mode === 'demo' ? 'EXAMPLE DATA · last collection failed' : 'Last collection failed';
+    $('#source-label').textContent = `${state.setup ? "No inventory saved" : "Inventory retained"} · attempted ${health.latest_attempt_at}`;
+    $('#snapshot-status').textContent = 'Open Collection coverage for failed and unscanned scopes';
+  } else if (state.setup) {
     $('#source-label').textContent = health.project ? `Project: ${health.project.id} · no inventory collected` : 'No inventory collected';
     $('#snapshot-status').textContent = 'Choose a project and collect your environment';
   } else if (health.project) {
@@ -354,7 +359,7 @@ async function loadTopology() {
     const project = $('#project').value || state.project;
     const setupCommands = project
       ? `tencent-cloud-cartography sync --project ${project}`
-      : 'tencent-cloud-cartography projects init my-project --profile default --regions eu-frankfurt\ntencent-cloud-cartography sync --project my-project';
+      : 'tencent-cloud-cartography projects init my-project --profile default --regions auto\ntencent-cloud-cartography sync --project my-project';
     $('#loading').classList.remove('hidden');
     $('#loading').innerHTML = `<div class="environment-setup"><h2>Connect your Tencent Cloud environment</h2><p>Save a project with your existing TCCLI profiles and regions, then collect its inventory. Each project keeps a separate snapshot.</p><pre>${escapeHtml(setupCommands)}</pre><p>For a source checkout, run these commands through <code>uv run</code> or <code>./landscape/local.sh</code>. Use Refresh after collection. You can also open an existing snapshot with <code>serve --input /path/to/inventory.json</code>, or use a local Neo4j graph.</p><small>No cloud login or API call is needed to open this viewer. Example data is available only through the explicit demo command.</small></div>`;
     $('#resource-count').textContent = '0';
@@ -508,8 +513,7 @@ $('#export-drawio').addEventListener('click', async () => {
 
 $('#coverage-button').addEventListener('click', async () => {
   try {
-    const { coverage } = await (await request('/api/coverage')).json();
-    $('#coverage-content').innerHTML = '<table><thead><tr><th>Account / region</th><th>API</th><th>Status</th><th>Resources</th></tr></thead><tbody>' + coverage.map((r) => `<tr><td>${escapeHtml(r.account)}<br>${escapeHtml(r.region)}</td><td>${escapeHtml(r.service + '.' + r.action)}<br><small>${escapeHtml(r.detail || '')}</small></td><td>${escapeHtml(r.status)}<br><small>${escapeHtml(r.error || '')}</small></td><td>${escapeHtml(r.count)}</td></tr>`).join('') + '</tbody></table>';
+    showCoverage($('#coverage-content'), await (await request('/api/coverage')).json());
     $('#coverage-dialog').showModal();
   } catch (error) { showToast(error.message, 'error'); }
 });

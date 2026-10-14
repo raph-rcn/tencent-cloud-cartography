@@ -486,6 +486,7 @@ def analyze_snapshot(snapshot, context=None, max_decisions=25000):
 
     data = deepcopy(validate(snapshot))
     graph = Graph()
+    graph.collection = data.get("collection")
     graph.mode, graph.created_at = data["mode"], data["created_at"]
     graph.accounts = {row["id"]: row for row in data["accounts"]}
     graph.nodes = {row["id"]: row for row in data["nodes"]}

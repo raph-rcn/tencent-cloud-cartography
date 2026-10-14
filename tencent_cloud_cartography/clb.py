@@ -134,7 +134,7 @@ def collect_listeners(runner):
         for n in graph.nodes.values()
         if n["kind"] == "clb.clb"
         and n["account"] == runner.account
-        and n["region"] in runner.regions
+        and n["region"] in runner.regions_for("clb")
         and n["status"] == "enriched"
     ]
     for lb in lbs:

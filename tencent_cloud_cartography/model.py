@@ -144,6 +144,7 @@ class Graph:
         self.nodes, self.edges, self.accounts, self.coverage = {}, {}, {}, []
         self.created_at = datetime.now(UTC).isoformat()
         self.mode = mode
+        self.collection = None
 
     def add(self, account, region, kind, rid, name=None, raw=None, source="", status="enriched"):
         if not rid:
@@ -293,8 +294,12 @@ class Graph:
 
     def snapshot(self):
         coverage_bad = any(c["status"] not in {"complete", "empty"} for c in self.coverage)
+        if self.collection is not None:
+            from .fleet_coverage import incomplete
+
+            coverage_bad |= incomplete(self.collection)
         unresolved = sum(n["status"] != "enriched" for n in self.nodes.values())
-        return dict(
+        result = dict(
             schema_version=1,
             created_at=self.created_at,
             mode=self.mode,
@@ -305,6 +310,10 @@ class Graph:
             coverage=self.coverage,
             unresolved=unresolved,
         )
+
+        if self.collection is not None:
+            result["collection"] = self.collection
+        return result
 
     def dump(self):
         return json.dumps(self.snapshot(), ensure_ascii=False, indent=2) + "\n"

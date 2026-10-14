@@ -237,7 +237,7 @@ def collect_in_use(runner, services=None):
             for n in runner.graph.nodes.values()
             if n["account"] == runner.account
             and n["kind"] == kind
-            and n["region"] in runner.regions
+            and n["region"] in runner.regions_for(spec.service)
             and (
                 n["status"] == "reference"
                 or (n["status"] == "inventory-only" and n["id"] in referenced)

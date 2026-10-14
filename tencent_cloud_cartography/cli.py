@@ -46,9 +46,14 @@ def main(argv=None):
     sync.add_argument(
         "--profile", action="append", help="Repeat for multiple accounts; defaults to default"
     )
-    sync.add_argument("--regions", help="Comma-separated regions; project setting or eu-frankfurt")
+    sync.add_argument("--regions", help="auto (default) or comma-separated region restrictions")
     sync.add_argument(
         "--services", help="Comma-separated native services; CloudRC baseline is always queried"
+    )
+    sync.add_argument(
+        "--discover-regions",
+        action="store_true",
+        help="Discover per-service regions within any explicit region restrictions",
     )
     sync.add_argument("--tccli", default="tccli")
     sync.add_argument(
@@ -110,7 +115,8 @@ def main(argv=None):
     )
     init.add_argument("name")
     init.add_argument("--profile", action="append")
-    init.add_argument("--regions", default="eu-frankfurt")
+    init.add_argument("--regions", default="auto")
+    init.add_argument("--discover-regions", action="store_true")
     init.add_argument("--services")
     commands.add_parser("list", help="List configured projects")
     args = parser.parse_args(argv)
@@ -120,20 +126,21 @@ def main(argv=None):
 
             store = ProjectStore(args.projects_dir)
             project = store.read(args.project) if args.project else None
-            region_text = args.regions or (
-                ",".join(project["regions"]) if project else "eu-frankfurt"
+            region_text = (
+                args.regions
+                if args.regions is not None
+                else (",".join(project["regions"]) if project else "auto")
             )
             regions = list(dict.fromkeys(r.strip() for r in region_text.split(",") if r.strip()))
             args.output = args.output or (
                 store.snapshot_path(args.project) if project else Path(".local/inventory.json")
             )
-            if not regions or any(
-                not r.replace("-", "").isalnum() or r == "global" for r in regions
-            ):
-                parser.error("Provide one or more region codes, e.g. eu-frankfurt")
+            from .collection_plan import region_restrictions
+
+            region_restrictions(regions)
             services = (
-                set(args.services.split(","))
-                if args.services
+                set(s.strip() for s in args.services.split(","))
+                if args.services is not None
                 else set(project["services"])
                 if project and project["services"]
                 else None
@@ -154,7 +161,24 @@ def main(argv=None):
                 args.tccli,
                 kube_contexts=parse_contexts(args.kube_context),
                 analysis_limit=args.analysis_limit,
+                discover_regions=args.discover_regions
+                or bool(project and project.get("discover_regions")),
             )
+            collection = snapshot.get("collection")
+            if collection and (
+                not any(p["committed"] for p in collection["profiles"])
+                or not (
+                    any(s["successful_queries"] for s in collection["scopes"])
+                    or any(n["status"] != "reference" for n in snapshot["nodes"])
+                )
+            ):
+                report = args.output.with_name(args.output.name + ".attempt.json")
+                save(snapshot, report)
+                print(
+                    f"No usable account inventory was collected; existing snapshot preserved. Coverage report: {report}",
+                    file=sys.stderr,
+                )
+                return 1
             save(snapshot, args.output)
             print(
                 f"Saved {len(snapshot['nodes'])} resources, {len(snapshot['edges'])} relationships; coverage={snapshot['status']}: {args.output}"
@@ -210,7 +234,11 @@ def main(argv=None):
             if args.project_command == "init":
                 services = args.services.split(",") if args.services else None
                 store.create(
-                    args.name, args.profile or ["default"], args.regions.split(","), services
+                    args.name,
+                    args.profile or ["default"],
+                    [r.strip() for r in args.regions.split(",") if r.strip()],
+                    services,
+                    args.discover_regions,
                 )
                 print("Project configured: " + args.name)
             else:

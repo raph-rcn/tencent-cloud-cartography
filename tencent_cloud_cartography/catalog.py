@@ -876,6 +876,8 @@ ALLOWED_ACTIONS = {
         ("cvm", "DescribeLaunchTemplateVersions"),
     }
 } | {
+    ("region", "DescribeProducts"),
+    ("region", "DescribeRegions"),
     ("tke", "DescribeClusterEndpoints"),
     ("tke", "DescribeClusterAuthenticationOptions"),
     ("tke", "DescribeControlPlaneLogs"),
@@ -1202,6 +1204,7 @@ DETAIL_KINDS = {
 }
 
 API_VERSIONS = {
+    "region": "2022-06-27",
     "tcaplusdb": "2019-08-23",
     "lke": "2023-11-30",
     "tic": "2020-11-17",

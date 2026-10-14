@@ -40,14 +40,18 @@ EXCLUSIONS = (
 )
 
 
-def record(graph, account, regions, services=None):
+def record(graph, account, regions, services=None, region_map=None):
     for service, action, field in EXCLUSIONS:
         selected = "autoscaling" if service == "autoscaling" else service
         if services and selected not in services:
             continue
         if (service, action) in ALLOWED_ACTIONS:
             raise ValueError("Excluded workload API is present in metadata allowlist")
-        for region in ["global"] if service in ("csip", "cdn", "organization", "tcss") else regions:
+        for region in (
+            ["global"]
+            if service in ("csip", "cdn", "organization", "tcss")
+            else (region_map.get(service, []) if region_map is not None else regions)
+        ):
             if any(
                 r["account"] == account
                 and r["service"] == service

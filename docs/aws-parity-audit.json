@@ -745,5 +745,25 @@
   ],
   "operator_constraint": "Keep metadata-only restriction; report resulting parity gaps. No mixed workload/secret response opt-in.",
   "implementation_report": "METADATA-PARITY.md",
-  "validation_boundary": "Offline contract/negative-control tests, local browser/export and CI Neo4j integration. Live Tencent/Kubernetes/Frankfurt validation not performed."
+  "validation_boundary": "Offline contract/negative-control tests, local browser/export and CI Neo4j integration. Live Tencent/Kubernetes/Frankfurt validation not performed.",
+  "collection_workflow": {
+    "implementation_status": "implemented",
+    "source_evidence": [
+      "cartography/intel/aws/__init__.py::_autodiscover_account_regions",
+      "cartography/intel/aws/__init__.py::_sync_multiple_accounts",
+      "cartography/intel/aws/organizations.py::get_aws_accounts_from_botocore_config"
+    ],
+    "capabilities": [
+      "per-account per-service RMS region discovery",
+      "hard explicit region restrictions",
+      "organization member reconciliation with verified selected profiles",
+      "account failure isolation and identity-change discard",
+      "scanned failed excluded unscanned scope overview",
+      "failed-attempt reporting with prior inventory retained"
+    ],
+    "authentication": "existing explicitly selected profiles; no automatic member authentication or role assumption",
+    "gap_report": "COLLECTION-COVERAGE.md",
+    "live_validation": "not-performed",
+    "provider_gaps": "Unavailable RMS product mappings and incomplete discovery stay unscanned; observed scope universe does not establish a full Tencent asset census."
+  }
 }

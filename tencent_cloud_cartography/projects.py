@@ -17,8 +17,14 @@ def project_id(value):
 
 
 def settings(raw):
-    if not isinstance(raw, dict) or set(raw) != {"id", "profiles", "regions", "services"}:
+    if (
+        not isinstance(raw, dict)
+        or not {"id", "profiles", "regions", "services"} <= set(raw)
+        or set(raw) - {"id", "profiles", "regions", "services", "discover_regions"}
+    ):
         raise ValueError("Invalid project settings; credentials are not accepted")
+    if "discover_regions" in raw and type(raw["discover_regions"]) is not bool:
+        raise ValueError("Invalid project discovery setting")
     project_id(raw["id"])
     if len(json.dumps(raw).encode()) > 16_384:
         raise ValueError("Project configuration too large")
@@ -31,15 +37,11 @@ def settings(raw):
         )
     ):
         raise ValueError("Invalid project profiles")
-    if (
-        not isinstance(raw["regions"], list)
-        or not raw["regions"]
-        or not all(
-            isinstance(r, str) and re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)+", r)
-            for r in raw["regions"]
-        )
-    ):
+    from .collection_plan import region_restrictions
+
+    if not isinstance(raw["regions"], list) or not raw["regions"]:
         raise ValueError("Invalid project regions")
+    region_restrictions(raw["regions"])
     services = raw["services"]
     if services is not None and (
         not isinstance(services, list)
@@ -71,10 +73,12 @@ class ProjectStore:
             raise ValueError("Project snapshot must not be a symlink")
         return path
 
-    def create(self, name, profiles, regions, services=None):
+    def create(self, name, profiles, regions, services=None, discover_regions=False):
         config = settings(
             dict(id=project_id(name), profiles=profiles, regions=regions, services=services)
         )
+        if discover_regions:
+            config["discover_regions"] = True
         path = self.directory(name) / "project.json"
         if path.exists() or path.is_symlink():
             raise ValueError("Project already exists; choose another name")
@@ -140,7 +144,26 @@ class ProjectRepository:
         else:
             snapshot = Graph(mode="setup").snapshot()
             snapshot["status"] = "partial"
-        return {**snapshot, "project": config}
+        snapshot = {**snapshot, "project": config}
+        attempt_path = path.with_name(path.name + ".attempt.json")
+        if attempt_path.is_symlink():
+            raise SourceError("Collection report must not be a symlink")
+        if attempt_path.exists():
+            from datetime import datetime
+
+            attempt = FileRepository(attempt_path).read_snapshot()
+            if "collection" not in attempt:
+                raise SourceError("Collection report has no scope plan")
+            try:
+                newer = not path.exists() or datetime.fromisoformat(
+                    attempt["created_at"]
+                ) > datetime.fromisoformat(snapshot["created_at"])
+            except (ValueError, TypeError):
+                raise SourceError("Invalid collection report timestamp") from None
+            if newer:
+                snapshot["latest_attempt"] = attempt
+                snapshot["status"] = "partial"
+        return snapshot
 
     def read_snapshot(self):
         return self.read_project()

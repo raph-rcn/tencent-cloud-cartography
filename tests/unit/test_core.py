@@ -225,9 +225,10 @@ def test_baseline_scope_controls(field, value, error):
 def test_identity_changes_fail_before_publication(monkeypatch):
     monkeypatch.setattr(CollectorRunner, "run", lambda *args: None)
     f = Fake([dict(AccountId="1", PrincipalId="alice"), dict(AccountId="1", PrincipalId="bob")])
-    with pytest.raises(CollectionError) as e:
-        collect(["default"], ["eu-frankfurt"], transport_factory=lambda _: f)
-    assert e.value.code == "IdentityChanged"
+    data = collect(["default"], ["eu-frankfurt"], transport_factory=lambda _: f)
+    assert not data["nodes"] and not data["accounts"]
+    assert data["collection"]["profiles"][0]["error"] == "IdentityChanged"
+    assert data["status"] == "partial"
 
 
 def test_all_catalog_icons_exist():

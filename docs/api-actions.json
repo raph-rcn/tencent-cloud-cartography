@@ -623,6 +623,16 @@
       "api_version": "2018-04-12"
     },
     {
+      "service": "region",
+      "action": "DescribeProducts",
+      "api_version": "2022-06-27"
+    },
+    {
+      "service": "region",
+      "action": "DescribeRegions",
+      "api_version": "2022-06-27"
+    },
+    {
       "service": "scf",
       "action": "ListAliases",
       "api_version": "2018-04-16"

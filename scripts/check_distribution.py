@@ -4,6 +4,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -55,7 +56,8 @@ print("Portable wheel: 896 icons, official logo, UI and isolated projects verifi
 
 
 def main():
-    wheels = list((ROOT / "dist").glob("tencent_cloud_cartography-*.whl"))
+    version = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]["version"]
+    wheels = list((ROOT / "dist").glob(f"tencent_cloud_cartography-{version}-*.whl"))
     if len(wheels) != 1:
         raise SystemExit("Expected one current wheel in dist; archive old builds before checking")
     with tempfile.TemporaryDirectory() as temporary:

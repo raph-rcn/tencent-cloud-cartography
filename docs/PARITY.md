@@ -13,8 +13,11 @@ Named COS identity/resource/boundary composition and caller-policy/role-trust
 paths are now implemented offline; see [authorization semantics](AUTHORIZATION.md).
 Named project workspaces, an empty real-inventory setup flow, official Tencent
 branding and portable UI-inclusive builds replace the example-first quick start.
-Environment-specific permissions, credential support and service availability
-still govern collection coverage.
+Automatic per-service/account region discovery, explicit restrictions, organization
+member/profile reconciliation, isolated account failures and a scope coverage
+overview are implemented. [Collection guide](COLLECTION-COVERAGE.md) describes
+failed-attempt tracking and the observed/planned scope universe. Environment-specific
+permissions, credential support and service availability still govern coverage.
 
 The sections below preserve earlier source comparison and implementation
 history. Statements describing features as future work predate this extension;
@@ -39,7 +42,7 @@ The authoritative comparison is the AWS checkout's collector registry, model/ana
 | Service component grouping | Per-location service components implemented and browser validated | Further large-graph/export validation |
 | Direct Neo4j-backed viewer | Direct reads, complete metadata, auth/database options and refresh implemented; 5 real Neo4j integration tests passed in CI | Large-inventory performance validation remains; runtime results recorded in VALIDATION.md |
 | PNG / editable draw.io | Initial browser downloads verified | Preserve grouping and assets across new graph types |
-| Multi-account discovery and federation | Explicit TCCLI profiles supported | Compare organization hierarchy and assume-role/federation workflows |
+| Multi-account and region orchestration | Per-account/service RMS discovery, region restrictions, verified profile/member reconciliation, failure isolation and scope overview implemented | Runtime validation, unavailable RMS mappings and automatic federation/session acquisition remain gaps |
 | Metadata safeguards | Exact action allowlist and property filtering tested | Audit new APIs, preserve exclusions and avoid fetching object/secret values |
 | Live validation | No authenticated default profile in prior check | Authenticate with a suitable read-only profile and reconcile results to native API evidence |
 

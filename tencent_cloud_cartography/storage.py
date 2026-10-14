@@ -67,6 +67,10 @@ def validate(data):
             raise ValueError("Invalid accounts")
         if not isinstance(data.get("unresolved"), int):
             raise ValueError("Invalid coverage metadata")
+        if "collection" in data:
+            from .fleet_coverage import validate_collection
+
+            validate_collection(data["collection"], data)
         json.dumps(data, allow_nan=False)
         return data
     except (KeyError, TypeError, AttributeError) as exc:

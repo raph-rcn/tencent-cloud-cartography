@@ -447,7 +447,7 @@ def run(runner, services):
     for spec in EXTRA_COLLECTORS:
         if services and spec.service not in services:
             continue
-        for region in runner.regions if spec.regional else ["global"]:
+        for region in runner.regions_for(spec.service) if spec.regional else ["global"]:
             if spec.service == "cwp":
                 collect(runner, spec, region, dict(MachineType="CVM", MachineRegion=region))
             elif spec.kind == "tione.resourcegroup":
@@ -482,7 +482,7 @@ def run(runner, services):
     if not services or "lke" in services:
         from .lke import collect as collect_lke
 
-        for region in runner.regions:
+        for region in runner.regions_for("lke"):
             collect_lke(runner, region)
     if not services or "tic" in services:
         tic_details(runner)
@@ -634,7 +634,7 @@ def tcaplus_groups(runner):
         if (
             cluster["kind"] == "tcaplusdb.cluster"
             and cluster["account"] == runner.account
-            and cluster["region"] in runner.regions
+            and cluster["region"] in runner.regions_for("tcaplusdb")
             and cluster["resource_id"].isdigit()
         ):
             collect(

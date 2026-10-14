@@ -84,14 +84,21 @@ class Handler(SimpleHTTPRequestHandler):
                     unresolved=data["unresolved"],
                     regions=sorted({n["region"] for n in data["nodes"]}),
                     project=data.get("project"),
+                    latest_attempt_failed=bool(data.get("latest_attempt")),
+                    latest_attempt_at=data.get("latest_attempt", {}).get("created_at"),
                 )
             )
         if path.path == "/api/accounts":
             return self.respond(dict(accounts=data["accounts"]))
         if path.path == "/api/coverage":
+            from .fleet_coverage import overview
+
             return self.respond(
                 dict(
-                    coverage=data["coverage"], status=data["status"], unresolved=data["unresolved"]
+                    coverage=data.get("latest_attempt", data)["coverage"],
+                    status=data["status"],
+                    unresolved=data["unresolved"],
+                    overview=overview(data),
                 )
             )
         if path.path == "/api/topology":

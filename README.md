@@ -7,8 +7,9 @@ Collect resource and configuration metadata using your existing TCCLI profiles. 
 A derivative of [raph-rcn/aws-cartography](https://github.com/raph-rcn/aws-cartography), retaining its Git history and adapting its Landscape interface to Tencent Cloud.
 
 - **Reusable project workspaces:** named projects keep profiles, regions, service selections and snapshots separate; switch projects in the local viewer.
-- **Frankfurt by default:** `eu-frankfurt` (Tencent's region code).
-- **Read-only collection:** existing TCCLI profiles, an exact API allowlist, pagination, account identity checks, and per-operation coverage.
+- **Automatic regions per service and account:** new projects default to discovery; `--regions eu-frankfurt` keeps collection restricted to Frankfurt.
+- **Read-only collection:** existing TCCLI profiles, an exact API allowlist, pagination, identity checks before/after each account, and isolated account failures.
+- **Environment coverage:** account/region/service scope outcomes, organization member/profile reconciliation, explicit exclusions and failed-attempt reporting with previous inventory retained.
 - **Architecture and full graph views:** account → region → VPC → availability zone → subnet, based on returned resource IDs. Search, service/account/region filters, inspector, three layouts, collapse/expand.
 - **Exports:** PNG and editable draw.io diagrams with embedded Tencent SVGs.
 - **All 896 official product icons:** 441 English and 455 Chinese SVGs, searchable gallery, original bytes, checksums, and source attribution.
@@ -38,7 +39,7 @@ checkout (requires uv and Node.js):
 
 ```bash
 uv run python scripts/build_distribution.py
-uv tool install dist/tencent_cloud_cartography-0.2.0-py3-none-any.whl
+uv tool install dist/tencent_cloud_cartography-0.3.0-py3-none-any.whl
 ```
 
 The installed `tencent-cloud-cartography` command works outside the source checkout.
@@ -46,7 +47,7 @@ Each working directory has its own `.local/projects` store by default. Use an
 absolute `--projects-dir` when you want one shared catalog across working directories:
 
 ```bash
-tencent-cloud-cartography projects init client-a --profile client-a --regions eu-frankfurt
+tencent-cloud-cartography projects init client-a --profile client-a --regions auto
 tencent-cloud-cartography projects init client-b --profile client-b --regions ap-singapore,ap-hongkong
 tencent-cloud-cartography projects list
 tencent-cloud-cartography serve
@@ -59,8 +60,9 @@ Choose the project in the viewer, then Refresh after syncing. Project settings
 contain profile names, region codes and optional service selections, never credentials.
 Inventories are private files under `.local/projects/NAME/inventory.json`. The same
 commands work through `./landscape/local.sh` in a checkout. Repeating `--profile`
-can group several distinct accounts in one project; organization member accounts
-are not automatically scanned. Service availability, API permissions and credential
+can group several distinct accounts in one project; organization members are matched to identity-verified selected profiles; members
+without collection access are shown as unscanned. Membership does not authenticate
+or automatically scan a member account. Service availability, API permissions and credential
 adapter support still determine collected coverage in each environment.
 
 ```bash
@@ -88,7 +90,7 @@ tccli sts GetCallerIdentity --profile default
 ./landscape/local.sh serve
 ```
 
-`sync` writes `.local/inventory.json`. **Exit code 2 means a usable but partial snapshot was saved**; 1 means collection stopped or database publication could not be confirmed. A JSON snapshot saved before a database failure remains available. Exit code 0 means all selected operations completed and all discovered resources were enriched; it does **not** promise Tencent-wide service coverage.
+`sync` writes `.local/inventory.json`. **Exit code 2 means a usable but partial snapshot was saved**. An unavailable account does not discard healthy accounts. If no usable inventory was collected, exit 1 preserves the previous inventory and saves a private failed-attempt report. Exit 1 also covers stopped collection or unconfirmed database publication. A JSON snapshot saved before a database failure remains available. Exit code 0 means all selected operations completed and all discovered resources were enriched; it does **not** promise Tencent-wide service coverage.
 
 Use **Refresh** in the viewer after syncing. File mode rereads the atomically replaced JSON file; Neo4j mode reads the latest published database generation. Neither mode needs a viewer restart. Collection never replaces a live snapshot with demo data.
 
@@ -109,6 +111,14 @@ More options:
 ./landscape/local.sh sync --output .local/frankfurt.json
 ./landscape/local.sh serve --input .local/frankfurt.json --port 8788
 ```
+
+## Environment-wide collection coverage
+
+[The collection guide](docs/COLLECTION-COVERAGE.md) documents automatic per-service
+region discovery, explicit restrictions, organization/profile reconciliation,
+account failure isolation and the coverage overview. New projects default to `auto`;
+existing region settings are preserved. `--discover-regions --regions eu-frankfurt`
+discovers service availability while retaining a strict Frankfurt restriction.
 
 ## What is collected
 
@@ -145,7 +155,7 @@ The **Cloud Resource Center** `SearchResources` API supplies a baseline of suppo
 | Infrastructure and data/AI | International CVM reservations, legacy TIC stack/version/event metadata, CloudRC-scoped Tcaplus table groups, WeData projects/workflows/tasks, DLC engines, TI resource-group/notebook summaries and LKE/ADP app/model/shared-knowledge summaries |
 | Registry extensions | TCR replication and image-acceleration metadata; Personal Edition owned repository/tag summaries; manifest/config/layer content excluded |
 
-See [the exact API catalog](tencent_cloud_cartography/catalog.py). API versions are pinned. Global services are queried once per account, regional services once per selected region. The global CloudRC pass queries the account inventory but only retains global or unknown-region resources. COS lists bucket metadata account-wide and retains the selected regions.
+See [the exact API catalog](tencent_cloud_cartography/catalog.py). API versions are pinned. Global services are queried once per account, regional services once per selected region. The global CloudRC pass queries the account inventory. With an explicit region restriction it retains global or unknown-region resources; unrestricted automatic collection also retains returned regional inventory and records native discovery gaps. COS lists bucket metadata account-wide and retains the selected regions.
 
 SES supports `ap-guangzhou` and `ap-hongkong` on the mainland API endpoint, and `ap-singapore` on the international endpoint. Other regions, including Frankfurt, are recorded as unsupported without sending a SES request.
 

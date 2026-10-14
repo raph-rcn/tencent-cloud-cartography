@@ -765,3 +765,34 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
 - Live service behavior and effective access remain unverified. Unknown session,
   object-ACL, unsupported policy and joint-condition semantics are documented in
   AUTHORIZATION.md. These are configuration decisions, not proven findings.
+
+## 2026-10-14 — Environment-wide collection orchestration
+
+- **1,178 backend tests passed**, including 46 new cases for independent per-service/
+  per-account discovery, returned-product aliases, unavailable/unknown/malformed
+  regions, explicit bounds and empty-bound rejection, actual collector dispatch,
+  retained CloudRC assets outside RMS discovery, expired/denied/changed identities,
+  account exceptions, backup/duplicate profiles, organization matching/partial
+  enumeration, failed-attempt retention, HTTP overview and plan schema controls.
+- **11 frontend tests passed**, including coverage classification/filter/count
+  checks beyond a visible page. Production build and npm audit passed with zero
+  vulnerabilities; the existing 725 kB bundle advisory remains. The exact metadata
+  allowlist now contains **193** actions, adding only RMS DescribeProducts and
+  DescribeRegions. Installed TCCLI's offline skeleton confirms Product/Scene inputs.
+- Browser verification used explicit `.local/fleet-demo.json` only: **466** scope
+  rows (10 scanned, 8 failed, 441 excluded, 7 unscanned). Cards reconcile to the
+  stored plan; outcome filtering and 100-row paging work. Member 200 matched a
+  collected profile, 404 matched a discarded attempt, and 303 remained unscanned
+  without a verified profile. Failed scopes retain success/failure counts and
+  show zero resources for discarded identity attempts. Browser warning/error logs
+  were empty. Screenshot: `.local/fleet-coverage-overview.png` (offline example).
+- Normal product viewing remains an empty setup state without cloud login or
+  example inventory. Failed-attempt tracking is tested separately from the fixture;
+  it retains previous JSON inventory and presents the newer attempt's coverage.
+- A sixth actual Neo4j integration test now verifies collection-plan metadata
+  roundtrip, generation fingerprint and HTTP overview counts. Exact-head CI runs
+  this with the existing transaction/isolation/concurrent-refresh tests and the
+  portable 0.3.0 wheel installation check.
+- No Tencent account authentication, live regional/organization collection,
+  credential acquisition or role assumption was performed. Runtime support and
+  availability remain visible provider gaps rather than a full-parity assertion.
