@@ -37,6 +37,14 @@ class TccliTransport:
             raise CollectionError(
                 "BlockedAction", f"{service}.{action} is outside the metadata allowlist"
             )
+        if (service, action) == ("postgres", "DescribeDBInstanceParameters"):
+            from .database_depth import PG_PARAMETERS
+
+            if (
+                set(params) != {"DBInstanceId", "ParamName"}
+                or params.get("ParamName") not in PG_PARAMETERS
+            ):
+                raise CollectionError("BlockedParameterScope")
         args = [
             self.executable,
             service,

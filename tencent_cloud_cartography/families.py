@@ -495,6 +495,10 @@ def run(runner, services):
 
 
 def federation(runner):
+    from .federation_metadata import collect_cam, url
+
+    collect_cam(runner)
+
     def operation(record):
         data = runner.transport.call("cam", "DescribeUserOIDCConfig", "global")
         if data.get("RequestId"):
@@ -509,9 +513,13 @@ def federation(runner):
                 "ResponseMode",
                 "MappingFiled",
                 "Description",
+                "Scope",
             ),
             integers=("ProviderType", "Status", "AutoRotateKey"),
         )
+        for key in ("IdentityUrl", "AuthorizationEndpoint"):
+            if props.get(key):
+                props[key] = url(props[key])
         nid = runner.graph.add(
             runner.account, "global", "cam.useroidc", "account", source="cam.DescribeUserOIDCConfig"
         )

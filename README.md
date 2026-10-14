@@ -39,7 +39,7 @@ checkout (requires uv and Node.js):
 
 ```bash
 uv run python scripts/build_distribution.py
-uv tool install dist/tencent_cloud_cartography-0.3.0-py3-none-any.whl
+uv tool install dist/tencent_cloud_cartography-0.4.0-py3-none-any.whl
 ```
 
 The installed `tencent-cloud-cartography` command works outside the source checkout.
@@ -165,7 +165,8 @@ SES supports `ap-guangzhou` and `ap-hongkong` on the mainland API endpoint, and 
 - Denied, unsupported, failed, excluded, empty and completed queries are distinguishable in **Collection coverage**. Pagination detects stalled pages, count changes, missing arrays, and premature EOF. Request IDs are retained when the API supplies them.
 - The graph includes conservative named COS authorization, role trust/permission paths, identity-policy/boundary matches, anonymous COS policy/ACL decisions and configured CLB exposure paths with evidence and completeness flags. It does not establish complete effective cloud authorization, public reachability, routing outcomes or exploitable attack paths. Kubernetes authorization reviews apply only to the selected current context and never execute a command.
 - Multi-subnet resources remain at their common returned VPC/region with explicit subnet edges. References may be incomplete when APIs omit IDs or use unsupported formats.
-- COS listing uses TCCLI's current table-format plugin because it ignores `--output json`; unexpected output fails visibly. Five bucket configuration operations use the bundled official COS Python SDK over verified HTTPS. The SDK reads the selected static TCCLI profile credential or a complete environment credential pair/token in memory. Mixed sources are rejected; SSO/OAuth/role refresh is not yet supported for these COS checks. Credentials and raw SDK errors are never saved. These SDK methods and the listing plugin do not expose successful request IDs.
+- COS listing uses TCCLI's current table-format plugin because it ignores `--output json`; unexpected output fails visibly. Six bucket configuration operations use the bundled official COS Python SDK over verified HTTPS. The SDK reads the selected static TCCLI profile credential or a complete environment credential pair/token in memory. Mixed sources are rejected; SSO/OAuth/role refresh is not yet supported for these COS checks. Credentials and raw SDK errors are never saved. These SDK methods and the listing plugin do not expose successful request IDs.
+- Additional COS notifications, database backup/proxy/replica settings, gateway backend/domain mappings and federation provisioning metadata are implemented. See [implemented contracts and retained exclusions](docs/METADATA-DEPTH.md).
 - Native collectors are schema-checked against the installed Tencent SDK and covered by offline tests. **Live account validation requires your own authenticated profile.** API availability and permissions can differ between accounts and regions.
 - The frontend defaults to 2,500 selected resources with a visible truncation notice. Containment parents may add a small number of nodes. PNG dimensions are bounded; large graphs are better explored with filters.
 

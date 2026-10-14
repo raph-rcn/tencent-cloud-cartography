@@ -822,6 +822,12 @@ def collect(
     from .gateway import link_backends
 
     link_backends(graph)
+    from .cos_notifications import link_destinations as link_notifications
+
+    link_notifications(graph)
+    from .federation_metadata import link_providers
+
+    link_providers(graph)
     from .cam import link_compute_roles
 
     link_compute_roles(graph)

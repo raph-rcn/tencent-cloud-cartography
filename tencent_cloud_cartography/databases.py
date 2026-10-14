@@ -196,6 +196,9 @@ def collect(runner, spec, region, params=None):
 
 
 def details(runner, node, service):
+    from .database_depth import collect as collect_depth
+
+    collect_depth(runner, node, service)
     rid, region = node["resource_id"], node["region"]
     actions = {
         "cdb": [

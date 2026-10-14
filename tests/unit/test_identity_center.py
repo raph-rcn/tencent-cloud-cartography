@@ -1,3 +1,4 @@
+import base64
 import json
 
 import pytest
@@ -20,9 +21,23 @@ def test_identity_center_groups_members_policies_and_foreign_account_assignments
             if a == "GetExternalSAMLIdentityProvider":
                 return dict(
                     SAMLIdentityProviderConfiguration=dict(
-                        EntityId="idp", SSOStatus="Enabled", EncodedMetadataDocument="OMIT"
+                        EntityId="idp",
+                        SSOStatus="Enabled",
+                        EncodedMetadataDocument=base64.b64encode(
+                            b'<EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata" entityID="idp"/>'
+                        ).decode(),
                     )
                 )
+            if a == "GetRoleConfiguration":
+                return dict(RoleConfigurationInfo=dict(RoleConfigurationId="rc-one"))
+            if a in ("ListRoleConfigurationProvisionings", "ListUserSyncProvisionings"):
+                return {
+                    "RoleConfigurationProvisionings"
+                    if a == "ListRoleConfigurationProvisionings"
+                    else "UserProvisionings": [],
+                    "TotalCounts": 0,
+                    "IsTruncated": False,
+                }
             if a == "ListPermissionPoliciesInRoleConfiguration":
                 kind = params["RolePolicyType"]
                 return dict(
@@ -76,7 +91,7 @@ def test_identity_center_groups_members_policies_and_foreign_account_assignments
 
     g = Graph()
     collect(CollectorRunner(g, T(), "100", [], lambda _: None))
-    assert all(r["status"] == "complete" for r in g.coverage)
+    assert all(r["status"] in ("complete", "empty") for r in g.coverage)
     assert "OMIT" not in g.dump()
     assert not any(a in ("ListUsers", "GetUser", "ListSCIMCredentials") for a, _ in calls)
     assert {"MEMBER_OF", "HAS_PERMISSION_POLICY", "HAS_ACCOUNT_ASSIGNMENT", "TARGETS_ACCOUNT"} <= {
@@ -140,6 +155,16 @@ def test_identity_center_partial_pages_and_assignments_do_not_hide_independent_s
                 return dict(RolePolicies=[], TotalCounts=0)
             if a == "GetExternalSAMLIdentityProvider":
                 return dict(SAMLIdentityProviderConfiguration=dict(SSOStatus="Disabled"))
+            if a == "GetRoleConfiguration":
+                return dict(RoleConfigurationInfo=dict(RoleConfigurationId="rc-one"))
+            if a in ("ListRoleConfigurationProvisionings", "ListUserSyncProvisionings"):
+                return {
+                    "RoleConfigurationProvisionings"
+                    if a == "ListRoleConfigurationProvisionings"
+                    else "UserProvisionings": [],
+                    "TotalCounts": 0,
+                    "IsTruncated": False,
+                }
             raise AssertionError(a)
 
     g = Graph()

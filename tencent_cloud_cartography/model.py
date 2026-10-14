@@ -185,6 +185,7 @@ class Graph:
                     "PublicIpAddresses",
                     "PublicIpAddress",
                     "AddressIp",
+                    "LoadBalancerVips",
                     "Vip",
                 },
             )

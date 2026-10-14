@@ -203,6 +203,10 @@ def api(graph, service, raw, detail=False):
                 for field in ("Action", "BucketName", "Authorization", "PathMatchMode"):
                     if type(cos.get(field)) in (str, bool):
                         ip["cos_" + field] = cos[field]
+            if backend == "TSF":
+                from .gateway_depth import tsf
+
+                tsf(graph, graph.nodes[iid], raw)
     props["detail_collected"] = True
     return nid
 
@@ -282,6 +286,17 @@ def collect_service(runner, sid):
                     record["count"] += 1
 
         runner.scope("apigateway", spec.action, region, operation, service_id)
+        if key == "domain":
+            for nid in collected:
+                from .gateway_depth import mappings
+
+                dn = graph.nodes[nid]
+                detail_scope(
+                    "DescribeServiceSubDomainMappings",
+                    {"ServiceId": service_id, "SubDomain": dn["properties"]["DomainName"]},
+                    lambda raw, dn=dn: mappings(graph, service, dn, raw),
+                    dn["resource_id"],
+                )
         if key == "api":
             for nid in collected:
                 aid = graph.nodes[nid]["properties"]["ApiId"]
@@ -298,6 +313,10 @@ def collect_service(runner, sid):
                     add_detail,
                     service_id + "/" + aid,
                 )
+
+    from .gateway_depth import collect_upstream_bindings
+
+    collect_upstream_bindings(runner, service)
 
 
 def link_backends(graph):
@@ -362,3 +381,7 @@ def link_backends(graph):
                 )
         if p["ServiceType"] in ("SCF", "COS"):
             p["backend_resolved"] = bool(targets)
+        elif p["ServiceType"] == "HTTP":
+            from .gateway_depth import http_backend
+
+            http_backend(graph, integration)

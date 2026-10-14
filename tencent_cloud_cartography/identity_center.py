@@ -9,7 +9,9 @@ from .vpc import fields
 
 
 def identifier(value, prefix):
-    if not isinstance(value, str) or not re.fullmatch(prefix + r"-[a-z0-9]+", value):
+    if not isinstance(value, str) or not re.fullmatch(
+        ("(?:rc|up)" if prefix == "rc" else prefix) + r"-[a-z0-9]+", value
+    ):
         raise CollectionError("InvalidIdentityCenterId")
     return value
 
@@ -94,9 +96,16 @@ def collect(runner):
             ),
         )
         for config in configs:
+            from .federation_metadata import configuration, provisioning
+
+            configuration(runner, zone, config)
             policies(runner, zone, config)
             assignments(runner, zone, config)
+            provisioning(runner, zone, config)
         provider(runner, zone)
+        from .federation_metadata import provisioning
+
+        provisioning(runner, zone)
 
 
 def paged(runner, zone, action, result, kind, prepare, params=None, parent=None):
@@ -286,6 +295,10 @@ def policies(runner, zone, config):
                     "organization.ListPermissionPoliciesInRoleConfiguration",
                 )
                 record["count"] += 1
+                if policy_type == "System":
+                    from .federation_metadata import managed_policy
+
+                    managed_policy(runner, runner.graph.nodes[nid])
 
         runner.scope(
             "organization",
@@ -382,10 +395,9 @@ def provider(runner, zone):
         )
         if data.get("RequestId"):
             record["request_ids"].append(data["RequestId"])
-        props = fields(
-            data.get("SAMLIdentityProviderConfiguration"),
-            ("EntityId", "SSOStatus", "CreateTime", "UpdateTime"),
-        )
+        from .federation_metadata import provider_details
+
+        props = provider_details(data.get("SAMLIdentityProviderConfiguration"))
         if not props:
             raise CollectionError("MissingIdentityProviderConfiguration")
         zone["properties"]["saml_provider_configuration"] = json.dumps(props, sort_keys=True)

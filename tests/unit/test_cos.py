@@ -59,6 +59,7 @@ def responses():
                 }
             ]
         },
+        "get_bucket_notification": {},
         "get_bucket_versioning": {"Status": "Suspended"},
         "get_bucket_logging": {
             "LoggingEnabled": {"TargetBucket": "logs-12345", "TargetPrefix": "audit/"}
@@ -86,7 +87,7 @@ def run(data):
 
 def test_cos_configuration_and_typed_relations():
     graph, bucket, calls = run(responses())
-    assert len(calls) == 5 and all(c[2:] == (REGION, {"Bucket": "assets-12345"}) for c in calls)
+    assert len(calls) == 6 and all(c[2:] == (REGION, {"Bucket": "assets-12345"}) for c in calls)
     assert bucket["account"] == "100" and bucket["properties"]["acl_owner_id"] == "appid-owner"
     assert bucket["properties"]["versioning_status"] == "Suspended"
     grants = [n for n in graph.nodes.values() if n["kind"] == "cos.aclgrant"]
@@ -112,9 +113,9 @@ def test_denied_scopes_do_not_prevent_other_details(action):
     data = responses()
     data[action] = CollectionError("AccessDenied")
     graph, _, calls = run(data)
-    assert len(calls) == 5
+    assert len(calls) == 6
     assert [c["action"] for c in graph.coverage if c["status"] == "denied"] == [action]
-    assert sum(c["status"] == "complete" for c in graph.coverage) == 4
+    assert sum(c["status"] == "complete" for c in graph.coverage) == 5
 
 
 def test_empty_versioning_logging_and_no_false_absence():
@@ -278,6 +279,7 @@ def test_real_sdk_xml_parsing_without_network(isolated_profile, monkeypatch):
         + "</KMSMasterKeyID></ApplyServerSideEncryptionByDefault></Rule></ServerSideEncryptionConfiguration>",
         "versioning": "<VersioningConfiguration/>",
         "logging": "<BucketLoggingStatus/>",
+        "notification": "<NotificationConfiguration/>",
     }
     requests = []
 

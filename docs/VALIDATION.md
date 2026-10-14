@@ -796,3 +796,39 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
 - No Tencent account authentication, live regional/organization collection,
   credential acquisition or role assumption was performed. Runtime support and
   availability remain visible provider gaps rather than a full-parity assertion.
+
+## 2026-10-14 — COS, database, gateway and federation metadata depth
+
+- **1,273 backend tests passed**, including 87 focused metadata-depth cases,
+  notification transport/real XML fixtures and expanded exclusion cases. Negative
+  controls cover malformed/count/duplicate responses, contradictory parent/region/
+  account identity, ambiguous backend addresses, restricted parameter queries,
+  SAML entity/root/certificate checks and provisioning pagination failures.
+- **23 added read operations / 216 total** are reconciled to `api-actions.json`.
+  All **22 added Cloud API actions** are recognized by installed TCCLI's offline
+  `--generate-cli-skeleton`; notification uses a fixed signed COS V2 GET because
+  the Python SDK has no notification helper. No cloud request was sent by these
+  contract checks. Evidence: `.local/depth-cli-contracts.json`.
+- **11 frontend tests**, npm audit (zero vulnerabilities), production build,
+  lint/format and icon integrity passed. All **896 original SVGs**, official
+  wordmark and **211 registered kind mappings** were checked. The existing
+  approximately 724 kB frontend bundle advisory remains.
+- The full graph browser check used an explicit private **offline fixture** with
+  **21 resources and 18 relationships** across nine services. New notification,
+  proxy, backup-plan, mapping and provisioning nodes render with official icons;
+  coverage preserves the excluded upstream detail operation. No JavaScript errors
+  were observed; Cytoscape reported two transient edge-overlap warnings during
+  layout. Snapshot/export evidence: `.local/metadata-depth-fixture.json`,
+  `.local/metadata-depth.drawio`, `.local/metadata-depth-browser.png`.
+- Native CLB VIPs are retained in graph address metadata. A test constructs the
+  actual `clb.clb` collector output and verifies product/account/region/VPC/address
+  corroboration; it does not substitute an invented backend kind or probe HTTP.
+- **0.4.0** wheel and source archive bundle the compiled viewer, official assets
+  and new collectors. Isolated wheel installation away from the checkout verifies
+  assets, project isolation and empty unauthenticated setup; no cloud login occurs.
+- Metadata-only exclusions remain enforced for header-bearing upstream details,
+  unrestricted workload-valued database parameters, DEK material, download
+  capabilities and earlier workload/secret APIs. These gaps, remaining provider
+  differences and the exact implementation scope are in `METADATA-DEPTH.md`.
+- Live Tencent account/API availability, delivery, database access and federation
+  login remain unverified. Authentication-provider refresh is separate work.

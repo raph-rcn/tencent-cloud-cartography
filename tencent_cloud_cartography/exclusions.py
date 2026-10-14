@@ -5,6 +5,29 @@ from .catalog import ALLOWED_ACTIONS
 # These operations are deliberately never called. Response-field paths were
 # audited against the Tencent SDK shipped with TCCLI 3.1.181.1.
 EXCLUSIONS = (
+    (
+        "apigateway",
+        "DescribeUpstreams",
+        "Result.UpstreamSet.HealthChecker.ActiveRequestHeader.Value can contain credentials",
+    ),
+    ("mariadb", "DescribeDBEncryptAttributes", "CipherText is a DEK"),
+    (
+        "cdb",
+        "DescribeInstanceParams",
+        "Items.CurrentValue can contain init_connect SQL workload configuration",
+    ),
+    (
+        "mariadb",
+        "DescribeDBParameters",
+        "Params.Value can contain init_connect SQL workload configuration",
+    ),
+    ("cdb", "DescribeBackups", "Items.IntranetUrl/InternetUrl are backup download capabilities"),
+    ("postgres", "DescribeBackupDownloadURL", "backup download capabilities"),
+    (
+        "sqlserver",
+        "DescribeBackups",
+        "Backups.ExternalAddr/InternalAddr are backup download capabilities",
+    ),
     ("tcss", "DescribeAssetContainerList", "List.Cmd"),
     ("organization", "ListUsers", "Users.Password"),
     ("organization", "GetUser", "UserInfo.Password"),

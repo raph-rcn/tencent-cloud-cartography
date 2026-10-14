@@ -45,6 +45,16 @@ def test_mysql_replica_region_security_groups_tls_and_kms():
                 )
             if action == "DescribeDBSecurityGroups":
                 return dict(Groups=[dict(SecurityGroupId="sg-one")])
+            if action == "DescribeBackupConfig":
+                return dict(BackupExpireDays=7)
+            if action == "DescribeRemoteBackupConfig":
+                return dict(ExpireDays=7)
+            if action == "DescribeDBInstanceConfig":
+                return dict(ProtectMode=1)
+            if action == "DescribeCdbProxyInfo":
+                return dict(Count=0, ProxyInfos=[])
+            if action == "DescribeRoGroups":
+                return dict(RoGroups=[])
             raise AssertionError(action)
 
     g = Graph()

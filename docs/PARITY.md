@@ -2,6 +2,10 @@
 
 ## Current implementation — 2026-10-14
 
+See [the metadata depth extension](METADATA-DEPTH.md) for COS notifications,
+database backup/proxy/replica depth, gateway backend mappings/bindings and federation
+provider/provisioning configuration. Unsafe response fields remain explicitly excluded.
+
 The permission/exposure, container, CLB/database and additional service-family
 metadata implementation is delivered. The operator retained the metadata-only
 restriction: APIs known to return workload or secret content stay excluded.

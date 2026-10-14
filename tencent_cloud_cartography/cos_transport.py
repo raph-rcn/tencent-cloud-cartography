@@ -8,7 +8,8 @@ from pathlib import Path
 from .transport import CollectionError
 
 COS_ACTIONS = frozenset(
-    "get_bucket_" + suffix for suffix in ("acl", "policy", "encryption", "versioning", "logging")
+    "get_bucket_" + suffix
+    for suffix in ("acl", "policy", "encryption", "versioning", "logging", "notification")
 )
 BUCKET = re.compile(r"[a-z0-9][a-z0-9-]*-\d+")
 
@@ -68,7 +69,26 @@ def call(profile, action, region, params, timeout):
         **credentials(profile),
     )
     try:
-        result = getattr(CosS3Client(config, retry=0), action)(**params)
+        client = CosS3Client(config, retry=0)
+        if action == "get_bucket_notification":
+            # The Python SDK has no notification helper. Use its signing/HTTPS
+            # transport with the fixed V2 query, never an arbitrary URL or method.
+            from qcloud_cos.cos_auth import CosS3Auth
+
+            from .cos_notifications import parse_xml
+
+            query = {"notification": "", "notify-type": "2"}
+            response = client.send_request(
+                method="GET",
+                url=config.uri(bucket=params["Bucket"]),
+                bucket=params["Bucket"],
+                auth=CosS3Auth(config, params=query),
+                headers={},
+                params=query,
+            )
+            result = parse_xml(response.content)
+        else:
+            result = getattr(client, action)(**params)
     except CosServiceError as exc:
         code = exc.get_error_code()
         raise CollectionError(

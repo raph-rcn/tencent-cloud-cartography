@@ -3,6 +3,7 @@
 import json
 
 from .cam import add_document, parse_document
+from .cos_notifications import notification
 from .cos_transport import BUCKET, COS_ACTIONS
 from .kms import KEY_ID
 from .model import stable_id
@@ -142,6 +143,8 @@ def logging(graph, bucket, data, source):
 HANDLERS = {
     "get_bucket_" + fn.__name__: fn for fn in (acl, policy, encryption, versioning, logging)
 }
+
+HANDLERS["get_bucket_notification"] = notification
 
 
 def collect_bucket(runner, nid):

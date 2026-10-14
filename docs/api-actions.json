@@ -28,12 +28,22 @@
     },
     {
       "service": "apigateway",
+      "action": "DescribeServiceSubDomainMappings",
+      "api_version": "2018-08-08"
+    },
+    {
+      "service": "apigateway",
       "action": "DescribeServiceSubDomains",
       "api_version": "2018-08-08"
     },
     {
       "service": "apigateway",
       "action": "DescribeServicesStatus",
+      "api_version": "2018-08-08"
+    },
+    {
+      "service": "apigateway",
+      "action": "DescribeUpstreamBindApis",
       "api_version": "2018-08-08"
     },
     {
@@ -79,6 +89,11 @@
     {
       "service": "cam",
       "action": "GetRolePermissionBoundary",
+      "api_version": "2019-01-16"
+    },
+    {
+      "service": "cam",
+      "action": "GetSAMLProvider",
       "api_version": "2019-01-16"
     },
     {
@@ -143,6 +158,21 @@
     },
     {
       "service": "cdb",
+      "action": "DescribeBackupConfig",
+      "api_version": "2017-03-20"
+    },
+    {
+      "service": "cdb",
+      "action": "DescribeCdbProxyInfo",
+      "api_version": "2017-03-20"
+    },
+    {
+      "service": "cdb",
+      "action": "DescribeDBInstanceConfig",
+      "api_version": "2017-03-20"
+    },
+    {
+      "service": "cdb",
       "action": "DescribeDBInstanceInfo",
       "api_version": "2017-03-20"
     },
@@ -154,6 +184,16 @@
     {
       "service": "cdb",
       "action": "DescribeDBSecurityGroups",
+      "api_version": "2017-03-20"
+    },
+    {
+      "service": "cdb",
+      "action": "DescribeRemoteBackupConfig",
+      "api_version": "2017-03-20"
+    },
+    {
+      "service": "cdb",
+      "action": "DescribeRoGroups",
       "api_version": "2017-03-20"
     },
     {
@@ -346,6 +386,12 @@
     },
     {
       "service": "cos",
+      "action": "get_bucket_notification",
+      "api_version": "COS XML API",
+      "cam_action": "cos:GetBucketNotification"
+    },
+    {
+      "service": "cos",
       "action": "get_bucket_policy",
       "api_version": "COS XML API",
       "cam_action": "cos:GetBucketPolicy"
@@ -513,6 +559,21 @@
       "api_version": "2017-03-12"
     },
     {
+      "service": "mariadb",
+      "action": "DescribeDBSecurityGroups",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "mariadb",
+      "action": "DescribeDcnDetail",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "mariadb",
+      "action": "DescribeLogFileRetentionPeriod",
+      "api_version": "2017-03-12"
+    },
+    {
       "service": "mongodb",
       "action": "DescribeDBInstances",
       "api_version": "2019-07-25"
@@ -549,6 +610,11 @@
     },
     {
       "service": "organization",
+      "action": "GetRoleConfiguration",
+      "api_version": "2021-03-31"
+    },
+    {
+      "service": "organization",
       "action": "ListGroupMembers",
       "api_version": "2021-03-31"
     },
@@ -569,8 +635,38 @@
     },
     {
       "service": "organization",
+      "action": "ListRoleConfigurationProvisionings",
+      "api_version": "2021-03-31"
+    },
+    {
+      "service": "organization",
       "action": "ListRoleConfigurations",
       "api_version": "2021-03-31"
+    },
+    {
+      "service": "organization",
+      "action": "ListUserSyncProvisionings",
+      "api_version": "2021-03-31"
+    },
+    {
+      "service": "postgres",
+      "action": "DescribeBackupPlans",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "postgres",
+      "action": "DescribeBaseBackups",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "postgres",
+      "action": "DescribeDBInstanceHAConfig",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "postgres",
+      "action": "DescribeDBInstanceParameters",
+      "api_version": "2017-03-12"
     },
     {
       "service": "postgres",
@@ -585,6 +681,16 @@
     {
       "service": "postgres",
       "action": "DescribeDBInstances",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "postgres",
+      "action": "DescribeLogBackups",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "postgres",
+      "action": "DescribeReadOnlyGroups",
       "api_version": "2017-03-12"
     },
     {
@@ -680,6 +786,16 @@
     {
       "service": "sqlserver",
       "action": "DescribeDBInstances",
+      "api_version": "2018-03-28"
+    },
+    {
+      "service": "sqlserver",
+      "action": "DescribeDBInstancesAttribute",
+      "api_version": "2018-03-28"
+    },
+    {
+      "service": "sqlserver",
+      "action": "DescribeDBSecurityGroups",
       "api_version": "2018-03-28"
     },
     {

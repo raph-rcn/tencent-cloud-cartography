@@ -26,11 +26,12 @@
       "source_enabled": true,
       "tencent_counterpart": "CAM",
       "status": "incomplete",
-      "evidence_or_gap": "CAM users/groups/roles, attachments, identity/trust documents, boundaries and protection/federation metadata implemented. Offline caller-policy/boundary/role-trust intersection, derived caller ARN conditions, named COS composition and bounded permission paths added. Missing boundaries, unsupported conditions, service/federated/workload/session semantics and actual effective authorization remain gaps.",
+      "evidence_or_gap": "CAM users/groups/roles, attachments, identity/trust documents, boundaries and protection/federation metadata implemented. Offline caller-policy/boundary/role-trust intersection, derived caller ARN conditions, named COS composition and bounded permission paths added. Missing boundaries, unsupported conditions, service/federated/workload/session semantics and actual effective authorization remain gaps. Public SAML entities/SSO endpoints/certificate fingerprints and exact declared provider references added; no federation login or token is acquired.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "live_validation": "not-performed",
+      "metadata_depth_report": "METADATA-DEPTH.md"
     },
     {
       "aws_collector": "iaminstanceprofiles",
@@ -59,11 +60,12 @@
       "source_enabled": true,
       "tencent_counterpart": "COS",
       "status": "incomplete",
-      "evidence_or_gap": "COS bucket ACL/policy/encryption/versioning/logging metadata; anonymous analysis and named-principal identity/resource/boundary composition with same-account union and cross-account intersection. Signed versus unsigned routes remain separate. Object ACLs/inheritance, resource-only implicit-boundary behavior, session constraints, notifications, global block equivalence and runtime access remain gaps; static credential adapter only.",
+      "evidence_or_gap": "COS bucket ACL/policy/encryption/versioning/logging metadata; anonymous analysis and named-principal identity/resource/boundary composition with same-account union and cross-account intersection. Signed versus unsigned routes remain separate. Object ACLs/inheritance, resource-only implicit-boundary behavior, session constraints, global block equivalence and runtime access remain gaps; static credential adapter only. V2 notification rules/events/filters, exact scoped SCF/CKafka destination and delivery-role references added; delivery remains unverified.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "live_validation": "not-performed",
+      "metadata_depth_report": "METADATA-DEPTH.md"
     },
     {
       "aws_collector": "dynamodb",
@@ -400,11 +402,12 @@
       "source_enabled": true,
       "tencent_counterpart": "TencentDB MySQL / PostgreSQL / SQL Server / MariaDB",
       "status": "incomplete",
-      "evidence_or_gap": "Native typed inventory for four relational products; capacity/version/lifecycle/encryption and separate public/private endpoints, explicit network/parent associations, supported MySQL/PostgreSQL SSL/SG and MySQL key references. Selected documented admin-action CAM decisions implemented. AWS IAM database-connect authentication, parameter/option/proxy/backup and cluster-field equivalence remain gaps.",
+      "evidence_or_gap": "Native typed inventory for four relational products; capacity/version/lifecycle/encryption and separate public/private endpoints, explicit network/parent associations, supported MySQL/PostgreSQL SSL/SG and MySQL key references. Selected documented admin-action CAM decisions implemented. AWS IAM database-connect authentication, parameter/option/proxy/backup and cluster-field equivalence remain gaps. MySQL backup/remote-region/standby/proxy/read-only configuration, PostgreSQL plans/HA/read-only groups/selected parameters/base-log backup metadata, SQL Server TLS/TDE/backup attributes and SGs, and MariaDB SG/retention/DCN configuration added. Unrestricted workload-valued parameters and credential-bearing backup listings remain excluded.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "live_validation": "not-performed",
+      "metadata_depth_report": "METADATA-DEPTH.md"
     },
     {
       "aws_collector": "redshift",
@@ -477,22 +480,24 @@
       "source_enabled": true,
       "tencent_counterpart": "API Gateway",
       "status": "incomplete",
-      "evidence_or_gap": "API Gateway services, APIs/method paths, environments, release versions, domains/certificate references and selected backend configuration implemented. SCF/WebSocket qualifier and COS relationships resolve against collected identities. Upstream/TSF details, domain path mappings, broader policy/permission analysis, historical deployment API contents, Cloud Native API Gateway equivalence and live verification remain incomplete.",
+      "evidence_or_gap": "API Gateway services, APIs/method paths, environments, release versions, domains/certificate references and selected backend configuration implemented. SCF/WebSocket qualifier and COS relationships resolve against collected identities. Upstream/TSF details, domain path mappings, broader policy/permission analysis, historical deployment API contents, Cloud Native API Gateway equivalence and live verification remain incomplete. Domain path mappings, product/VPC/literal-IP backend resolution, safe paginated upstream-to-API bindings and TSF configuration references added. Header-bearing upstream details remain excluded.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "live_validation": "not-performed",
+      "metadata_depth_report": "METADATA-DEPTH.md"
     },
     {
       "aws_collector": "apigatewayv2",
       "source_enabled": true,
       "tencent_counterpart": "API Gateway",
       "status": "incomplete",
-      "evidence_or_gap": "API Gateway services, APIs/method paths, environments, release versions, domains/certificate references and selected backend configuration implemented. SCF/WebSocket qualifier and COS relationships resolve against collected identities. Upstream/TSF details, domain path mappings, broader policy/permission analysis, historical deployment API contents, Cloud Native API Gateway equivalence and live verification remain incomplete.",
+      "evidence_or_gap": "API Gateway services, APIs/method paths, environments, release versions, domains/certificate references and selected backend configuration implemented. SCF/WebSocket qualifier and COS relationships resolve against collected identities. Upstream/TSF details, domain path mappings, broader policy/permission analysis, historical deployment API contents, Cloud Native API Gateway equivalence and live verification remain incomplete. Same gateway depth extension; exact v2 provider equivalence remains unverified.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "live_validation": "not-performed",
+      "metadata_depth_report": "METADATA-DEPTH.md"
     },
     {
       "aws_collector": "bedrock",
@@ -648,11 +653,12 @@
       "source_enabled": true,
       "tencent_counterpart": "Cloud Identity Governance / organization / CAM federation",
       "status": "incomplete",
-      "evidence_or_gap": "CIC space, groups, safe group-member users, permission configs, custom/system policy attachments, account assignments, selected external-SAML metadata; organization units/members and CAM SAML/OIDC configuration implemented. ListUsers/GetUser include Password and are excluded, leaving ungrouped users unavailable. Provisioning status, managed-policy bodies and full federation semantics remain gaps; assignments do not scan foreign accounts.",
+      "evidence_or_gap": "CIC space, groups, safe group-member users, permission configs, custom/system policy attachments, account assignments, selected external-SAML metadata; organization units/members and CAM SAML/OIDC configuration implemented. ListUsers/GetUser include Password and are excluded, leaving ungrouped users unavailable. Provisioning status, managed-policy bodies and full federation semantics remain gaps; assignments do not scan foreign accounts. CIC configuration detail, deployment status, user/group synchronization settings, public SAML detail and identity-checked system-policy documents added. Full users/password-bearing APIs and effective federation remain excluded or unverified.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "live_validation": "not-performed",
+      "metadata_depth_report": "METADATA-DEPTH.md"
     },
     {
       "aws_collector": "cloudtrail",
@@ -765,5 +771,12 @@
     "gap_report": "COLLECTION-COVERAGE.md",
     "live_validation": "not-performed",
     "provider_gaps": "Unavailable RMS product mappings and incomplete discovery stay unscanned; observed scope universe does not establish a full Tencent asset census."
+  },
+  "metadata_depth_extension": {
+    "implementation_status": "implemented-with-explicit-restrictions",
+    "report": "METADATA-DEPTH.md",
+    "new_read_actions": 23,
+    "total_read_actions": 216,
+    "live_validation": "not-performed"
   }
 }

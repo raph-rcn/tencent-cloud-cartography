@@ -6,6 +6,10 @@ implementation is delivered within that restriction. **Full AWS parity is not
 established.** The table below records the actual implementation and the remaining
 differences; offline tests do not establish API availability in a live account.
 
+The latest [metadata depth extension](METADATA-DEPTH.md) adds COS V2 notifications,
+database backup/proxy/replica configuration, gateway mappings/bindings and federation
+provider/provisioning detail. Its specific exclusions supersede the older gap descriptions below.
+
 ## Account and region orchestration
 
 Automatic per-service/account region discovery, hard explicit restrictions,
@@ -132,7 +136,7 @@ References: [ES inventory](https://intl.cloud.tencent.com/zh/document/product/84
 | CloudFormation | Legacy TIC stack/version/event metadata with fixed read-only adapter; no source/state/variables | The audited old SDK contract is implemented; current service availability and full source equivalence are unverified |
 | DynamoDB | TcaplusDB table-group metadata scoped to numeric cluster IDs already found by CloudRC | Native cluster discovery includes Password; table detail includes IDL file contents. Both excluded, so table schemas/indexes/ownership depth is unavailable |
 | Cognito | CIAM user-store metadata and counts | Full application/client/domain/identity-provider semantics and Cognito equivalence are not established; no user records or client secrets are read |
-| IAM Identity Center | CIC space, groups, safe group-member identities, permission configurations, system/custom policy attachments, account assignments and selected external-SAML metadata; organization units/members; CAM SAML/OIDC configuration | Full user APIs include Password, leaving ungrouped users unenumerated. Provisioning state, managed policy bodies and full federation semantics remain gaps; member accounts are matched to verified selected profiles, with unscanned/failed/partial collection visible; no automatic authentication or role assumption |
+| IAM Identity Center | CIC space, groups, safe group-member identities, permission configurations, system/custom policy attachments, account assignments and selected external-SAML metadata; organization units/members; CAM SAML/OIDC configuration | Full user APIs include Password, leaving ungrouped users unenumerated. Deployment and user-sync state plus identity-checked CAM system policy documents are now implemented. Ungrouped-user and full federation semantics remain gaps; member accounts are matched to verified selected profiles, with unscanned/failed/partial collection visible; no automatic authentication or role assumption |
 | Inspector | CWP machine/package/vendor vulnerability metadata and TCSS cluster/image/vendor vulnerability metadata | Vendor reports are not independently reproduced findings. TCSS container list includes command content and is excluded |
 | GuardDuty / Security Hub | CSIP configuration-check rules, license/service state and aggregate pending-alert counts, plus CWP/TCSS reported security status | Alert-detail response contains leaked credentials/payloads and is excluded. No detector-equivalent feature set or finding body is fabricated |
 | SageMaker | TI Platform billing resource groups, notebook summaries and explicit CFS/network/resource-group metadata | Training/service/model-version responses contain env values or image secrets; detail APIs excluded |
