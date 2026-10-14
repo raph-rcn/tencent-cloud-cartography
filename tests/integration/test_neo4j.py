@@ -204,8 +204,12 @@ def test_real_http_neo4j_refresh_and_missing_graph(database):
 
 def test_real_collection_plan_roundtrip_and_coverage_overview(database):
     uri, options, _ = database
-    original = demo()
-    account = original["accounts"][0]["id"]
+    from tencent_cloud_cartography.model import Graph
+
+    graph = Graph(mode="demo")
+    account = "100"
+    graph.accounts = {account: dict(id=account, display="Offline integration fixture")}
+    graph.add(account, "eu-frankfurt", "cvm.instance", "ins-fixture")
     scopes = []
     for service, state, success, failed in [
         ("cvm", "scanned", 1, 0),
@@ -230,7 +234,7 @@ def test_real_collection_plan_roundtrip_and_coverage_overview(database):
                 errors=["UnauthorizedOperation"] if failed else [],
             )
         )
-    original["collection"] = dict(
+    graph.collection = dict(
         version=1,
         region_mode="automatic",
         requested_profiles=["fixture"],
@@ -250,6 +254,7 @@ def test_real_collection_plan_roundtrip_and_coverage_overview(database):
         organization=[],
         organization_discovery=[],
     )
+    original = graph.snapshot()
     mirror(original, uri, **options)
     repository = Neo4jRepository(uri, **options)
     server = create_server(port=0, repository=repository)
