@@ -681,3 +681,22 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
   remain available. This closes the initial analysis foundation only; complete
   permission/resource-policy/exposure semantics and further source permission
   mappings remain incomplete, as do containers and the other requested families.
+
+## 2026-10-14 — Configured CLB exposure graph
+
+- Backend **893 tests passed**, including **15** new tests for direct CVM and
+  corroborated address/attachment paths, account/region/VPC/status controls,
+  conflicting/invalid IPs, ambiguous matches, foreign intermediates, distinct
+  frontends, cycles, stale links and idempotent reanalysis. The full collector
+  test now verifies unresolved CLB backends add an explicit partial-analysis scope.
+- Frontend **7 tests passed**, production build succeeded and dependency audit
+  reported **0 vulnerabilities**. The existing bundle-size advisory remains.
+- Synthetic `.local/exposure-demo.json` rendered **10 resources / 20 relationships**.
+  Inspector verified the frontend rule, IP backend, CVM target, corroborated ENI
+  attachment and reachability=false. Input/supporting topology is synthetic.
+- Browser draw.io export `(36)` retained all twenty edges and nine official
+  CLB/VPC/ENI/CVM SVGs; previews `.local/exposure-preview.png` and
+  `.local/exposure-inspector.png`. All 896 bundled official icons remain intact.
+- No cloud API permission, probe or mutation was introduced. Complete permission
+  analysis, public/resource-policy exposure, containers, CLB/database depth and
+  missing service-family implementation remain incomplete.

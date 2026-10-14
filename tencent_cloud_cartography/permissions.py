@@ -347,5 +347,8 @@ def analyze_snapshot(snapshot):
     graph.nodes = {row["id"]: row for row in data["nodes"]}
     graph.edges = {row["id"]: row for row in data["edges"]}
     graph.coverage = data["coverage"]
+    from .exposure import analyze as analyze_exposure
+
+    analyze_exposure(graph)
     analyze(graph)
     return validate({**data, **graph.snapshot()})

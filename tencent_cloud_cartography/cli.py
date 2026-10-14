@@ -65,7 +65,7 @@ def main(argv=None):
     publish.add_argument("--neo4j-uri", default="bolt://127.0.0.1:7688")
     database_options(publish)
     analysis = sub.add_parser(
-        "analyze", help="Analyze collected identity policies locally without cloud calls"
+        "analyze", help="Analyze saved policy and CLB exposure configuration without cloud calls"
     )
     analysis.add_argument("--input", type=Path, required=True)
     analysis.add_argument("--output", type=Path, required=True)
@@ -113,7 +113,9 @@ def main(argv=None):
 
             snapshot = analyze_snapshot(load(args.input))
             save(snapshot, args.output)
-            print(f"Analyzed identity policies; coverage={snapshot['status']}: {args.output}")
+            print(
+                f"Analyzed policy and CLB exposure configuration; coverage={snapshot['status']}: {args.output}"
+            )
             return 2 if snapshot["status"] == "partial" else 0
         elif args.command == "serve":
             repository = (

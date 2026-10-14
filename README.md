@@ -182,7 +182,7 @@ CVM CAM role names resolve only against unique collected roles in the same accou
 
 CloudAudit tracks include selectors, enabled state, organization-delivery flags and configured storage destinations. CLS includes log sets, log and metric topics, retention/index/web-tracking settings, custom KMS references and COS shippers. Destination links use explicit IDs or unique collected bucket identities, including the destination's actual region. `delivery_verified=false` distinguishes configuration from successful log delivery. Unknown/ambiguous destinations stay visible in resource properties. No audit-event or log-content API is allowed.
 
-### Analyze collected identity policies offline
+### Analyze collected configuration offline
 
 ```bash
 uv run tencent-cloud-cartography analyze \
@@ -199,3 +199,8 @@ deny from collected identity policies. COS object prefixes remain scoped;
 missing policy reads suppress allow conclusions. This command makes no cloud
 calls. Resource policies, session constraints and role trust still need further
 analysis before effective access can be determined.
+
+Offline analysis also builds configured CLB exposure paths and direct EXPOSE links
+to corroborated CVM/interface-address targets. Full graph view preserves the
+listener/rule and backend evidence. Unresolved backends remain partial; these
+relationships do not establish public reachability or successful connections.

@@ -600,6 +600,9 @@ def collect(
     from .monitor import link_bindings
 
     link_bindings(graph)
+    from .exposure import analyze as analyze_exposure
+
+    analyze_exposure(graph)
     from .permissions import analyze as analyze_permissions
 
     analyze_permissions(graph)

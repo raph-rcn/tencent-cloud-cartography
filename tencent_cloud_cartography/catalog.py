@@ -854,6 +854,7 @@ DETAIL_KINDS = {
     "privatedns.record",
     "privatedns.name",
     "privatedns.address",
+    "clb.exposurepath",
     "vpc.route",
     "vpc.networkacl",
     "vpc.networkaclrule",

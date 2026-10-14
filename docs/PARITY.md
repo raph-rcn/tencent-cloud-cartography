@@ -874,3 +874,27 @@ References: [CAM evaluation](https://intl.cloud.tencent.com/zh/document/product/
 [COS object resources](https://cloud.tencent.com/document/product/436/112225),
 [secret resources](https://intl.cloud.tencent.com/ind/document/product/598/57154),
 [role passing](https://cloud.tencent.com/document/product/1242/49730).
+
+### Configured load-balancer exposure links
+
+The AWS source's ELBv2 exposure phase loads EXPOSE relationships to configured
+instance/function/load-balancer/private-IP targets; it does not establish public
+network reachability. Tencent now adds EXPOSE links from collected CLBs to explicit
+CVM backends and uniquely corroborated ENI address/CVM targets. Each path also
+retains its listener/rule, raw backend and target through `clb.exposurepath` nodes.
+Distinct frontends remain separate paths even when their direct EXPOSE edge merges.
+
+All nodes must share account/region; current resolution requires an explicit,
+unambiguous common VPC. IP targets must agree with the reported target address;
+instance resolution additionally requires a unique collected ENI attachment.
+Foreign/intermediate frontend scope, conflicting IPs, duplicate matches and
+uncollected backends cannot produce exposure links. Unresolved configured backends
+mark analysis partial while preserving other confirmed paths. Reanalysis removes
+stale generated paths/edges, and graph cycles terminate.
+
+This runs after collection and in offline analyze. It does not probe or infer
+public access, firewall passage, application success or health. Cross-VPC targets,
+additional Tencent target types, target-group depth and COS public/resource-policy
+analysis remain open. Source evidence: read-only checkout
+`cartography/intel/aws/ec2/load_balancer_v2s.py`, including the separate IP-target
+phase and non-IP MatchLinks.

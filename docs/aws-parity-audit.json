@@ -134,7 +134,7 @@
       "source_enabled": true,
       "tencent_counterpart": "CLB target relationships",
       "status": "incomplete",
-      "evidence_or_gap": "CLB target IPs now match unique collected ENI address nodes using account, region and the parent CLB VPC. CVM resolution additionally requires a corroborated collected ENI attachment. Reused/ambiguous addresses remain unresolved. These are configuration relationships, not proof of public reachability; cross-VPC backend configuration, effective exposure analysis and live validation remain incomplete."
+      "evidence_or_gap": "Configured EXPOSE relationships and per-frontend evidence paths implemented for explicit CVM and corroborated ENI-address/attachment targets. Exact account/region/common-VPC scope, IP consistency, unique matches and collected status are required; missing backends mark partial analysis. Reanalysis removes stale paths/edges. The AWS source phase describes configured backends, not actual public reachability. Cross-VPC backend configuration, other target types, target-group depth and live validation remain incomplete."
     },
     {
       "aws_collector": "ec2:tgw",
@@ -225,7 +225,7 @@
       "source_enabled": true,
       "tencent_counterpart": "TKE",
       "status": "incomplete",
-      "evidence_or_gap": "Clusters and CVM worker references only; workload/service/pod relationships pending."
+      "evidence_or_gap": "TKE clusters and CVM worker references implemented. AWS eks.py collects cluster configuration, authentication/access entries, endpoint/logging and certificate-authority metadata; it does not collect Kubernetes workloads/services/pods. These source cluster/access equivalents and live validation remain incomplete. ECS-equivalent workload inventory is tracked separately."
     },
     {
       "aws_collector": "elasticache",
