@@ -9,6 +9,13 @@ Read [the current capability and gap report](METADATA-PARITY.md) and
 [the updated per-collector audit](aws-parity-audit.json). **Full AWS equivalence
 and live Frankfurt behavior remain unverified.**
 
+Named COS identity/resource/boundary composition and caller-policy/role-trust
+paths are now implemented offline; see [authorization semantics](AUTHORIZATION.md).
+Named project workspaces, an empty real-inventory setup flow, official Tencent
+branding and portable UI-inclusive builds replace the example-first quick start.
+Environment-specific permissions, credential support and service availability
+still govern collection coverage.
+
 The sections below preserve earlier source comparison and implementation
 history. Statements describing features as future work predate this extension;
 the current report and per-collector audit supersede those status statements.

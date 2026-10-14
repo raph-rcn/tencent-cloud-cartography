@@ -14,6 +14,9 @@
   --green: #248814;
 }
 
+[hidden] { display: none !important; }
+button:disabled, select:disabled, input:disabled { opacity: .5; cursor: not-allowed; }
+
 * {
   box-sizing: border-box;
 }
@@ -65,27 +68,15 @@ button {
 }
 
 .brand-logo {
-  width: 32px;
-  height: 32px;
+  width: 156px;
+  height: auto;
   object-fit: contain;
 }
 
-.tencent-mark {
-  display: inline-flex;
-  width: 38px;
-  height: 38px;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  background: #232f3e;
-}
-
-.tencent-mark img {
-  width: 31px;
-  height: 31px;
-  filter: brightness(0) invert(1);
-  object-fit: contain;
-}
+.environment-setup { max-width: 650px; padding: 32px; text-align: left; line-height: 1.6; }
+.environment-setup h2 { color: var(--ink); font-size: 24px; }
+.environment-setup pre { padding: 16px; background: #f4f7fb; border: 1px solid var(--line); border-radius: 6px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; }
+.environment-setup small { color: var(--muted); }
 
 h1 {
   margin: 0;
@@ -839,6 +830,6 @@ dd {
   }
 }
 
-.tencent-mark {display:grid;place-items:center;font-weight:800;color:white;background:#0052d9;border-radius:8px;width:34px;height:34px;font-size:15px} a {color:#0052d9} .coverage-summary {font-size:11px;color:#52647a;line-height:1.5} #coverage-button {margin-top:15px;width:100%} dialog {border:1px solid #d3def0;border-radius:12px;max-width:1000px;width:90vw;max-height:85vh;padding:24px;color:#172b4d} dialog::backdrop {background:#172b4d80} dialog table {border-collapse:collapse;width:100%;font-size:13px} dialog th,dialog td {text-align:left;padding:12px;border-bottom:1px solid #d3def0} dialog p {line-height:1.6} dialog small {color:#60708a}
+a {color:#0052d9} .coverage-summary {font-size:11px;color:#52647a;line-height:1.5} #coverage-button {margin-top:15px;width:100%} dialog {border:1px solid #d3def0;border-radius:12px;max-width:1000px;width:90vw;max-height:85vh;padding:24px;color:#172b4d} dialog::backdrop {background:#172b4d80} dialog table {border-collapse:collapse;width:100%;font-size:13px} dialog th,dialog td {text-align:left;padding:12px;border-bottom:1px solid #d3def0} dialog p {line-height:1.6} dialog small {color:#60708a}
 
 .inventory-toggle {display:flex;gap:10px;align-items:flex-start;font-size:12px;line-height:1.5;cursor:pointer}.inventory-toggle small {display:block;color:#60708a;font-size:11px;margin-top:5px}.inventory-toggle input {margin-top:3px;accent-color:#0052d9}.inventory-note {padding:12px;background:#fff5df;border-left:3px solid #c5830a;font-size:12px;line-height:1.6}

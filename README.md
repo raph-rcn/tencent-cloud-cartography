@@ -3,6 +3,7 @@
 Local Tencent Cloud inventory, relationship exploration, and editable architecture diagrams.
 A derivative of [raph-rcn/aws-cartography](https://github.com/raph-rcn/aws-cartography), retaining its Git history and adapting its Landscape interface to Tencent Cloud.
 
+- **Reusable project workspaces:** named projects keep profiles, regions, service selections and snapshots separate; switch projects in the local viewer.
 - **Frankfurt by default:** `eu-frankfurt` (Tencent's region code).
 - **Read-only collection:** existing TCCLI profiles, an exact API allowlist, pagination, account identity checks, and per-operation coverage.
 - **Architecture and full graph views:** account → region → VPC → availability zone → subnet, based on returned resource IDs. Search, service/account/region filters, inspector, three layouts, collapse/expand.
@@ -10,22 +11,68 @@ A derivative of [raph-rcn/aws-cartography](https://github.com/raph-rcn/aws-carto
 - **All 896 official product icons:** 441 English and 455 Chinese SVGs, searchable gallery, original bytes, checksums, and source attribution.
 - **Two local data sources:** private JSON snapshots (`0600`, atomic replacement) or direct Neo4j reads, with refresh support. The viewer makes no Tencent API calls.
 
-![Synthetic Frankfurt demo](docs/preview.jpg)
+![Product setup without cloud login](docs/product-preview.png)
 
 **Parity status:** this is still an incomplete replacement for the AWS backend. The [capability audit](docs/PARITY.md) tracks all 66 enabled AWS collector slots and the remaining relationship, analysis, workflow and runtime gaps.
 
 ## Quick start
 
-Requires Python 3.11+, [uv](https://docs.astral.sh/uv/), Node.js 22+, and a current [Tencent Cloud CLI](https://github.com/TencentCloud/tencentcloud-cli) for live collection. Development verified against TCCLI 3.1.181.1. Use this source checkout; standalone wheel distribution with UI assets is not supported yet.
+Requires Python 3.11+, [uv](https://docs.astral.sh/uv/), Node.js 22+, and a current [Tencent Cloud CLI](https://github.com/TencentCloud/tencentcloud-cli) for live collection. Development verified against TCCLI 3.1.181.1. Use the source checkout below, or the portable wheel described under Installation. The wheel includes the compiled viewer and all official assets; Node.js is needed only to build from source.
 
 ```bash
 git clone https://github.com/raph-rcn/tencent-cloud-cartography.git
 cd tencent-cloud-cartography
 ./landscape/local.sh install
-./landscape/local.sh demo
+./landscape/local.sh serve
 ```
 
-Open **http://127.0.0.1:8787**. The demo is clearly marked synthetic and includes a denied operation and an inventory-only resource to demonstrate incomplete coverage. No Tencent login or Docker is required for the demo.
+Open **http://127.0.0.1:8787**. A fresh installation shows an empty setup screen with the official Tencent Cloud wordmark. Opening the viewer requires no cloud login and makes no cloud calls. Diagrams appear after collecting or importing real inventory. Example fixtures are available only through explicit `demo` or `serve --input` commands.
+
+## Installation and multiple projects
+
+The compiled wheel is portable across project folders. Build it once from the
+checkout (requires uv and Node.js):
+
+```bash
+uv run python scripts/build_distribution.py
+uv tool install dist/tencent_cloud_cartography-0.2.0-py3-none-any.whl
+```
+
+The installed `tencent-cloud-cartography` command works outside the source checkout.
+Each working directory has its own `.local/projects` store by default. Use an
+absolute `--projects-dir` when you want one shared catalog across working directories:
+
+```bash
+tencent-cloud-cartography projects init client-a --profile client-a --regions eu-frankfurt
+tencent-cloud-cartography projects init client-b --profile client-b --regions ap-singapore,ap-hongkong
+tencent-cloud-cartography projects list
+tencent-cloud-cartography serve
+# After separately authenticating the existing profiles:
+tencent-cloud-cartography sync --project client-a
+tencent-cloud-cartography sync --project client-b
+```
+
+Choose the project in the viewer, then Refresh after syncing. Project settings
+contain profile names, region codes and optional service selections, never credentials.
+Inventories are private files under `.local/projects/NAME/inventory.json`. The same
+commands work through `./landscape/local.sh` in a checkout. Repeating `--profile`
+can group several distinct accounts in one project; organization member accounts
+are not automatically scanned. Service availability, API permissions and credential
+adapter support still determine collected coverage in each environment.
+
+```bash
+# Shared catalog; the projects-dir option precedes init/list for project commands.
+tencent-cloud-cartography projects --projects-dir /path/to/workspaces init client-c \
+  --profile client-c --regions ap-tokyo --services vpc,cvm,cos
+tencent-cloud-cartography sync --projects-dir /path/to/workspaces --project client-c
+tencent-cloud-cartography serve --projects-dir /path/to/workspaces --project client-c
+```
+
+Explicit profile/region/service/output flags override saved project settings for
+that sync only. `serve --input FILE` and `serve --neo4j-uri URI` open fixed data
+sources; use `serve` for the project selector. Neo4j publication replaces one mirror
+generation: use separate databases/instances for separate projects when mirroring.
+No setup screen fabricates resources or silently opens synthetic inventory.
 
 ## Collect your account
 
@@ -62,7 +109,8 @@ More options:
 
 ## What is collected
 
-The latest extension adds permission boundaries and identity-policy decisions,
+The latest extension joins named CAM principals with COS resource policies/ACLs,
+evaluates configured role trust and permission chains, and adds permission boundaries and identity-policy decisions,
 COS public-access configuration analysis, TKE/Kubernetes summaries and current
 context authorization reviews, traditional/modern CLB target and health metadata,
 deeper database/compute configuration, and the additional service families below.
@@ -102,7 +150,7 @@ SES supports `ap-guangzhou` and `ap-hongkong` on the mainland API endpoint, and 
 
 - Cloud Resource Center covers [supported resource types](https://cloud.tencent.com/document/product/1791/115765), can lag, and is not a complete cloud asset census. [Tencent FAQ](https://cloud.tencent.com/document/product/1791/115771).
 - Denied, unsupported, failed, excluded, empty and completed queries are distinguishable in **Collection coverage**. Pagination detects stalled pages, count changes, missing arrays, and premature EOF. Request IDs are retained when the API supplies them.
-- The graph includes conservative identity-policy/boundary matches, anonymous COS policy/ACL decisions and configured CLB exposure paths with evidence and completeness flags. It does not establish complete effective cloud authorization, public reachability, routing outcomes or exploitable attack paths. Kubernetes authorization reviews apply only to the selected current context and never execute a command.
+- The graph includes conservative named COS authorization, role trust/permission paths, identity-policy/boundary matches, anonymous COS policy/ACL decisions and configured CLB exposure paths with evidence and completeness flags. It does not establish complete effective cloud authorization, public reachability, routing outcomes or exploitable attack paths. Kubernetes authorization reviews apply only to the selected current context and never execute a command.
 - Multi-subnet resources remain at their common returned VPC/region with explicit subnet edges. References may be incomplete when APIs omit IDs or use unsupported formats.
 - COS listing uses TCCLI's current table-format plugin because it ignores `--output json`; unexpected output fails visibly. Five bucket configuration operations use the bundled official COS Python SDK over verified HTTPS. The SDK reads the selected static TCCLI profile credential or a complete environment credential pair/token in memory. Mixed sources are rejected; SSO/OAuth/role refresh is not yet supported for these COS checks. Credentials and raw SDK errors are never saved. These SDK methods and the listing plugin do not expose successful request IDs.
 - Native collectors are schema-checked against the installed Tencent SDK and covered by offline tests. **Live account validation requires your own authenticated profile.** API availability and permissions can differ between accounts and regions.
@@ -114,7 +162,7 @@ Grant metadata list/describe permissions for the APIs in the catalog, plus `sts:
 
 No collector retrieves COS objects, secret values, SCF source, database contents, or decrypts keys. The saved property allowlist excludes credentials, function environment variables and user data. CAM policy and role trust documents are retained as configuration, including conditions, actions, resources and explicit deny statements. Resource names, identifiers, IP addresses, network rules and policy conditions are infrastructure-sensitive. Keep `.local/` private. APIs can return more metadata than is retained, so normal read permissions are still needed.
 
-CAM collection includes group membership, direct user/role/group attachments, policy/trust statements, permission boundaries, credential identifiers/protection flags and selected SAML/OIDC configuration. Analysis intersects collected boundaries and identity policies, retaining explicit denies, conditions, unsupported expressions and scope. Missing boundary data does not establish absence. These decisions do not establish complete effective authorization or role assumption.
+CAM collection includes group membership, direct user/role/group attachments, policy/trust statements, permission boundaries, credential identifiers/protection flags and selected SAML/OIDC configuration. Analysis intersects collected boundaries and identity policies, retaining explicit denies, conditions, unsupported expressions and scope. Missing boundary data does not establish absence. Joined COS and role-trust decisions evaluate supported nonsecret context offline. See [authorization semantics and remaining uncertainties](docs/AUTHORIZATION.md). These decisions do not establish complete effective authorization or successful role assumption.
 
 KMS collection queries both customer-created and service-created keys, then retains key descriptions, aliases, lifecycle, origin and rotation metadata. CBS disks and Secrets Manager metadata link to explicitly configured KMS key IDs. A disk's encryption flag alone does not identify a key. Exact regional CAM key-resource expressions link policy statements to known keys; `NAMES_RESOURCE` and `CONFIGURED_KMS_KEY` describe configuration, not permission to decrypt. Tencent key aliases are key attributes; AWS key-policy and grant analysis still needs provider-specific authorization work.
 
@@ -146,8 +194,7 @@ Each sync atomically replaces only `:TencentCartography` nodes in the mirror. Th
 Import an existing snapshot without any cloud calls:
 
 ```bash
-./landscape/local.sh demo # optional synthetic demo; stop the viewer with Ctrl-C
-./landscape/local.sh import --input .local/demo.json --neo4j-uri bolt://127.0.0.1:7688
+./landscape/local.sh import --input .local/inventory.json --neo4j-uri bolt://127.0.0.1:7688
 ./landscape/local.sh serve --neo4j-uri bolt://127.0.0.1:7688
 ```
 

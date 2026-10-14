@@ -583,7 +583,11 @@ def collect(
     transport_factory=None,
     kube_contexts=None,
     kube_transport_factory=None,
+    analysis_limit=25000,
 ):
+    from .authorization import analysis_limit as validate_analysis_limit
+
+    analysis_limit = validate_analysis_limit(analysis_limit)
     graph = Graph()
     seen_accounts = set()
     for profile in profiles:
@@ -681,8 +685,13 @@ def collect(
     analyze_exposure(graph)
     from .permissions import analyze as analyze_permissions
 
-    analyze_permissions(graph)
+    analyze_permissions(graph, analysis_limit)
     from .public_access import analyze as analyze_public_access
 
     analyze_public_access(graph)
+    from .cos_authorization import analyze as analyze_cos_authorization
+    from .role_assumption import analyze as analyze_role_assumption
+
+    analyze_cos_authorization(graph, max_decisions=analysis_limit)
+    analyze_role_assumption(graph, max_decisions=analysis_limit)
     return graph.snapshot()

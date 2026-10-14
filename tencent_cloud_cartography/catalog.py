@@ -1058,6 +1058,9 @@ KIND_ICONS = {
     "vpc.peeringconnection": "Peering Connection",
 }
 DETAIL_KINDS = {
+    "cos.authorizationdecision",
+    "cam.assumptiondecision",
+    "cam.authorizationpath",
     "cwp.package",
     "cwp.vulnerability",
     "tcss.vulnerability",

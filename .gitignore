@@ -38,3 +38,4 @@ github_config.json
 *.configure
 playwright-report/
 test-results/
+tencent_cloud_cartography/_web/

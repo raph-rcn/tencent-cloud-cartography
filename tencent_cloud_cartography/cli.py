@@ -46,7 +46,7 @@ def main(argv=None):
     sync.add_argument(
         "--profile", action="append", help="Repeat for multiple accounts; defaults to default"
     )
-    sync.add_argument("--regions", default="eu-frankfurt", help="Comma-separated regions")
+    sync.add_argument("--regions", help="Comma-separated regions; project setting or eu-frankfurt")
     sync.add_argument(
         "--services", help="Comma-separated native services; CloudRC baseline is always queried"
     )
@@ -56,7 +56,15 @@ def main(argv=None):
         action="append",
         help="Explicit ACCOUNT/REGION/CLUSTER=CONTEXT; reads only Kubernetes Tables without objects",
     )
-    sync.add_argument("--output", type=Path, default=Path(".local/inventory.json"))
+    sync.add_argument("--output", type=Path)
+    sync.add_argument("--project", help="Use saved environment settings and isolated snapshot")
+    sync.add_argument("--projects-dir", type=Path, default=Path(".local/projects"))
+    sync.add_argument(
+        "--analysis-limit",
+        type=int,
+        default=25000,
+        help="Generated decisions per analysis phase; limit breaches remain partial",
+    )
     sync.add_argument(
         "--neo4j-uri", help="Optional loopback Neo4j mirror, e.g. bolt://127.0.0.1:7688"
     )
@@ -70,10 +78,18 @@ def main(argv=None):
     publish.add_argument("--neo4j-uri", default="bolt://127.0.0.1:7688")
     database_options(publish)
     analysis = sub.add_parser(
-        "analyze", help="Analyze saved policy and CLB exposure configuration without cloud calls"
+        "analyze", help="Analyze saved authorization and exposure configuration without cloud calls"
     )
     analysis.add_argument("--input", type=Path, required=True)
     analysis.add_argument("--output", type=Path, required=True)
+    analysis.add_argument(
+        "--context",
+        type=Path,
+        help="Optional JSON of allowlisted nonsecret request attributes; offline evaluation only",
+    )
+    analysis.add_argument(
+        "--analysis-limit", type=int, default=25000, help="Generated decisions per analysis phase"
+    )
     ui = sub.add_parser("serve", help="View local snapshots or read directly from Neo4j")
     source = ui.add_mutually_exclusive_group()
     source.add_argument("--input", type=Path, help="Snapshot file, default .local/inventory.json")
@@ -82,15 +98,46 @@ def main(argv=None):
     )
     database_options(ui)
     ui.add_argument("--port", type=int, default=8787)
+    ui.add_argument("--project", help="Open a configured project")
+    ui.add_argument("--projects-dir", type=Path, default=Path(".local/projects"))
+    projects = sub.add_parser(
+        "projects", help="Manage environment configurations without storing credentials"
+    )
+    projects.add_argument("--projects-dir", type=Path, default=Path(".local/projects"))
+    commands = projects.add_subparsers(dest="project_command", required=True)
+    init = commands.add_parser(
+        "init", help="Create an isolated project using existing TCCLI profiles"
+    )
+    init.add_argument("name")
+    init.add_argument("--profile", action="append")
+    init.add_argument("--regions", default="eu-frankfurt")
+    init.add_argument("--services")
+    commands.add_parser("list", help="List configured projects")
     args = parser.parse_args(argv)
     try:
         if args.command == "sync":
-            regions = list(dict.fromkeys(r.strip() for r in args.regions.split(",") if r.strip()))
+            from .projects import ProjectStore
+
+            store = ProjectStore(args.projects_dir)
+            project = store.read(args.project) if args.project else None
+            region_text = args.regions or (
+                ",".join(project["regions"]) if project else "eu-frankfurt"
+            )
+            regions = list(dict.fromkeys(r.strip() for r in region_text.split(",") if r.strip()))
+            args.output = args.output or (
+                store.snapshot_path(args.project) if project else Path(".local/inventory.json")
+            )
             if not regions or any(
                 not r.replace("-", "").isalnum() or r == "global" for r in regions
             ):
                 parser.error("Provide one or more region codes, e.g. eu-frankfurt")
-            services = set(args.services.split(",")) if args.services else None
+            services = (
+                set(args.services.split(","))
+                if args.services
+                else set(project["services"])
+                if project and project["services"]
+                else None
+            )
             if services and "as" in services:
                 services = (services - {"as"}) | {"autoscaling"}
             if services and not services <= SERVICE_ICONS.keys():
@@ -101,11 +148,12 @@ def main(argv=None):
             from .kubernetes_metadata import parse_contexts
 
             snapshot = collect(
-                args.profile or ["default"],
+                args.profile or (project["profiles"] if project else ["default"]),
                 regions,
                 services,
                 args.tccli,
                 kube_contexts=parse_contexts(args.kube_context),
+                analysis_limit=args.analysis_limit,
             )
             save(snapshot, args.output)
             print(
@@ -122,24 +170,51 @@ def main(argv=None):
             mirror(load(args.input), args.neo4j_uri, **database_credentials(args))
             print("Saved snapshot published to Neo4j")
         elif args.command == "analyze":
+            from .authorization import load_context
             from .permissions import analyze_snapshot
 
-            snapshot = analyze_snapshot(load(args.input))
+            snapshot = analyze_snapshot(
+                load(args.input),
+                load_context(args.context) if args.context else None,
+                args.analysis_limit,
+            )
             save(snapshot, args.output)
             print(
-                f"Analyzed policy and CLB exposure configuration; coverage={snapshot['status']}: {args.output}"
+                f"Analyzed authorization and exposure configuration; coverage={snapshot['status']}: {args.output}"
             )
             return 2 if snapshot["status"] == "partial" else 0
         elif args.command == "serve":
+            from .projects import ProjectRepository, ProjectStore
+
+            if args.project and (args.input or args.neo4j_uri):
+                parser.error(
+                    "--project selects its own snapshot; use it without --input or --neo4j-uri"
+                )
             repository = (
                 Neo4jRepository(args.neo4j_uri, **database_credentials(args))
                 if args.neo4j_uri
-                else FileRepository(args.input or Path(".local/inventory.json"))
+                else FileRepository(args.input)
+                if args.input
+                else ProjectRepository(ProjectStore(args.projects_dir), args.project)
             )
             try:
                 serve(port=args.port, repository=repository)
             finally:
                 repository.close()
+        elif args.command == "projects":
+            import json
+
+            from .projects import ProjectStore
+
+            store = ProjectStore(args.projects_dir)
+            if args.project_command == "init":
+                services = args.services.split(",") if args.services else None
+                store.create(
+                    args.name, args.profile or ["default"], args.regions.split(","), services
+                )
+                print("Project configured: " + args.name)
+            else:
+                print(json.dumps(store.list(), indent=2))
         return 0
     except CollectionError as exc:
         print("Collection stopped: " + exc.code, file=sys.stderr)

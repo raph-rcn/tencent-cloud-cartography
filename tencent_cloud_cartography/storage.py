@@ -30,12 +30,14 @@ def validate(data):
         ):
             raise ValueError("Unsupported snapshot schema")
         if (
-            data.get("mode") not in {"live", "demo"}
+            data.get("mode") not in {"live", "demo", "setup"}
             or data.get("status") not in {"complete", "partial"}
             or not isinstance(data.get("created_at"), str)
         ):
             raise ValueError("Invalid snapshot metadata")
         ids = [n["id"] for n in data["nodes"]]
+        if data["mode"] == "setup" and any(data[k] for k in ("nodes", "edges", "accounts")):
+            raise ValueError("Setup state must not contain inventory")
         if len(ids) != len(set(ids)):
             raise ValueError("Duplicate resource IDs")
         id_set = set(ids)

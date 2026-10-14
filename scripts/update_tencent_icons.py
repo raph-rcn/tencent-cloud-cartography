@@ -37,7 +37,33 @@ def check():
         assert hashlib.sha256(data).hexdigest() == item["sha256"], item["file"]
         validate_svg(data)
     assert len(list(DEST.glob("*.svg"))) == len(manifest["icons"])
-    print(f"Verified {len(manifest['icons'])} official Tencent SVG assets")
+    brand = ROOT / "landscape/web/public/brand"
+    provenance = json.loads((brand / "manifest.json").read_text())
+    logo = (brand / "tencent-cloud.svg").read_bytes()
+    assert hashlib.sha256(logo).hexdigest() == provenance["sha256"]
+    assert provenance["source_page"] == "https://www.tencentcloud.com/"
+    validate_svg(logo)
+    from tencent_cloud_cartography import catalog
+    from tencent_cloud_cartography.icons import icon_for
+
+    def registered(value):
+        if isinstance(value, catalog.Collector):
+            return {value.kind}
+        if isinstance(value, dict):
+            return set().union(*(registered(v) for v in value.values()), set())
+        if isinstance(value, (list, tuple)):
+            return set().union(*(registered(v) for v in value), set())
+        return set()
+
+    kinds = set().union(
+        *(registered(v) for v in vars(catalog).values()),
+        catalog.DETAIL_KINDS,
+        set(catalog.KIND_ICONS),
+    )
+    assert all(icon_for(kind) != "unmapped.svg" for kind in kinds)
+    print(
+        f"Verified {len(manifest['icons'])} official SVGs, official wordmark and {len(kinds)} kind mappings"
+    )
 
 
 def update(archive=None):

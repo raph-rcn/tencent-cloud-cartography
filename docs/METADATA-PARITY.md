@@ -10,20 +10,23 @@ differences; offline tests do not establish API availability in a live account.
 
 | Capability | Implemented | Remaining difference |
 |---|---|---|
-| CAM identity policies | Direct/group attachments; explicit denies; conservative wildcard scopes; conditional/unsupported expressions; evidence-linked decisions | Request conditions, resource policies, trust, session constraints and cross-account authorization do not form a complete effective-permission engine |
+| CAM identity policies | Direct/group attachments; explicit denies; conservative wildcard scopes; conditional/unsupported expressions; evidence-linked decisions | Supported nonsecret request conditions are evaluated offline; complete syntax, session constraints and effective authorization remain unverified |
 | Permission boundaries | User/role boundary configuration and statement evidence; intersection when collected | Null/denied boundary responses are unknown, not evidence of no boundary. Identity-only decisions explicitly retain their narrower evaluation scope |
 | Credential/protection metadata | Access-key identifiers/status/dates and login/action protection flags | No secret keys, contact details, credential use or authentication probes |
 | Database administration | Selected documented CAM actions for MySQL, PostgreSQL, SQL Server, MariaDB and CDWPG | These are control-plane matches, not SQL authentication or AWS IAM database-connect/Redshift credential equivalence |
 | Managed sessions | TAT StartSession/RunCommand decisions require a collected online agent on the exact CVM | No command/session is invoked; other service, session and local agent constraints remain unevaluated |
 | Stack execution | TIC ApplyStack identity-policy decisions with explicit global-wildcard scope | Narrow stack QCS expressions are not guessed; runtime TIC availability is unverified |
 | COS public configuration | Anonymous bucket policy and ACL analysis, deny precedence, conditions, object-prefix scopes, incomplete inputs | Bucket READ ACL establishes listing configuration; object read remains conditional on object ACL inheritance. No objects or object ACLs are retrieved |
+| Named COS authorization | Same-account identity/resource union, cross-account intersection, named deny precedence, evidence and separate unsigned routes | Object ACLs, some resource-only boundary interactions, unsupported syntax and session/effective access remain unknown |
+| Role trust and paths | Caller policy/boundary/trust intersection; derived caller ARN restrictions; bounded shortest witnesses to COS and supported control-plane targets | Service/federation/workload trust, full condition satisfiability and runtime session propagation remain gaps; no role is assumed |
 | COS account controls | Account summary of collected selected-region bucket controls with completeness flags | No audited S3-style account-wide public-access-block equivalent; no global protection boolean is invented |
 | CLB exposure | Configured paths through listeners/rules/target groups/bindings to corroborated CVM/ENI targets | EXPOSE is a configuration edge. No public reachability, firewall passage, HTTP success or exploit is proved; cross-VPC and unsupported backend types remain unresolved |
 | Container execution | Current Kubernetes context SelfSubjectAccessReview for each collected pod's pods/exec create action; matching SelfSubjectReview before/after | This reviews authorization only. No exec occurs; no CAM identity is guessed, and token/session equality is not established by username/UID/groups equality |
 
 Analyses run after collection. `analyze --input ... --output ...` reruns the
-identity-policy, COS and CLB analyses offline, replacing only their generated
-results. Kubernetes reviews require the explicit live context described below.
+identity-policy, named/anonymous COS, role trust/path and CLB analyses offline,
+replacing only their generated results. [Authorization guide](AUTHORIZATION.md)
+documents nonsecret `--context`, uncertainty and the per-phase decision budget. Kubernetes reviews require the explicit live context described below.
 
 References: [CAM evaluation](https://intl.cloud.tencent.com/zh/document/product/598/10605),
 [boundaries](https://cloud.tencent.com/document/product/598/48770),

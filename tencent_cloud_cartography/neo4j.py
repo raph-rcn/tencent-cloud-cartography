@@ -194,6 +194,8 @@ def _write(tx, snapshot, scan_id):
 
 def mirror(snapshot, uri, user=None, password=None, database=None):
     validate(snapshot)
+    if snapshot["mode"] == "setup":
+        raise ValueError("Setup state is not inventory and cannot replace a Neo4j mirror")
     scan_id = fingerprint(snapshot)
     try:
         with connect(uri, user, password) as driver:

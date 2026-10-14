@@ -330,7 +330,11 @@ def intersect_boundary(identity_decision, boundary_decision):
     return "allow_from_collected_identity_and_boundary_policies"
 
 
-def analyze(graph):
+def analyze(graph, max_decisions=25000):
+    from .authorization import analysis_limit, limit_record
+
+    max_decisions = analysis_limit(max_decisions)
+    generated = 0
     # Re-running analysis replaces only its own generated nodes/edges/coverage.
     obsolete = {nid for nid, n in graph.nodes.items() if n["kind"] == "cam.permissiondecision"}
     graph.nodes = {nid: n for nid, n in graph.nodes.items() if nid not in obsolete}
@@ -407,6 +411,9 @@ def analyze(graph):
                     missing_identity = True
                     continue
                 for scope in selections:
+                    if generated >= max_decisions:
+                        limit_record(graph, "AnalyzeIdentityPolicies", generated, max_decisions)
+                        return
                     decision, evidence = evaluate(statements, action, scope, complete)
                     if boundary_present:
                         boundary_decision, boundary_evidence = evaluate(
@@ -452,6 +459,7 @@ def analyze(graph):
                     for sid, *_ in evidence:
                         graph.edge(nid, sid, "BASED_ON_STATEMENT", SOURCE)
                     count += 1
+                    generated += 1
         if count or missing_identity:
             analysis_complete = complete and not missing_identity and not unsupported_analysis
             graph.coverage.append(
@@ -469,7 +477,7 @@ def analyze(graph):
             )
 
 
-def analyze_snapshot(snapshot):
+def analyze_snapshot(snapshot, context=None, max_decisions=25000):
     """Run offline; preserve original account/mode/time and validate endpoints."""
     from copy import deepcopy
 
@@ -486,8 +494,13 @@ def analyze_snapshot(snapshot):
     from .exposure import analyze as analyze_exposure
 
     analyze_exposure(graph)
-    analyze(graph)
+    analyze(graph, max_decisions)
     from .public_access import analyze as analyze_public_access
 
     analyze_public_access(graph)
+    from .cos_authorization import analyze as analyze_cos_authorization
+    from .role_assumption import analyze as analyze_role_assumption
+
+    analyze_cos_authorization(graph, context, max_decisions)
+    analyze_role_assumption(graph, context, max_decisions)
     return validate({**data, **graph.snapshot()})

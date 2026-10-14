@@ -731,3 +731,37 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
   equivalence and complete effective authorization remain unverified.
 - CI also runs the separate actual Neo4j transaction/isolation/viewer integration
   suite; the exact published-head result is reported after publication.
+
+## 2026-10-14 — Named authorization and reusable product
+
+- Backend **1,132 tests passed**, including 86 new cases for named COS composition,
+  signed/unsigned separation, explicit/implicit/conditional denies, boundary and
+  object-ACL uncertainty, cross-account namespaces, request conditions, role trust,
+  role chains/cycles, non-COS permission endpoints, budget coverage, private project
+  settings and independent HTTP project selection. Empty setup cannot replace a
+  Neo4j mirror or contain fabricated inventory.
+- Frontend **7 tests passed**, production build succeeded and npm audit reported
+  **0 vulnerabilities**. The existing 717 kB bundle-size advisory remains. No
+  cloud API was added: 191 exact allowlisted actions remain. All 195 cataloged
+  kinds map to official assets; all 896 product SVGs and the official wordmark
+  are hash-checked. Brand source/attribution is in the bundled brand manifest.
+- The normal viewer was restarted without a demo input. Browser proof shows the
+  official wordmark, an empty setup screen, zero resources and disabled diagram
+  exports; no cloud authentication or collection was needed. Public preview is
+  `docs/product-preview.png`. Two separate empty verification projects switched
+  independently, including an explicit return to the default snapshot from a
+  server started with a selected project. Browser warnings/errors were empty.
+- Explicit offline authorization fixture `.local/authorization-demo.json` contains
+  **46 nodes / 110 relationships**. The browser inspector verified caller IAM,
+  boundary and role trust evidence, evaluated IP context, and effective assumption
+  verified=false. Browser draw.io export `(39)` retained all **110** relationships.
+  These are synthetic test inputs only; the normal product never loads them.
+- Portable **0.2.0 wheel and source archive** include the compiled UI, complete
+  official asset library and attribution. The wheel was installed in a new virtual
+  environment and exercised away from the checkout: private project configuration,
+  distinct region/profile settings, empty project views, static UI and logo/icon
+  integrity all passed without Tencent credentials or API calls. This build/install
+  smoke check also runs in CI, which uploads the distribution artifacts.
+- Live service behavior and effective access remain unverified. Unknown session,
+  object-ACL, unsupported policy and joint-condition semantics are documented in
+  AUTHORIZATION.md. These are configuration decisions, not proven findings.

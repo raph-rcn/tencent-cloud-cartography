@@ -39,9 +39,21 @@ jobs:
       - name: Build web application
         working-directory: landscape/web
         run: npm run build
+      - name: Build and verify portable distribution
+        run: |
+          uv run python scripts/build_distribution.py --skip-web
+          uv run python scripts/check_distribution.py
       - name: Audit production dependencies
         working-directory: landscape/web
         run: npm audit --audit-level=high
+      - name: Upload portable distribution
+        uses: actions/upload-artifact@v4
+        with:
+          name: tencent-cloud-cartography-distribution
+          path: |
+            dist/*.whl
+            dist/*.tar.gz
+          if-no-files-found: error
 
   neo4j-integration:
     runs-on: ubuntu-latest

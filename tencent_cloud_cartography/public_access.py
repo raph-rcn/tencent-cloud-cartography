@@ -32,7 +32,9 @@ def anonymous(principal):
     if not isinstance(principal, dict):
         return None
     qcs = principal.get("qcs", [])
-    if any(value in {"*", "qcs::cam::anyone:anyone"} for value in qcs):
+    if any(
+        value in {"*", "qcs::cam::anyone:anyone", "qcs::cam::anonymous:anonymous"} for value in qcs
+    ):
         return True
     if any(value.startswith("qcs::cam::uin/") for value in qcs) or set(principal) <= {
         "qcs",

@@ -16,15 +16,17 @@ const state = {
   expandApi: null,
   topology: null,
   enabledServices: new Set(),
+  setup: false,
+  project: new URLSearchParams(window.location.search).get('project') || '',
+  projectExplicit: new URLSearchParams(window.location.search).has('project'),
 };
 
 document.querySelector('#app').innerHTML = `
   <div class="app-shell">
     <header class="topbar">
       <div class="brand">
-        <span class="tencent-mark">TC</span>
         <div>
-          <h1>Tencent Cloud</h1>
+          <h1><img class="brand-logo" src="/brand/tencent-cloud.svg" alt="Tencent Cloud" /></h1>
           <div class="brand-subtitle">Tencent Cloud Cartography</div>
         </div>
       </div>
@@ -46,6 +48,10 @@ document.querySelector('#app').innerHTML = `
           </div>
           <button id="close-sidebar" class="close-button" aria-label="Close inventory">×</button>
         </div>
+        <section id="project-field" hidden>
+          <label class="field-label" for="project">Project</label>
+          <select id="project" class="select"><option value="">Default snapshot</option></select>
+        </section>
         <section>
           <label class="field-label" for="account">Tencent Cloud account</label>
           <select id="account" class="select">
@@ -169,6 +175,11 @@ function showToast(message, variant = 'default') {
 }
 
 async function request(path, options) {
+  if ((state.project || state.projectExplicit) && path.startsWith('/api/') && !path.startsWith('/api/export/') && path !== '/api/projects') {
+    const url = new URL(path, window.location.origin);
+    url.searchParams.set('project', state.project);
+    path = url.pathname + url.search;
+  }
   const response = await fetch(path, options);
   if (!response.ok) {
     const payload = await response.json().catch(() => ({}));
@@ -193,10 +204,20 @@ function showFailure(error) {
 }
 
 function setHealth(health) {
+  state.setup = health.mode === 'setup';
+  for (const id of ['fit','relayout','layout','collapse','expand','export-png','export-drawio','search','toggle-services']) {
+    $(`#${id}`).disabled = state.setup;
+  }
   $('#status-dot').classList.add('online');
-  $('#status-label').textContent = health.mode === 'demo' ? 'SYNTHETIC DEMO' : `Snapshot · ${health.status}`;
+  $('#status-label').textContent = state.setup ? 'Ready to connect' : health.mode === 'demo' ? 'EXAMPLE DATA' : `Snapshot · ${health.status}`;
   $('#snapshot-status').textContent = `${health.unresolved} unresolved resources · ${new Date(health.created_at).toLocaleString()}`;
   $('#source-label').textContent = health.backend === 'neo4j' ? 'Local graph database · read-only' : 'Local snapshot file · metadata only';
+  if (state.setup) {
+    $('#source-label').textContent = health.project ? `Project: ${health.project.id} · no inventory collected` : 'No inventory collected';
+    $('#snapshot-status').textContent = 'Choose a project and collect your environment';
+  } else if (health.project) {
+    $('#source-label').textContent = `Project: ${health.project.id} · metadata only`;
+  }
   replaceOptions($('#region'), 'All collected regions', health.regions.map((region) => ({value:region,label:region})));
   $('#status-label').title = `${health.accounts} account(s), ${health.resources} resources`;
 }
@@ -327,6 +348,20 @@ function bindInspectorClose() {
 }
 
 async function loadTopology() {
+  if (state.setup) {
+    state.graph?.destroy();
+    state.graph = null;
+    const project = $('#project').value || state.project;
+    const setupCommands = project
+      ? `tencent-cloud-cartography sync --project ${project}`
+      : 'tencent-cloud-cartography projects init my-project --profile default --regions eu-frankfurt\ntencent-cloud-cartography sync --project my-project';
+    $('#loading').classList.remove('hidden');
+    $('#loading').innerHTML = `<div class="environment-setup"><h2>Connect your Tencent Cloud environment</h2><p>Save a project with your existing TCCLI profiles and regions, then collect its inventory. Each project keeps a separate snapshot.</p><pre>${escapeHtml(setupCommands)}</pre><p>For a source checkout, run these commands through <code>uv run</code> or <code>./landscape/local.sh</code>. Use Refresh after collection. You can also open an existing snapshot with <code>serve --input /path/to/inventory.json</code>, or use a local Neo4j graph.</p><small>No cloud login or API call is needed to open this viewer. Example data is available only through the explicit demo command.</small></div>`;
+    $('#resource-count').textContent = '0';
+    $('#relationship-count').textContent = '0';
+    renderServices({});
+    return;
+  }
   $('#loading').innerHTML = loadingMarkup;
   $('#loading').classList.remove('hidden');
   const loadVersion = ++state.loadVersion;
@@ -361,12 +396,17 @@ async function loadTopology() {
 
 async function init() {
   try {
-    const [healthResponse, accountsResponse] = await Promise.all([
+    const [healthResponse, accountsResponse, projectsResponse] = await Promise.all([
       request('/api/health'),
       request('/api/accounts'),
+      request('/api/projects'),
     ]);
     const health = await healthResponse.json();
     const { accounts } = await accountsResponse.json();
+    const { projects } = await projectsResponse.json();
+    $('#project-field').hidden = !projects.length;
+    replaceOptions($('#project'), 'Default snapshot', projects.map((project) => ({value:project.id,label:project.id})));
+    $('#project').value = state.project || health.project?.id || '';
     clearToast();
     setHealth(health);
     replaceOptions($('#account'), 'All accounts', accounts.map((account) => ({value:account.id,label:account.display})));
@@ -377,6 +417,14 @@ async function init() {
     $('#refresh').disabled = false;
   }
 }
+
+$('#project').addEventListener('change', () => {
+  const value = $('#project').value;
+  const url = new URL(window.location.href);
+  if (value) url.searchParams.set('project', value);
+  else url.searchParams.set('project', '');
+  window.location.href = url.href;
+});
 
 $('#refresh').addEventListener('click', () => {
   $('#refresh').disabled = true;

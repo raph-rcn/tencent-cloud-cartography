@@ -41,12 +41,35 @@ class Handler(SimpleHTTPRequestHandler):
         if not self.allowed():
             return self.respond({"message": "Invalid local origin"}, status=403)
         path = urlparse(self.path)
-        if path.path not in {"/api/health", "/api/accounts", "/api/coverage", "/api/topology"}:
+        if path.path not in {
+            "/api/health",
+            "/api/accounts",
+            "/api/coverage",
+            "/api/topology",
+            "/api/projects",
+        }:
             if path.path.startswith("/api/"):
                 return self.respond({"message": "Not found"}, status=404)
             return super().do_GET()
         try:
-            data = self.repository.read_snapshot()
+            if path.path == "/api/projects":
+                return self.respond(
+                    dict(
+                        projects=self.repository.projects()
+                        if hasattr(self.repository, "projects")
+                        else []
+                    )
+                )
+            selected = parse_qs(path.query, keep_blank_values=True).get("project", [None])[0]
+            if selected is not None and not hasattr(self.repository, "read_project"):
+                return self.respond(
+                    {"message": "This viewer uses a fixed snapshot or database."}, status=400
+                )
+            data = (
+                self.repository.read_project(selected)
+                if hasattr(self.repository, "read_project")
+                else self.repository.read_snapshot()
+            )
         except SourceError as exc:
             return self.respond({"message": str(exc)}, status=503)
         if path.path == "/api/health":
@@ -60,6 +83,7 @@ class Handler(SimpleHTTPRequestHandler):
                     resources=len(data["nodes"]),
                     unresolved=data["unresolved"],
                     regions=sorted({n["region"] for n in data["nodes"]}),
+                    project=data.get("project"),
                 )
             )
         if path.path == "/api/accounts":

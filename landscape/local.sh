@@ -11,7 +11,7 @@ case "${1:-help}" in
     uv run tencent-cloud-cartography demo
     exec uv run tencent-cloud-cartography serve --input .local/demo.json
     ;;
-  sync|import)
+  sync|import|analyze|projects)
     command="$1"
     shift
     exec uv run tencent-cloud-cartography "$command" "$@"
@@ -30,7 +30,7 @@ case "${1:-help}" in
     docker compose -f landscape/compose.yaml ps
     ;;
   *)
-    echo 'Usage: ./landscape/local.sh install|demo|sync [options]|import [options]|serve [options]|start|stop|status'
+    echo 'Usage: ./landscape/local.sh install|serve [options]|projects init NAME|projects list|sync [options]|analyze [options]|import [options]|demo|start|stop|status'
     echo 'The diagram runs from a private JSON snapshot. Neo4j is optional.'
     ;;
 esac
