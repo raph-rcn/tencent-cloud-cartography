@@ -1,6 +1,9 @@
 # Tencent Cloud Cartography
 
-Local Tencent Cloud inventory, relationship exploration, and editable architecture diagrams.
+Read-only discovery and mapping of your Tencent Cloud environment across accounts, regions and services, with resource inventory, permission analysis and editable architecture diagrams.
+
+Collect resource and configuration metadata using your existing TCCLI profiles. Explore how services connect and review configured access, with collection gaps shown explicitly.
+
 A derivative of [raph-rcn/aws-cartography](https://github.com/raph-rcn/aws-cartography), retaining its Git history and adapting its Landscape interface to Tencent Cloud.
 
 - **Reusable project workspaces:** named projects keep profiles, regions, service selections and snapshots separate; switch projects in the local viewer.
