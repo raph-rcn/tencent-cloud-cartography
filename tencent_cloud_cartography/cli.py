@@ -64,6 +64,11 @@ def main(argv=None):
     publish.add_argument("--input", type=Path, required=True)
     publish.add_argument("--neo4j-uri", default="bolt://127.0.0.1:7688")
     database_options(publish)
+    analysis = sub.add_parser(
+        "analyze", help="Analyze collected identity policies locally without cloud calls"
+    )
+    analysis.add_argument("--input", type=Path, required=True)
+    analysis.add_argument("--output", type=Path, required=True)
     ui = sub.add_parser("serve", help="View local snapshots or read directly from Neo4j")
     source = ui.add_mutually_exclusive_group()
     source.add_argument("--input", type=Path, help="Snapshot file, default .local/inventory.json")
@@ -103,6 +108,13 @@ def main(argv=None):
         elif args.command == "import":
             mirror(load(args.input), args.neo4j_uri, **database_credentials(args))
             print("Saved snapshot published to Neo4j")
+        elif args.command == "analyze":
+            from .permissions import analyze_snapshot
+
+            snapshot = analyze_snapshot(load(args.input))
+            save(snapshot, args.output)
+            print(f"Analyzed identity policies; coverage={snapshot['status']}: {args.output}")
+            return 2 if snapshot["status"] == "partial" else 0
         elif args.command == "serve":
             repository = (
                 Neo4jRepository(args.neo4j_uri, **database_credentials(args))

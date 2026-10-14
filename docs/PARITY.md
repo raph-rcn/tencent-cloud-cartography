@@ -842,3 +842,35 @@ does not expose those fields. CIDRs available only from an inaccessible remote
 account remain uncollected, and exact provider equivalence/live behavior remain
 open. References: [peering API](https://cloud.tencent.com/document/api/215/96023),
 [region abbreviations](https://cloud.tencent.com/document/product/248/50863).
+
+### Identity policy analysis foundation
+
+`permissions.py` runs automatically after collection and through the offline
+`analyze --input ... --output ...` command. It evaluates collected direct and
+inherited group policies for COS GetObject/PutObject, Secrets Manager
+GetSecretValue and CAM PassRole. Actions normalize the documented optional
+`name/` prefix. Explicit denies take precedence across policies; conditions and
+principal clauses remain conditional without supplied request context. Unexpanded
+function-set actions, uncertain case variants, project semantics and unsupported
+expressions cannot produce unconditional allows.
+
+Each `cam.permissiondecision` links its principal, target and supporting
+statements. It retains exact action/resource scope, decision and conditions.
+Role name/ARN aliases are evaluated together so a deny through one alias is not
+bypassed through another. Secret identities require returned creator UIN;
+COS uses the bucket's AppId namespace, without converting it into a UIN. COS
+object-prefix grants retain their actual scope; overlapping subset denies remain
+conditional. Missing inventory, attachment/group detail or policy reads suppress
+allow conclusions. Reanalysis replaces generated decisions and preserves source
+inventory. No forbidden cloud action is requested by this analyzer.
+
+These results describe collected identity-policy matches. Resource policies/ACLs,
+permission boundaries, session constraints, role trust and cross-account access
+are not included in an effective-access conclusion. Root-principal default access
+is not inferred. Remaining AWS permission-map targets include database query/admin,
+container command execution, stack operations and managed-session preconditions.
+Exposure/resource-policy analysis and complete Tencent policy syntax remain open.
+References: [CAM evaluation](https://intl.cloud.tencent.com/zh/document/product/598/10605),
+[COS object resources](https://cloud.tencent.com/document/product/436/112225),
+[secret resources](https://intl.cloud.tencent.com/ind/document/product/598/57154),
+[role passing](https://cloud.tencent.com/document/product/1242/49730).

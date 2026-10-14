@@ -659,3 +659,25 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
 - No additional API permission or cloud mutation was introduced. Source DNS,
   ClassicLink/status-message/CIDR association semantics and live Frankfurt
   behavior remain explicit gaps.
+
+## 2026-10-14 — Initial identity policy analysis and offline command
+
+- Backend **878 tests passed**, including **30** new cases for explicit deny across
+  direct/group policies, conditions, action/resource scopes, missing policy and
+  attachment/membership reads, role aliases, COS object-prefix subset/disjoint
+  denies, UIN/AppId/creator isolation, unsupported syntax, stale decisions and
+  idempotent reanalysis. Offline CLI verification forbids any cloud call and
+  confirms input snapshot preservation.
+- Frontend **7 tests passed**, production build succeeded and dependency audit
+  reported **0 vulnerabilities**. The existing bundle-size advisory remains.
+- Offline analyze generated synthetic `.local/permissions-demo.json`: **10
+  resources / 13 relationships**. Browser inspector confirmed a conditional COS
+  read, exact docs/* prefix, IP condition, source statement and effective-access
+  verified=false. Secret allow and COS write deny are separate decision nodes.
+- Browser draw.io export `(35)` retained all thirteen relationships and embedded
+  ten official CAM/COS/Secrets Manager SVGs. Previews are
+  `.local/permissions-preview.png` and `.local/permissions-inspector.png`.
+- No API was added to the collection allowlist. All 896 bundled official icons
+  remain available. This closes the initial analysis foundation only; complete
+  permission/resource-policy/exposure semantics and further source permission
+  mappings remain incomplete, as do containers and the other requested families.

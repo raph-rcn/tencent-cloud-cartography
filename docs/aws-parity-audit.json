@@ -295,7 +295,7 @@
       "source_enabled": true,
       "tencent_counterpart": "CAM effective permission graph",
       "status": "incomplete",
-      "evidence_or_gap": "Not implemented."
+      "evidence_or_gap": "Initial offline/automatic collected identity-policy analysis implemented for COS object read/write, Secrets Manager values and CAM role passing. Direct/group policies combine with explicit deny precedence; conditions, unsupported syntax and incomplete reads remain conditional/incomplete. Decision nodes preserve exact scopes, evidence and role aliases. Remaining source permission mappings, resource-policy/boundary/session/trust evaluation, cross-account semantics and live validation remain incomplete."
     },
     {
       "aws_collector": "resourcegroupstaggingapi",

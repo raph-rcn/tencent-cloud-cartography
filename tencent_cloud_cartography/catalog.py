@@ -874,6 +874,7 @@ DETAIL_KINDS = {
     "cam.policy",
     "cam.group",
     "cam.policystatement",
+    "cam.permissiondecision",
     "cam.truststatement",
     "cam.principal",
     "cam.rootprincipal",

@@ -181,3 +181,21 @@ CVM CAM role names resolve only against unique collected roles in the same accou
 ### Audit and log delivery
 
 CloudAudit tracks include selectors, enabled state, organization-delivery flags and configured storage destinations. CLS includes log sets, log and metric topics, retention/index/web-tracking settings, custom KMS references and COS shippers. Destination links use explicit IDs or unique collected bucket identities, including the destination's actual region. `delivery_verified=false` distinguishes configuration from successful log delivery. Unknown/ambiguous destinations stay visible in resource properties. No audit-event or log-content API is allowed.
+
+### Analyze collected identity policies offline
+
+```bash
+uv run tencent-cloud-cartography analyze \
+  --input .local/inventory.json \
+  --output .local/analyzed.json
+uv run tencent-cloud-cartography serve --input .local/analyzed.json
+```
+
+Collection also runs this analysis automatically. In full graph view, permission
+analysis nodes connect a principal, target and matching statements. The initial
+map covers COS object read/write, secret-value access and CAM role passing.
+Results distinguish explicit deny, conditional, incomplete and allow/implicit
+deny from collected identity policies. COS object prefixes remain scoped;
+missing policy reads suppress allow conclusions. This command makes no cloud
+calls. Resource policies, session constraints and role trust still need further
+analysis before effective access can be determined.

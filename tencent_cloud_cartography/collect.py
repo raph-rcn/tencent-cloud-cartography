@@ -600,4 +600,7 @@ def collect(
     from .monitor import link_bindings
 
     link_bindings(graph)
+    from .permissions import analyze as analyze_permissions
+
+    analyze_permissions(graph)
     return graph.snapshot()
