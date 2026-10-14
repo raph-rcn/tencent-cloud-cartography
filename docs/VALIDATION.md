@@ -640,3 +640,22 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
   permission inventory. All 896 official bundled icons remain available. No cloud
   mutation or live collection occurred. AWS default/association identity semantics
   and live Frankfurt behavior remain explicit gaps.
+
+## 2026-10-14 — Peering endpoint ownership, regions and CIDRs
+
+- Backend **848 tests passed**, including **24** new tests for typed metadata,
+  abbreviated regions, UIN/AppId separation, alias mismatches, missing owners,
+  unknown types, bare-metal corroboration, duplicate/denied/paginated reads and
+  negative controls for CIDR account/region/VPC scope.
+- Frontend **7 tests passed**, production build succeeded and dependency audit
+  reported **0 vulnerabilities**; the existing bundle-size advisory remains.
+- Synthetic `.local/peering-demo.json` rendered **5 resources / 8 relationships**
+  across Frankfurt/account 100 and Singapore/account 200. Inspector confirmed
+  ISOLATED state, exact owners, original and normalized regions, scoped CIDR
+  inventory and reachability=false. VPC/CIDR support inventory is synthetic.
+- Browser export `Downloads/tencent-cloud-cartography (34).drawio` retained all
+  eight relationships with three embedded official VPC/Peering SVGs. Preview:
+  `.local/peering-preview.png`. All 896 official bundled icons remain intact.
+- No additional API permission or cloud mutation was introduced. Source DNS,
+  ClassicLink/status-message/CIDR association semantics and live Frankfurt
+  behavior remain explicit gaps.

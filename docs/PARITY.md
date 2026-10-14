@@ -818,3 +818,27 @@ Provider documentation:
 [ACL list](https://cloud.tencent.com/document/product/215/42160),
 [five-field rule list](https://cloud.tencent.com/document/product/215/77634),
 [data types](https://cloud.tencent.com/document/api/215/15824).
+
+### Peering endpoint identity and collected CIDRs
+
+A dedicated peering collector retains state, creation time, bandwidth, controller,
+QoS and billing metadata. It requires pagination totals, validates whole pages,
+reconciles DestinationVpcId/PeerVpcId aliases, and preserves UINs separately from
+AppIds. Original region strings are retained; documented abbreviations such as
+`de`, `sg` and `gz` normalize to canonical region codes using the existing Monitor
+region map. Unknown regions and missing owners remain unresolved and partial.
+
+`VPC_PEER` produces explicitly scoped endpoint VPC references. Bare-metal or
+unknown type records (including the official example's `VPC0`) require unique
+collected VPC/BMVPC inventory to establish network kind. No side is assumed to be
+bare metal merely from `VPC_BM_PEER`. Unresolved types retain unsupported coverage.
+Endpoint CIDR links require enriched CIDR nodes belonging to the exact collected
+VPC, owner and region. These edges describe VPC address inventory, not advertised
+routes or effective connectivity; isolated/rejected peerings remain configuration.
+
+The source AWS collector stores peering status messages, remote DNS/ClassicLink
+options, and peer-returned CIDR association state. Tencent's PeerConnection schema
+does not expose those fields. CIDRs available only from an inaccessible remote
+account remain uncollected, and exact provider equivalence/live behavior remain
+open. References: [peering API](https://cloud.tencent.com/document/api/215/96023),
+[region abbreviations](https://cloud.tencent.com/document/product/248/50863).

@@ -309,6 +309,11 @@ class CollectorRunner:
             if services and spec.service not in services:
                 continue
             for region in self.regions if spec.regional else ["global"]:
+                if spec.kind == "vpc.peeringconnection":
+                    from .peering import collect as collect_peering
+
+                    collect_peering(self, spec, region)
+                    continue
                 if spec.kind == "vpc.networkacl":
                     from .network_acls import collect as collect_acls
 
@@ -556,6 +561,9 @@ def collect(
     from .network_addresses import link as link_network_addresses
 
     link_network_addresses(graph)
+    from .peering import link as link_peering
+
+    link_peering(graph)
     from .routes import link_next_hops
 
     link_next_hops(graph)

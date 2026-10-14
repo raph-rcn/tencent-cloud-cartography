@@ -169,7 +169,7 @@
       "source_enabled": true,
       "tencent_counterpart": "VPC peering",
       "status": "incomplete",
-      "evidence_or_gap": "Peering inventory and cross-account/region endpoint edges added. No AppId-to-UIN guessing."
+      "evidence_or_gap": "Typed state/controller/bandwidth/QoS/billing metadata, required-total pagination and owner/region-qualified VPC endpoints implemented. Documented legacy region abbreviations normalize without guessing unknown regions; DestinationVpcId/PeerVpcId aliases must agree. Bare-metal/unknown network types require unique collected VPC/BMVPC inventory. CIDR edges join exact enriched endpoint-VPC inventory only; no reachability inferred. Source DNS/ClassicLink options, status messages, peer-returned CIDR association state, inaccessible remote CIDRs and live validation remain incomplete."
     },
     {
       "aws_collector": "ec2:internet_gateway",
