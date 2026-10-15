@@ -15,7 +15,9 @@ TYPE_ALIASES = {
 # CloudRC labels this code as a function, whereas ListNamespaces returns namespaces.
 # Without a documented ResourceId contract, neither identity is safe to infer.
 AMBIGUOUS_TYPES = {"scf.namespace": "scf.inventoryresource"}
-GLOBAL_KINDS = {spec.kind for spec in (*COLLECTORS, *EXTRA_COLLECTORS) if not spec.regional}
+GLOBAL_KINDS = {spec.kind for spec in (*COLLECTORS, *EXTRA_COLLECTORS) if not spec.regional} | {
+    "teo.zone"
+}
 
 
 def type_identity(value):

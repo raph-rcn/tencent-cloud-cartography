@@ -20,8 +20,9 @@ def service_modes():
     for service in ("cos",):
         result.setdefault(service, set()).update(("global", "regional"))
     result.setdefault("tag", set()).add("global")
-    for service in ("lke", "tcaplusdb", "coding", "hunyuan"):
+    for service in ("lke", "tcaplusdb", "coding", "hunyuan", "tse"):
         result.setdefault(service, set()).add("regional")
+    result["teo"] = {"global"}
     result["cloudrc"] = {"global", "regional"}
     return result
 

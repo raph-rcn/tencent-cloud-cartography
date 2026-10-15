@@ -100,7 +100,7 @@ def image(graph, registry, repo, raw, source):
         f"{algorithm}:{value[:12]}…",
         source=source,
     )
-    retain(graph.nodes[iid], raw, ("Digest", "Size", "Kind"))
+    retain(graph.nodes[iid], raw, ("Digest", "Size", "Kind", "KmsSignature"))
     rid = child(
         graph,
         registry,
@@ -108,7 +108,7 @@ def image(graph, registry, repo, raw, source):
         refid,
         f"{repo['name']}:{tag}" if tag else f"{repo['name']}@{digest}",
         raw,
-        ("Digest", "ImageVersion", "Size", "Kind", "UpdateTime"),
+        ("Digest", "ImageVersion", "Size", "Kind", "UpdateTime", "KmsSignature"),
         source,
     )
     graph.edge(repo["id"], rid, "HAS_IMAGE", source)

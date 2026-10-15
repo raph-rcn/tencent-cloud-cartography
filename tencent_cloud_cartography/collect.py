@@ -576,6 +576,9 @@ class CollectorRunner:
         from .platform_metadata import collect as collect_platform_metadata
 
         collect_platform_metadata(self, services)
+        from .workload_metadata import collect as collect_workload_metadata
+
+        collect_workload_metadata(self, services)
         from .exclusions import record as record_exclusions
 
         record_exclusions(
@@ -879,6 +882,9 @@ def collect(
     from .platform_metadata import link as link_platform_metadata
 
     link_platform_metadata(graph)
+    from .workload_metadata import link as link_workload_metadata
+
+    link_workload_metadata(graph)
     from .dlc_authorization_metadata import link as link_dlc
 
     link_dlc(graph)

@@ -1,5 +1,11 @@
 # AWS capability parity audit
 
+The current [container/serverless/gateway/edge extension](WORKLOAD-EDGE-PARITY.md)
+(version 0.9.0) adds 34 audited metadata reads and SCF invocation policy analysis.
+Its **13-area disposition** supersedes older descriptions for these services.
+Known workload/credential-bearing responses and unestablished provider semantics
+remain explicit gaps; this does not establish full AWS parity.
+
 The current [platform/security/authorization extension](PLATFORM-PARITY.md)
 (version 0.8.0) implements 46 additional metadata reads and Kubernetes RBAC,
 condition and declared-session analysis. Its **15-area disposition** supersedes

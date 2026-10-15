@@ -338,6 +338,7 @@ def test_end_to_end_collection_all_scopes_and_clb_field_selection():
         SCF_NAMESPACES,
     )
     from tencent_cloud_cartography.platform_metadata import ACTIONS as PLATFORM_ACTIONS
+    from tencent_cloud_cartography.workload_metadata import ACTIONS as WORKLOAD_ACTIONS
 
     specs = {
         (s.service, s.action): s
@@ -353,7 +354,7 @@ def test_end_to_end_collection_all_scopes_and_clb_field_selection():
 
     class InventoryTransport:
         def call(self, service, action, region=None, **params):
-            if (service, action) in PLATFORM_ACTIONS:
+            if (service, action) in PLATFORM_ACTIONS | WORKLOAD_ACTIONS:
                 raise CollectionError("UnauthorizedOperation")
             if service == "sts":
                 return dict(AccountId="12345", PrincipalId="reader")
@@ -514,7 +515,8 @@ def test_end_to_end_collection_all_scopes_and_clb_field_selection():
         for c in data["coverage"]
         if c["status"] not in {"empty", "complete"}
         and c.get("error") != "UnsupportedMetadataOnlyProjection"
-        and (c["service"], c["action"]) not in PLATFORM_ACTIONS
+        and (c["service"], c["action"]) not in PLATFORM_ACTIONS | WORKLOAD_ACTIONS
+        and not c["action"].startswith("capability:")
     ] == [
         "ListEmailIdentities",
         "DescribeLaunchConfigurations",

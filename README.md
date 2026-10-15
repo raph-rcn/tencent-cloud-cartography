@@ -39,7 +39,7 @@ checkout (requires uv and Node.js):
 
 ```bash
 uv run python scripts/build_distribution.py
-uv tool install dist/tencent_cloud_cartography-0.8.0-py3-none-any.whl
+uv tool install dist/tencent_cloud_cartography-0.9.0-py3-none-any.whl
 ```
 
 The installed `tencent-cloud-cartography` command works outside the source checkout.
@@ -317,3 +317,13 @@ offline conditions/session restrictions extend authorization analysis. Read the
 [15-area implementation and disposition](docs/PLATFORM-PARITY.md) for exact scope,
 usage and the password/payload-bearing APIs that remain blocked. Full AWS parity
 and effective runtime access remain unverified.
+
+### Container, serverless, gateway and edge metadata
+
+Version 0.9.0 adds 34 audited reads for TCR retention/immutability/executions,
+TKE virtual nodes/routes/permissions, SCF concurrency/domains, gateway quotas
+and Cloud Native gateways, EdgeOne sites/cache/TLS/DDoS and SES sender addresses.
+Offline CAM analysis includes SCF invocation policy decisions. Collection remains
+read-only and metadata-only. Read the [13-area disposition](docs/WORKLOAD-EDGE-PARITY.md)
+for usage, exactly implemented depth and the retained workload/credential/provider
+gaps. Full AWS parity and live Tencent behavior remain unverified.

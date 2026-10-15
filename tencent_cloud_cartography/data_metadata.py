@@ -15,13 +15,16 @@ from .model import stable_id
 from .transport import CollectionError, pages
 
 
-def schema(strings="", integers="", booleans="", arrays="", floats="", **children):
+def schema(
+    strings="", integers="", booleans="", arrays="", floats="", integer_arrays="", **children
+):
     return dict(
         strings=strings.split(),
         integers=integers.split(),
         booleans=booleans.split(),
         arrays=arrays.split(),
         floats=floats.split(),
+        integer_arrays=integer_arrays.split(),
         children=children,
     )
 
@@ -52,6 +55,14 @@ def project(raw, spec):
                 raise CollectionError("InvalidDataMetadataList")
             if any(any(ord(c) < 32 for c in v) for v in values):
                 raise CollectionError("InvalidDataMetadataList")
+            result[field] = values
+    for field in spec.get("integer_arrays", []):
+        if raw.get(field) is not None:
+            values = raw[field]
+            if not isinstance(values, list) or any(type(v) is not int or v < 0 for v in values):
+                raise CollectionError("InvalidDataMetadataList")
+            if field == "PortList" and any(not 1 <= v <= 65535 for v in values):
+                raise CollectionError("InvalidDataMetadataPort")
             result[field] = values
     for field in ("Vip", "Vip6", "IPv6", "NodeIp", "PrivateNetworkIp"):
         if result.get(field):
@@ -548,7 +559,7 @@ def key_for(row, fields):
 
 def prepare(read, raw, parent):
     selected = project(raw, read.spec)
-    if parent and read.action != "DescribeBillingResourceGroup":
+    if parent and read.action not in {"DescribeBillingResourceGroup", "DescribeUserPermissions"}:
         for key in ("InstanceId", "InstanceID", "DBInstanceId", "ClusterId", "MasterInstanceId"):
             if raw.get(key) not in (None, parent["resource_id"]):
                 raise CollectionError("DataMetadataIdentityMismatch")
@@ -667,7 +678,10 @@ def collect_read(runner, read, region, parent=None, product=None, parameters=Non
             rawrows = path_value(data, read.result) if read.result else [data]
             if not isinstance(rawrows, list) or (
                 read.total
-                and (type(data.get(read.total)) is not int or data[read.total] != len(rawrows))
+                and (
+                    type(path_value(data, read.total)) is not int
+                    or path_value(data, read.total) != len(rawrows)
+                )
             ):
                 raise CollectionError("DataMetadataCountMismatch")
             batches = [(rawrows, None)]

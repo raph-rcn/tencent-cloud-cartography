@@ -8,7 +8,17 @@
     },
     {
       "service": "apigateway",
+      "action": "DescribeApiEnvironmentStrategy",
+      "api_version": "2018-08-08"
+    },
+    {
+      "service": "apigateway",
       "action": "DescribeApisStatus",
+      "api_version": "2018-08-08"
+    },
+    {
+      "service": "apigateway",
+      "action": "DescribeExclusiveInstancesStatus",
       "api_version": "2018-08-08"
     },
     {
@@ -19,6 +29,11 @@
     {
       "service": "apigateway",
       "action": "DescribeServiceEnvironmentList",
+      "api_version": "2018-08-08"
+    },
+    {
+      "service": "apigateway",
+      "action": "DescribeServiceEnvironmentStrategy",
       "api_version": "2018-08-08"
     },
     {
@@ -1067,7 +1082,27 @@
     },
     {
       "service": "scf",
+      "action": "GetFunctionEventInvokeConfig",
+      "api_version": "2018-04-16"
+    },
+    {
+      "service": "scf",
+      "action": "GetProvisionedConcurrencyConfig",
+      "api_version": "2018-04-16"
+    },
+    {
+      "service": "scf",
+      "action": "GetReservedConcurrencyConfig",
+      "api_version": "2018-04-16"
+    },
+    {
+      "service": "scf",
       "action": "ListAliases",
+      "api_version": "2018-04-16"
+    },
+    {
+      "service": "scf",
+      "action": "ListCustomDomains",
       "api_version": "2018-04-16"
     },
     {
@@ -1103,6 +1138,11 @@
     {
       "service": "ses",
       "action": "GetEmailIdentity",
+      "api_version": "2020-10-02"
+    },
+    {
+      "service": "ses",
+      "action": "ListEmailAddress",
       "api_version": "2020-10-02"
     },
     {
@@ -1242,6 +1282,11 @@
     },
     {
       "service": "tcr",
+      "action": "DescribeImmutableTagRules",
+      "api_version": "2019-09-24"
+    },
+    {
+      "service": "tcr",
       "action": "DescribeInstances",
       "api_version": "2019-09-24"
     },
@@ -1252,7 +1297,22 @@
     },
     {
       "service": "tcr",
+      "action": "DescribeReplicationExecutions",
+      "api_version": "2019-09-24"
+    },
+    {
+      "service": "tcr",
+      "action": "DescribeReplicationInstances",
+      "api_version": "2019-09-24"
+    },
+    {
+      "service": "tcr",
       "action": "DescribeReplicationPolicies",
+      "api_version": "2019-09-24"
+    },
+    {
+      "service": "tcr",
+      "action": "DescribeReplicationTasks",
       "api_version": "2019-09-24"
     },
     {
@@ -1263,6 +1323,26 @@
     {
       "service": "tcr",
       "action": "DescribeRepositoryOwnerPersonal",
+      "api_version": "2019-09-24"
+    },
+    {
+      "service": "tcr",
+      "action": "DescribeSecurityPolicies",
+      "api_version": "2019-09-24"
+    },
+    {
+      "service": "tcr",
+      "action": "DescribeTagRetentionExecution",
+      "api_version": "2019-09-24"
+    },
+    {
+      "service": "tcr",
+      "action": "DescribeTagRetentionExecutionTask",
+      "api_version": "2019-09-24"
+    },
+    {
+      "service": "tcr",
+      "action": "DescribeTagRetentionRules",
       "api_version": "2019-09-24"
     },
     {
@@ -1331,6 +1411,31 @@
       "api_version": "2020-02-17"
     },
     {
+      "service": "teo",
+      "action": "DescribeAliasDomains",
+      "api_version": "2022-09-01"
+    },
+    {
+      "service": "teo",
+      "action": "DescribeDDoSProtection",
+      "api_version": "2022-09-01"
+    },
+    {
+      "service": "teo",
+      "action": "DescribeDefaultCertificates",
+      "api_version": "2022-09-01"
+    },
+    {
+      "service": "teo",
+      "action": "DescribeL7AccSetting",
+      "api_version": "2022-09-01"
+    },
+    {
+      "service": "teo",
+      "action": "DescribeZones",
+      "api_version": "2022-09-01"
+    },
+    {
       "service": "tic",
       "action": "DescribeStackEvents",
       "api_version": "2020-11-17"
@@ -1377,7 +1482,32 @@
     },
     {
       "service": "tke",
+      "action": "DescribeClusterControllers",
+      "api_version": "2018-05-25"
+    },
+    {
+      "service": "tke",
       "action": "DescribeClusterEndpoints",
+      "api_version": "2018-05-25"
+    },
+    {
+      "service": "tke",
+      "action": "DescribeClusterRouteTables",
+      "api_version": "2018-05-25"
+    },
+    {
+      "service": "tke",
+      "action": "DescribeClusterRoutes",
+      "api_version": "2018-05-25"
+    },
+    {
+      "service": "tke",
+      "action": "DescribeClusterVirtualNode",
+      "api_version": "2018-05-25"
+    },
+    {
+      "service": "tke",
+      "action": "DescribeClusterVirtualNodePools",
       "api_version": "2018-05-25"
     },
     {
@@ -1389,6 +1519,46 @@
       "service": "tke",
       "action": "DescribeControlPlaneLogs",
       "api_version": "2018-05-25"
+    },
+    {
+      "service": "tke",
+      "action": "DescribeEncryptionStatus",
+      "api_version": "2018-05-25"
+    },
+    {
+      "service": "tke",
+      "action": "DescribeUserPermissions",
+      "api_version": "2018-05-25"
+    },
+    {
+      "service": "tse",
+      "action": "DescribeCloudNativeAPIGatewayNodes",
+      "api_version": "2020-12-07"
+    },
+    {
+      "service": "tse",
+      "action": "DescribeCloudNativeAPIGatewayPorts",
+      "api_version": "2020-12-07"
+    },
+    {
+      "service": "tse",
+      "action": "DescribeCloudNativeAPIGatewayServicesLight",
+      "api_version": "2020-12-07"
+    },
+    {
+      "service": "tse",
+      "action": "DescribeCloudNativeAPIGatewayUpstream",
+      "api_version": "2020-12-07"
+    },
+    {
+      "service": "tse",
+      "action": "DescribeCloudNativeAPIGateways",
+      "api_version": "2020-12-07"
+    },
+    {
+      "service": "tse",
+      "action": "DescribeNativeGatewayServerGroups",
+      "api_version": "2020-12-07"
     },
     {
       "service": "vpc",

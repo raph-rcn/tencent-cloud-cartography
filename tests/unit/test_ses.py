@@ -276,6 +276,7 @@ def test_only_configuration_apis_are_allowlisted_and_nested_fields_cannot_add_ne
     assert {a for s, a in ALLOWED_ACTIONS if s == "ses"} == {
         "ListEmailIdentities",
         "GetEmailIdentity",
+        "ListEmailAddress",
     }
     graph, _ = run(
         [identity(Extra=dict(VpcId="vpc-wrong", Password="omit", Body="omit"))],

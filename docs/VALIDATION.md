@@ -1,5 +1,35 @@
 # Validation — 2026-10-13
 
+## Container, serverless, gateway and edge extension — 2026-10-15 / v0.9.0
+
+- **1,733 Python tests pass**, including provider-shaped fixtures for all 34 new
+  reads, recursive native SDK response contracts, wrong registry/policy/execution/
+  cluster/zone/gateway/principal/region controls, duplicate/count/pagination checks,
+  isolated SES region behavior and actual orchestration of the new TSE/EdgeOne
+  service roots. Excluded APIs are rejected before any CLI process is launched.
+- SCF invocation analysis uses native namespace/function QCS identities, retains
+  policy evidence and deny precedence, and never calls an invocation operation.
+  Exact account/region checks and ambiguous-name controls protect backend joins.
+  Missing CMQ policy/encryption/FIFO/confirmation fields remain explicit unknowns.
+- **13 frontend tests**, clean `npm ci`, production build and dependency audit
+  pass; the audit reports zero vulnerabilities. All **896 official SVGs**, the
+  official wordmark and **356 registered kind mappings** pass provenance checks.
+- Isolated browser verification used a clearly marked **EXAMPLE DATA** fixture
+  on loopback port 8794; no real project snapshot was replaced. Full graph showed
+  **49 resources / 49 relationships / 11 services**, including TSE and EdgeOne.
+  Search for the native upstream name returned one match. The downloaded draw.io
+  parsed as **69 editable vertices / 49 edges / 47 embedded SVG icons**, with valid
+  containment and edge endpoints. The inspected browser error log was empty.
+- The **v0.9.0 wheel and source archive build successfully**. A fresh environment
+  installed the wheel outside the checkout and verified the packaged UI, all
+  official icons/logo and two isolated project configurations without cloud access.
+- The exact operation manifest now contains **350 audited reads**. The
+  [13-area disposition](WORKLOAD-EDGE-PARITY.md) and machine-readable AWS comparison
+  retain blocked responses, provider differences and unverified parity. No live
+  Tencent validation, actual workload reads, invocation, mail/message send or
+  delivery/reachability probe was performed. The GitHub workflow separately runs
+  the six real Neo4j integration tests; local checks do not claim a local daemon.
+
 ## Completed
 
 - 36 Python tests: pagination and count controls, operation allowlist, CLI JSON/error handling, retries, COS parser, identity stability, account/region separation, baseline/native reconciliation, secret-field exclusion, full collection with synthetic API responses, graph containment, icon mapping, editable export geometry, private snapshot writes, and HTTP boundaries.

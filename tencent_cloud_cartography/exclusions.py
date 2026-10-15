@@ -5,6 +5,23 @@ from .catalog import ALLOWED_ACTIONS
 # These operations are deliberately never called. Response-field paths were
 # audited against the Tencent SDK shipped with TCCLI 3.1.181.1.
 EXCLUSIONS = (
+    ("tke", "DescribeClusterNodePools", "NodePoolSet.UserScript/PreStartUserScript"),
+    ("tke", "DescribeClusterNodePoolDetail", "NodePool.UserScript/PreStartUserScript"),
+    ("apigateway", "DescribeApiAppsStatus", "Result.ApiAppSet.ApiAppSecret"),
+    ("tse", "DescribeNativeGatewayServiceSources", "List.SourceInfo.Auth.Password/AccessToken"),
+    ("tse", "DescribeCloudNativeAPIGatewayCertificates", "Result.CertificatesList.Key"),
+    (
+        "tse",
+        "DescribeCloudNativeAPIGatewayRoutes",
+        "Result.RouteList.Headers/QueryStringParameters.Value can contain authentication match values",
+    ),
+    (
+        "teo",
+        "DescribeAccelerationDomains",
+        "AccelerationDomains.OriginDetail.PrivateParameters.Value",
+    ),
+    ("teo", "DescribeOriginGroup", "OriginGroups.Records.PrivateParameters.Value"),
+    ("scf", "GetLayerVersion", "Location is a layer-code download capability"),
     (
         "apigateway",
         "DescribeUpstreams",
@@ -94,7 +111,7 @@ def record(graph, account, regions, services=None, region_map=None):
             raise ValueError("Excluded workload API is present in metadata allowlist")
         for region in (
             ["global"]
-            if service in ("csip", "cdn", "organization", "tcss", "ssl", "monitor")
+            if service in ("csip", "cdn", "organization", "tcss", "ssl", "monitor", "teo")
             else (region_map.get(service, []) if region_map is not None else regions)
         ):
             if any(

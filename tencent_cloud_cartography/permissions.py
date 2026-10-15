@@ -9,6 +9,7 @@ from .transport import CollectionError
 
 SOURCE = "analysis.identity-policies"
 RULES = {
+    "scf.function": (("scf:InvokeFunction", "INVOKE_FUNCTION"),),
     "tic.stack": (("tic:ApplyStack", "EXECUTE_STACK"),),
     "cvm.instance": (("tat:StartSession", "START_SESSION"), ("tat:RunCommand", "EXECUTE_COMMAND")),
     "cos.bucket": (("cos:GetObject", "READ"), ("cos:PutObject", "WRITE")),
@@ -166,6 +167,12 @@ def identities(node):
         if arn in permitted:
             result.append(arn)
         return sorted(set(result))
+    elif node["kind"] == "scf.function":
+        namespace, name = props.get("Namespace"), node.get("name")
+        if region != "global" and all(
+            isinstance(v, str) and re.fullmatch(r"[A-Za-z0-9_-]+", v) for v in (namespace, name)
+        ):
+            return [f"qcs::scf:{region}:uin/{owner}:namespace/{namespace}/function/{name}"]
     elif node["kind"] == "tic.stack":
         # Prove only an all-resource grant. No undocumented TIC QCS resource
         # identity is invented; narrower resources remain conditional.
@@ -537,6 +544,9 @@ def analyze_snapshot(snapshot, context=None, max_decisions=25000, session_polici
     from .platform_metadata import link as link_platform_metadata
 
     link_platform_metadata(graph)
+    from .workload_metadata import link as link_workload_metadata
+
+    link_workload_metadata(graph)
     from .dlc_authorization_metadata import link as link_dlc
     from .secrets import link_resources
 

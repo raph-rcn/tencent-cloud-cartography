@@ -192,6 +192,14 @@ def test_all_namespaces_truncation_is_visible_but_repositories_continue():
 def test_end_to_end_collector_includes_tcr_children_without_credentials_or_payloads():
     class Transport:
         def call(self, service, action, region=None, **params):
+            if action == "DescribeImmutableTagRules":
+                return dict(Rules=[], EmptyNs=[], Total=0)
+            if action == "DescribeReplicationInstances":
+                return dict(ReplicationRegistries=[], TotalCount=0)
+            if action == "DescribeTagRetentionRules":
+                return dict(RetentionPolicyList=[], TotalCount=0)
+            if action == "DescribeSecurityPolicies":
+                return dict(SecurityPolicySet=[])
             if action == "DescribeRepositoryOwnerPersonal":
                 return dict(Data=dict(RepoInfo=[], TotalCount=0, Server="ccr.ccs.tencentyun.com"))
             if action == "DescribeImageAccelerateService":
@@ -241,7 +249,7 @@ def test_end_to_end_collector_includes_tcr_children_without_credentials_or_paylo
                         dict(
                             Digest=DIGEST,
                             ImageVersion="latest",
-                            KmsSignature="SENSITIVE",
+                            KmsSignature="public-signature",
                             Config="SENSITIVE",
                         )
                     ],
@@ -261,7 +269,9 @@ def test_end_to_end_collector_includes_tcr_children_without_credentials_or_paylo
     assert all(
         c["status"] in {"empty", "complete"}
         for c in snapshot["coverage"]
-        if c["service"] in {"tcr", "sts", "cloudrc"} and c["action"] != "DescribeImageManifests"
+        if c["service"] in {"tcr", "sts", "cloudrc"}
+        and c["action"] != "DescribeImageManifests"
+        and not c["action"].startswith("capability:")
     )
     reg = next(n for n in snapshot["nodes"] if n["kind"] == "tcr.instance")
     assert reg["properties"]["EnableAnonymous"] is False

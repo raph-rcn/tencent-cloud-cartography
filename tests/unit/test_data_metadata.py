@@ -512,7 +512,7 @@ def test_all_new_operations_registered_and_excluded_sensitive_methods_stay_block
     )
 
 
-@pytest.mark.parametrize("module_name", ["data_metadata", "platform_metadata"])
+@pytest.mark.parametrize("module_name", ["data_metadata", "platform_metadata", "workload_metadata"])
 def test_all_projected_fields_match_current_native_sdk_contracts(module_name):
     from importlib import import_module
 
@@ -562,6 +562,7 @@ print(json.dumps(out))
             ("booleans", "bool"),
             ("arrays", "list of str"),
             ("floats", "float"),
+            ("integer_arrays", "list of int non-negative"),
         ):
             for field in spec.get(group, []):
                 assert types.get(field) == typ, (cls, field, types.get(field), typ)

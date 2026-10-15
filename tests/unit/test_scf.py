@@ -310,6 +310,14 @@ def test_end_to_end_function_alias_trigger_layer_collection():
     class T:
         def call(self, service, action, region=None, **params):
             assert (service, action) in ALLOWED_ACTIONS
+            if action == "GetFunctionEventInvokeConfig":
+                return dict(AsyncTriggerConfig=dict(MsgTTL=3600, RetryConfig=[]))
+            if action == "GetReservedConcurrencyConfig":
+                return dict(ReservedMem=0)
+            if action == "GetProvisionedConcurrencyConfig":
+                return dict(UnallocatedConcurrencyNum=0, Allocated=[])
+            if action == "ListCustomDomains":
+                return dict(Domains=[], Total=0)
             if service == "sts":
                 return dict(AccountId="100", PrincipalId="reader")
             if service == "cloudrc":
@@ -363,12 +371,12 @@ def test_end_to_end_function_alias_trigger_layer_collection():
         progress=lambda _: None,
         transport_factory=lambda _: T(),
     )
-    assert len(data["nodes"]) == 8
+    assert len(data["nodes"]) == 11
     assert "SECRET" not in json.dumps(data)
     assert all(
-        c["status"] == "complete"
+        c["status"] in {"complete", "empty"}
         for c in data["coverage"]
-        if c["service"] == "scf" and c["action"] != "GetFunction"
+        if c["service"] == "scf" and c["action"] not in {"GetFunction", "GetLayerVersion"}
     )
     assert (
         next(c for c in data["coverage"] if c["action"] == "GetFunction")["status"] == "unsupported"
