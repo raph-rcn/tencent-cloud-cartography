@@ -9,7 +9,8 @@ provider/provisioning configuration. Unsafe response fields remain explicitly ex
 The permission/exposure, container, CLB/database and additional service-family
 metadata implementation is delivered. The operator retained the metadata-only
 restriction: APIs known to return workload or secret content stay excluded.
-Read [the current capability and gap report](METADATA-PARITY.md) and
+Read [the networking closure report](NETWORK-PARITY.md),
+[the current capability and gap report](METADATA-PARITY.md) and
 [the updated per-collector audit](aws-parity-audit.json). **Full AWS equivalence
 and live Frankfurt behavior remain unverified.**
 
@@ -927,3 +928,13 @@ additional Tencent target types, target-group depth and COS public/resource-poli
 analysis remain open. Source evidence: read-only checkout
 `cartography/intel/aws/ec2/load_balancer_v2s.py`, including the separate IP-target
 phase and non-IP MatchLinks.
+
+## Networking closure — 2026-10-15
+
+The [14-row closure matrix](NETWORK-PARITY.md) supersedes the historical network
+gap descriptions above. Native CLB/SCF bindings, rule-scoped cross-target and
+legacy remote-region correspondence, SG ownership checks, shared CCN discovery,
+Private Link allowlists/DNS/ENI reconciliation, GWLB, gateway identities and IPv6
+variants are implemented. AWS-only semantics and inaccessible/ambiguous identity
+remain explicit differences. This remains read-only metadata collection; live
+Tencent validation and full AWS equivalence are not claimed.

@@ -63,12 +63,17 @@ def collect(runner, lb):
         return rid, props
 
     def backend(raw):
-        rid = identity(raw.get("InstanceId"), "ins-")
+        # Keep unknown backend types as configured bindings, not invented CVMs.
+        rid = identity(raw.get("InstanceId"))
         props = fields(raw, ("Type", "InstanceName"), integers=("Weight", "RunFlag"))
         ips = raw.get("PrivateIpAddresses")
         if not isinstance(ips, list):
             raise CollectionError("InvalidClassicClbBackendAddress")
         props["addresses"] = json.dumps([str(ipaddress.ip_address(ip)) for ip in ips])
+        public = raw.get("PublicIpAddresses") or []
+        if not isinstance(public, list):
+            raise CollectionError("InvalidClassicClbBackendAddress")
+        props["public_addresses"] = json.dumps([str(ipaddress.ip_address(ip)) for ip in public])
         return rid, props
 
     read("DescribeClassicalLBListeners", "Listeners", frontend, listeners)
@@ -117,11 +122,21 @@ def collect(runner, lb):
                 clb_generation="traditional",
             )
             graph.edge(nid, bid, "HAS_BACKEND", "clb.DescribeClassicalLBTargets")
-            if props.get("Type") == "CVM":
+            if props.get("Type") == "CVM" and tid.startswith("ins-"):
                 target = graph.add(
                     runner.account, lb["region"], "cvm.instance", tid, status="reference"
                 )
                 graph.edge(bid, target, "FORWARDS_TO", "clb.DescribeClassicalLBTargets")
+            elif props.get("Type") == "ENI" and tid.startswith("eni-"):
+                target = graph.add(
+                    runner.account, lb["region"], "vpc.networkinterface", tid, status="reference"
+                )
+                graph.edge(bid, target, "FORWARDS_TO", "clb.DescribeClassicalLBTargets")
+            graph.nodes[bid]["properties"]["backend_resolution"] = (
+                "provider-id"
+                if props.get("Type") in {"CVM", "ENI"}
+                else "unsupported-provider-type"
+            )
             bindings.append(bid)
 
         def health(record, lid=lid, meta=meta, bindings=bindings):

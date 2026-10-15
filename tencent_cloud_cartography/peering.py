@@ -48,6 +48,12 @@ def prepare(raw):
     )
     rid = identity(raw.get("PeeringConnectionId"), "pcx")
     props.update(PeeringConnectionId=rid, reachability_verified=False)
+    props["state_resolution"] = (
+        "provider-reported"
+        if props.get("State")
+        in {"PENDING", "ACTIVE", "REJECTED", "DELETED", "FAILED", "EXPIRED", "ISOLATED"}
+        else "unreported-or-unsupported"
+    )
     endpoints = []
     for side, id_key, owner_key, region_key in (
         ("source", "SourceVpcId", "SourceUin", "SourceRegion"),

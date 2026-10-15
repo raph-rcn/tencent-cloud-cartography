@@ -268,6 +268,11 @@
     },
     {
       "service": "clb",
+      "action": "DescribeCrossTargets",
+      "api_version": "2018-03-17"
+    },
+    {
+      "service": "clb",
       "action": "DescribeListeners",
       "api_version": "2018-03-17"
     },
@@ -299,6 +304,11 @@
     {
       "service": "clb",
       "action": "DescribeTargetGroups",
+      "api_version": "2018-03-17"
+    },
+    {
+      "service": "clb",
+      "action": "DescribeTargets",
       "api_version": "2018-03-17"
     },
     {
@@ -522,6 +532,26 @@
       "service": "es",
       "action": "DescribeInstances",
       "api_version": "2018-04-16"
+    },
+    {
+      "service": "gwlb",
+      "action": "DescribeGatewayLoadBalancers",
+      "api_version": "2024-09-06"
+    },
+    {
+      "service": "gwlb",
+      "action": "DescribeTargetGroupInstanceStatus",
+      "api_version": "2024-09-06"
+    },
+    {
+      "service": "gwlb",
+      "action": "DescribeTargetGroupInstances",
+      "api_version": "2024-09-06"
+    },
+    {
+      "service": "gwlb",
+      "action": "DescribeTargetGroups",
+      "api_version": "2024-09-06"
     },
     {
       "service": "kms",
@@ -1000,6 +1030,36 @@
     },
     {
       "service": "vpc",
+      "action": "DescribeDhcpIps",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
+      "action": "DescribeDirectConnectGateways",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
+      "action": "DescribeHaVips",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
+      "action": "DescribeIPv6Addresses",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
+      "action": "DescribeIp6Addresses",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
+      "action": "DescribeLocalGateway",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
       "action": "DescribeNatGateways",
       "api_version": "2017-03-12"
     },
@@ -1020,6 +1080,11 @@
     },
     {
       "service": "vpc",
+      "action": "DescribePrivateNatGateways",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
       "action": "DescribeRouteList",
       "api_version": "2017-03-12"
     },
@@ -1030,7 +1095,17 @@
     },
     {
       "service": "vpc",
+      "action": "DescribeSecurityGroupAssociationStatistics",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
       "action": "DescribeSecurityGroupPolicies",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
+      "action": "DescribeSecurityGroupReferences",
       "api_version": "2017-03-12"
     },
     {
@@ -1065,12 +1140,22 @@
     },
     {
       "service": "vpc",
+      "action": "DescribeVpcEndPointServiceWhiteList",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
       "action": "DescribeVpcPeeringConnections",
       "api_version": "2017-03-12"
     },
     {
       "service": "vpc",
       "action": "DescribeVpcs",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "vpc",
+      "action": "DescribeVpnGateways",
       "api_version": "2017-03-12"
     },
     {

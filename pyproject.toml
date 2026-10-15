@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tencent-cloud-cartography"
-version = "0.5.0"
+version = "0.6.0"
 description = "Read-only discovery and mapping of Tencent Cloud environments, with resource inventory, permission analysis and editable architecture diagrams."
 readme = "README.md"
 requires-python = ">=3.11"

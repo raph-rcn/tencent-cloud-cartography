@@ -20,6 +20,93 @@ def retain(node, raw, fields):
     node["properties"].update({k: raw[k] for k in fields if type(raw.get(k)) in (str, int, bool)})
 
 
+def load_balancer_configuration(node, raw):
+    """Select control-plane attributes; ExtraInfo and authentication payloads are excluded."""
+    retain(
+        node,
+        raw,
+        (
+            "Forward",
+            "LoadBalancerType",
+            "Domain",
+            "Status",
+            "CreateTime",
+            "StatusTime",
+            "ProjectId",
+            "VpcId",
+            "SubnetId",
+            "OpenBgp",
+            "Snat",
+            "Isolation",
+            "Log",
+            "AnycastZone",
+            "AddressIPVersion",
+            "NumericalVpcId",
+            "VipIsp",
+            "IsolatedTime",
+            "ExpireTime",
+            "ChargeType",
+            "LogSetId",
+            "LogTopicId",
+            "AddressIPv6",
+            "IsDDos",
+            "ConfigId",
+            "LoadBalancerPassToTarget",
+            "IPv6Mode",
+            "SnatPro",
+            "SlaType",
+            "IsBlock",
+            "IsBlockTime",
+            "LocalBgp",
+            "ClusterTag",
+            "MixIpTarget",
+            "HealthLogSetId",
+            "HealthLogTopicId",
+            "LoadBalancerDomain",
+            "Egress",
+            "Exclusive",
+            "TargetCount",
+            "AssociateEndpoint",
+        ),
+    )
+    for key, allowed in (
+        ("TargetRegionInfo", ("Region", "VpcId", "NumericalVpcId")),
+        (
+            "NetworkAttributes",
+            ("InternetChargeType", "InternetMaxBandwidthOut", "BandwidthpkgSubType"),
+        ),
+        ("PrepaidAttributes", ("RenewFlag", "Period")),
+        ("MasterZone", ("Zone", "ZoneId", "ZoneName", "ZoneRegion", "LocalZone", "EdgeZone")),
+        ("AvailableZoneAffinityInfo", ("Enable", "ExitRatio", "ReentryRatio")),
+    ):
+        value = raw.get(key)
+        if value is not None:
+            if not isinstance(value, dict):
+                raise CollectionError("InvalidClbConfiguration")
+            node["properties"][key] = json.dumps(
+                {k: value[k] for k in allowed if type(value.get(k)) in (str, int, bool)},
+                sort_keys=True,
+            )
+    for key in ("Zones", "ClusterIds", "AttributeFlags"):
+        value = raw.get(key)
+        if value is not None:
+            if not isinstance(value, list) or any(type(v) not in (str, int) for v in value):
+                raise CollectionError("InvalidClbConfiguration")
+            node["properties"][key] = json.dumps(value)
+    for key, allowed in (
+        ("BackupZoneSet", ("Zone", "ZoneId", "ZoneName", "ZoneRegion", "LocalZone", "EdgeZone")),
+        ("SnatIps", ("SubnetId", "Ip")),
+    ):
+        value = raw.get(key)
+        if value is not None:
+            if not isinstance(value, list) or any(not isinstance(v, dict) for v in value):
+                raise CollectionError("InvalidClbConfiguration")
+            node["properties"][key] = json.dumps(
+                [{k: v[k] for k in allowed if type(v.get(k)) in (str, int, bool)} for v in value],
+                sort_keys=True,
+            )
+
+
 def listener(graph, lb, raw, source):
     rid = lb["resource_id"] + "/" + identity(raw.get("ListenerId"), "lbl-")
     nid = graph.add(
@@ -43,6 +130,16 @@ def listener(graph, lb, raw, source):
             "SessionExpireTime",
             "TargetType",
             "KeepaliveEnable",
+            "CreateTime",
+            "SessionType",
+            "Toa",
+            "DeregisterTargetRst",
+            "MaxConn",
+            "MaxCps",
+            "IdleConnectTimeout",
+            "RescheduleInterval",
+            "DataCompressMode",
+            "RescheduleStartTime",
         ),
     )
     from .clb_depth import configuration
@@ -74,6 +171,11 @@ def rule(graph, parent, raw, source):
             "Http2",
             "ForwardType",
             "TargetType",
+            "HttpGzip",
+            "BeAutoCreated",
+            "CreateTime",
+            "WafDomainId",
+            "QuicStatus",
         ),
     )
     if isinstance(raw.get("Url"), str):

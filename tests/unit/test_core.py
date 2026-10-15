@@ -386,6 +386,23 @@ def test_end_to_end_collection_all_scopes_and_clb_field_selection():
                 }
             if service == "tag":
                 return dict(ResourceTagMappingList=[], PaginationToken="", RequestId="tags")
+            if action in {"DescribeIp6Addresses", "DescribeIPv6Addresses"}:
+                return dict(AddressSet=[], TotalCount=0)
+            if action == "DescribeDhcpIps":
+                return dict(DhcpIpSet=[], TotalCount=0)
+            if action == "DescribeLocalGateway":
+                return dict(LocalGatewaySet=[], TotalCount=0)
+            if action == "DescribePrivateNatGateways":
+                return dict(PrivateNatGatewaySet=[], TotalCount=0)
+            if action in {"DescribeHaVips", "DescribeVpnGateways", "DescribeDirectConnectGateways"}:
+                key = {
+                    "DescribeHaVips": "HaVipSet",
+                    "DescribeVpnGateways": "VpnGatewaySet",
+                    "DescribeDirectConnectGateways": "DirectConnectGatewaySet",
+                }[action]
+                return {key: [], "TotalCount": 0}
+            if action == "DescribeTargets":
+                return dict(Listeners=[])
             if action == "DescribeTargetGroups":
                 return dict(TargetGroupSet=[], TotalCount=0)
             if action == "DescribeRewrite":

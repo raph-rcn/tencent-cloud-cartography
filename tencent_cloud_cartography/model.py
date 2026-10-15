@@ -255,6 +255,10 @@ class Graph:
             ):
                 continue
             reference_data = raw
+            if spec.kind == "clb.clb":
+                reference_data = {
+                    k: raw[k] for k in ("VpcId", "SubnetId", "SecureGroups") if k in raw
+                }
             if spec.kind in {"vpc.networkacl", "vpc.routetable", "vpc.endpointservice"}:
                 reference_data = {
                     key: value for key, value in raw.items() if not isinstance(value, (list, dict))
@@ -283,6 +287,9 @@ class Graph:
                         raw,
                         source,
                     )
+                    for key in ("TargetId", "TargetAddress", "TargetPort", "Type"):
+                        if type(raw.get(key)) in (str, int):
+                            self.nodes[tid]["properties"][key] = raw[key]
                 self.edge(lid, tid, "FORWARDS_TO", source)
         if (spec.service, spec.action) in {("cvm", "DescribeInstances"), ("cbs", "DescribeDisks")}:
             from .compute_metadata import enrich as enrich_compute

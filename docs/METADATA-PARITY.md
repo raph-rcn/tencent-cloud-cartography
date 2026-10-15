@@ -10,6 +10,12 @@ The latest [metadata depth extension](METADATA-DEPTH.md) adds COS V2 notificatio
 database backup/proxy/replica configuration, gateway mappings/bindings and federation
 provider/provisioning detail. Its specific exclusions supersede the older gap descriptions below.
 
+The [networking closure report](NETWORK-PARITY.md) now supersedes the older
+networking gaps below: native CLB/SCF/cross-target bindings, SG ownership checks,
+shared CCN discovery, endpoint allowlists/DNS/ENI reconciliation, GWLB, native
+gateway identities and IPv6 variants are implemented. AWS-only semantics and
+unavailable or ambiguous resource identity remain explicit limits.
+
 ## Account and region orchestration
 
 Automatic per-service/account region discovery, hard explicit restrictions,
@@ -37,7 +43,7 @@ members. Live Tencent behavior remains unverified.
 | Named COS authorization | Same-account identity/resource union, cross-account intersection, named deny precedence, evidence and separate unsigned routes | Object ACLs, some resource-only boundary interactions, unsupported syntax and session/effective access remain unknown |
 | Role trust and paths | Caller policy/boundary/trust intersection; derived caller ARN restrictions; bounded shortest witnesses to COS and supported control-plane targets | Service/federation/workload trust, full condition satisfiability and runtime session propagation remain gaps; no role is assumed |
 | COS account controls | Account summary of collected selected-region bucket controls with completeness flags | No audited S3-style account-wide public-access-block equivalent; no global protection boolean is invented |
-| CLB exposure | Configured paths through listeners/rules/target groups/bindings to corroborated CVM/ENI targets | EXPOSE is a configuration edge. No public reachability, firewall passage, HTTP success or exploit is proved; cross-VPC and unsupported backend types remain unresolved |
+| CLB exposure | Configured paths through listeners/rules/target groups/bindings to corroborated CVM/ENI targets | EXPOSE is a configuration edge. Corroborated cross-VPC/region, native ENI/NAT/HAVIP and SCF paths are implemented; arbitrary or inaccessible targets remain unresolved. No public reachability, firewall passage, HTTP success or exploit is proved |
 | Container execution | Current Kubernetes context SelfSubjectAccessReview for each collected pod's pods/exec create action; matching SelfSubjectReview before/after | This reviews authorization only. No exec occurs; no CAM identity is guessed, and token/session equality is not established by username/UID/groups equality |
 
 Analyses run after collection. `analyze --input ... --output ...` reruns the

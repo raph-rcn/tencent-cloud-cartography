@@ -13,6 +13,7 @@ ROUTES = Collector(
     "vpc", "DescribeRouteList", "RouteSet", "vpc.route", ("RouteItemId",), require_total=True
 )
 GATEWAYS = {
+    "INTRANAT": ("vpc.privatenat", "intranat"),
     "NAT": ("vpc.nat", "nat"),
     "VPN": ("vpc.vpngateway", "vpngw"),
     "PEERCONNECTION": ("vpc.peeringconnection", "pcx"),
@@ -72,6 +73,18 @@ def route(raw, table, vpc, scoped=False):
     rid = rid or stable_id(destinations[0], props["GatewayType"], gateway)
     props.update(
         RouteTableId=table, VpcId=vpc, destination=destinations[0], reachability_verified=False
+    )
+    props["origin_resolution"] = {
+        "USER": "user-configured",
+        "NETD": "provider-network-probe",
+        "CCN": "provider-ccn",
+    }.get(props.get("RouteType"), "unreported-or-unsupported")
+    props["route_state_resolution"] = (
+        "enabled-reported"
+        if props.get("Enabled") is True
+        else "disabled-reported"
+        if props.get("Enabled") is False
+        else "unreported"
     )
     return f"{table}/{rid}", props, target
 
@@ -235,12 +248,28 @@ def collect(runner, spec, region):
 
 
 def link_next_hops(graph):
+    sources = {
+        "Exact route CCN ID and collected CCN owner",
+        "Collected route VPC and unique interface address",
+        "Collected ENI attachment ID and route account/region/VPC",
+    }
+    graph.edges = {k: e for k, e in graph.edges.items() if e.get("provenance") not in sources}
     ccns = {}
+    reported_owners = {
+        (n["properties"].get("CcnUin"), n["properties"].get("CcnId"))
+        for n in graph.nodes.values()
+        if n["kind"] == "vpc.ccnattachment"
+        and n["status"] == "enriched"
+        and n["account"] == n["properties"].get("CcnUin")
+    }
     for node in graph.nodes.values():
         if (
             node["kind"] == "vpc.ccn"
             and node["region"] == "global"
-            and node["status"] == "enriched"
+            and (
+                node["status"] == "enriched"
+                or (node["account"], node["resource_id"]) in reported_owners
+            )
         ):
             ccns.setdefault(node["resource_id"], []).append(node["id"])
     vpcs = {}

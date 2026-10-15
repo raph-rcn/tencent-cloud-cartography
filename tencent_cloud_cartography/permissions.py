@@ -492,6 +492,9 @@ def analyze_snapshot(snapshot, context=None, max_decisions=25000):
     graph.nodes = {row["id"]: row for row in data["nodes"]}
     graph.edges = {row["id"]: row for row in data["edges"]}
     graph.coverage = data["coverage"]
+    from .network_parity import link as link_network_parity
+
+    link_network_parity(graph)
     from .exposure import analyze as analyze_exposure
 
     analyze_exposure(graph)

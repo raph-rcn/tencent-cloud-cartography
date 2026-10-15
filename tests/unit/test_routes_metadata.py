@@ -296,3 +296,30 @@ def test_independent_parent_denial_and_missing_route_totals():
     g, _ = run(mutate=missing)
     assert g.coverage[-1]["status"] == "error"
     assert resources(g, "vpc.route")
+
+
+def test_private_nat_gateway_identity_and_native_origin_state_are_preserved():
+    row = route(GatewayType="INTRANAT", GatewayId="intranat-one", RouteType="CCN", Enabled=False)
+    g, _ = run([table(RouteSet=[row])], [row])
+    node = resources(g, "vpc.route")[0]
+    assert node["properties"]["origin_resolution"] == "provider-ccn"
+    assert node["properties"]["route_state_resolution"] == "disabled-reported"
+    assert any(
+        n["kind"] == "vpc.privatenat" and n["resource_id"] == "intranat-one"
+        for n in g.nodes.values()
+    )
+    assert not any(n["kind"] == "vpc.internetgateway" for n in g.nodes.values())
+
+
+def test_ccn_owner_proven_by_shared_attachment_can_resolve_reference_gateway():
+    row = route(GatewayType="USER_CCN", GatewayId="ccn-shared")
+    g, _ = run([table(RouteSet=[row])], [row])
+    ccn = g.add("200", "global", "vpc.ccn", "ccn-shared", status="reference")
+    aid = g.add("200", "global", "vpc.ccnattachment", "attachment")
+    g.nodes[aid]["properties"].update(CcnUin="200", CcnId="ccn-shared")
+    g.edge(ccn, aid, "HAS_ATTACHMENT")
+    link_next_hops(g)
+    assert any(e["relationship"] == "ROUTES_TO" and e["target"] == ccn for e in g.edges.values())
+    g.nodes[aid]["properties"]["CcnUin"] = "300"
+    link_next_hops(g)
+    assert not any(e["relationship"] == "ROUTES_TO" for e in g.edges.values())

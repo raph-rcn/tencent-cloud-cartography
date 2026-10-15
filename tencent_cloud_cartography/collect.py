@@ -401,6 +401,11 @@ class CollectorRunner:
 
                     collect_ccn(self, spec)
                     continue
+                if spec.service == "gwlb":
+                    from .gwlb import collect as collect_gwlb
+
+                    collect_gwlb(self, spec, region)
+                    continue
                 if spec.kind in {"vpc.networkinterface", "vpc.eip"}:
                     from .network_addresses import collect as collect_network_addresses
 
@@ -562,6 +567,9 @@ class CollectorRunner:
 
             for region in self.regions_for("tcr"):
                 personal_repositories(self, region)
+        from .network_parity import collect as collect_network_parity
+
+        collect_network_parity(self, services)
         from .exclusions import record as record_exclusions
 
         record_exclusions(
@@ -831,6 +839,9 @@ def collect(
     from .privatelink import link as link_privatelink
 
     link_privatelink(graph)
+    from .network_parity import link as link_network_parity
+
+    link_network_parity(graph)
     from .dns import link_dns
 
     link_dns(graph)

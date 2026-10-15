@@ -138,143 +138,169 @@
       "source_enabled": true,
       "tencent_counterpart": "VPC security groups",
       "status": "incomplete",
-      "evidence_or_gap": "Typed security-group descriptions/default/project/time metadata and policy version/priority/direction/action/description retained. Rules now link to referenced groups and canonical IPv4/IPv6/host/range selector nodes; reusable address/service templates and template-group membership are collected with member remarks. Per-group rule responses validate atomically. Source security_groups.py collects IPv4 ranges and referenced groups but does not collect prefix-list dependencies; removed that unsupported parity requirement. Provider-specific SG scoping and effective rule semantics, cross-account ownership where absent from Tencent responses, and live collection remain unverified.",
+      "evidence_or_gap": "Account/region SG scope, reverse references and association statistics implemented. Ownerless rule selectors link only to an unambiguous collected caller-account group; collisions across collected owners suppress the edge and mark partial analysis. Tencent regional scoping is retained without inventing VPC ownership. Missing owner UIN and effective traffic authorization remain evidence limits. Live Tencent validation remains outstanding.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "live_validation": "not-performed",
+      "network_depth_report": "NETWORK-PARITY.md",
+      "network_gap_status": "feasible-metadata-implemented-provider-differences-retained"
     },
     {
       "aws_collector": "ec2:subnet",
       "source_enabled": true,
       "tencent_counterpart": "VPC subnets",
       "status": "incomplete",
-      "evidence_or_gap": "Typed IPv4/IPv6, default/broadcast/SNAT, address-capacity, CDC and stack metadata implemented, with explicit VPC, AZ, route-table and network-ACL relationships. Zone/region mismatch and malformed identifiers fail before page mutation. AWS launch-time public/customer-owned-IP and IPv6 auto-assignment, subnet lifecycle state and default-for-AZ semantic equivalence remain unverified, along with live collection.",
+      "evidence_or_gap": "Native default/zone/creation/capacity/IPv4/IPv6/stack/SNAT metadata, route/ACL associations, unique collected default within VPC/zone and VPC CIDR containment implemented. AWS launch-time address flags, lifecycle state and DefaultForAz semantic equivalence are absent from the audited native schema and are not synthesized. Live Tencent validation remains outstanding.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "live_validation": "not-performed",
+      "network_depth_report": "NETWORK-PARITY.md",
+      "network_gap_status": "feasible-metadata-implemented-provider-differences-retained"
     },
     {
       "aws_collector": "ec2:load_balancer",
       "source_enabled": true,
       "tencent_counterpart": "Traditional CLB",
       "status": "incomplete",
-      "evidence_or_gap": "Explicit Forward=0 selects traditional listener/target/health APIs. Listener-wide bindings, certificates, private target addresses and strictly corroborated vendor-reported health implemented. Custom probe payloads omitted; public reachability, unsupported target types and AWS Classic field equivalence are not established.",
+      "evidence_or_gap": "Traditional listener-wide CVM/ENI and unknown-type bindings, full native listener fields, certificates, public/private target addresses and corroborated vendor health implemented. Unsupported identities remain configured address targets; scoped inventory can resolve exposure. AWS Classic hosted-zone/policy fields and unsupported provider capabilities remain differences. Live Tencent validation remains outstanding.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "live_validation": "not-performed",
+      "network_depth_report": "NETWORK-PARITY.md",
+      "network_gap_status": "feasible-metadata-implemented-provider-differences-retained"
     },
     {
       "aws_collector": "ec2:load_balancer_v2",
       "source_enabled": true,
       "tencent_counterpart": "CLB",
       "status": "incomplete",
-      "evidence_or_gap": "Modern listener/rule/certificate configuration plus native target groups, scoped target bindings, selected health-check configuration, corroborated reported health and rewrite associations implemented. Cross-VPC, non-CVM target resolution and broader AWS field semantics remain gaps; no probe/execution.",
+      "evidence_or_gap": "Native DescribeTargets bindings retain CVM/ENI/NAT/other backend types and SCF namespace/name/version-or-alias metadata. Expanded LB/listener/rule fields, 2.0 cross-target metadata scoped per listener or exact L7 rule, and legacy 1.0 backend region/VPC plus collected CVM identity are implemented. Arbitrary targets without corroborating inventory remain unresolved; no workload code/environment is retrieved. Live Tencent validation remains outstanding.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "live_validation": "not-performed",
+      "network_depth_report": "NETWORK-PARITY.md",
+      "network_gap_status": "feasible-metadata-implemented-provider-differences-retained"
     },
     {
       "aws_collector": "ec2:network_acls",
       "source_enabled": true,
       "tencent_counterpart": "VPC network ACLs",
       "status": "incomplete",
-      "evidence_or_gap": "Typed ACL metadata, explicit VPC/subnet associations and three-field ingress/egress rules implemented. Five-field rules are independently paginated per ACL with source/destination ports and IPv4/IPv6 selectors, direction, provider identity and priority. Missing legacy IDs/order use labeled response positions. Malformed pages, duplicates, missing totals and denied scopes remain partial. AWS default flag, association identity/provider semantics and live Frankfurt validation remain incomplete; configuration does not prove reachability.",
+      "evidence_or_gap": "Native three-/five-field rules and explicit subnet associations implemented. Association reconciliation rejects conflicting account/region/VPC/ACL identity and explicit no-ACL contradictions while preserving reported evidence. The audited API exposes no AWS default-ACL flag or association ID; neither default ACLs nor effective packet behavior are synthesized. Live Tencent validation remains outstanding.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "live_validation": "not-performed",
+      "network_depth_report": "NETWORK-PARITY.md",
+      "network_gap_status": "feasible-metadata-implemented-provider-differences-retained"
     },
     {
       "aws_collector": "ec2:network_interface",
       "source_enabled": true,
       "tencent_counterpart": "VPC ENIs",
       "status": "incomplete",
-      "evidence_or_gap": "Typed ENI metadata, explicit VPC/subnet/security-group relationships and interface-scoped IPv4/IPv6 address nodes implemented. Primary flags, public/EIP association, blocked/state/QoS and attachment metadata retained; IPv6 response aliases reconciled. CVM attachment requires a collected same-account/region instance and matching VPC. Opaque InstanceAccountId is not interpreted as UIN. AWS source/destination checks, requester-managed/ELB identity equivalents, non-CVM attachment mapping and live validation remain incomplete.",
+      "evidence_or_gap": "Native lifecycle/MAC/CDC/ENI type/attachment type/time/index/account namespace and IPv4/IPv6 metadata implemented. Non-CVM attachments retain separate native records; CVM identity requires scoped corroboration. ResourceId remains IP-retention metadata. EKS/HAI workload identity, opaque account-ID to UIN conversion and AWS requester-managed/source-destination/private-DNS fields are not invented under the metadata restriction. Live Tencent validation remains outstanding.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "live_validation": "not-performed",
+      "network_depth_report": "NETWORK-PARITY.md",
+      "network_gap_status": "feasible-metadata-implemented-provider-differences-retained"
     },
     {
       "aws_collector": "ec2:load_balancer_v2:expose",
       "source_enabled": true,
       "tencent_counterpart": "CLB configured exposure",
       "status": "incomplete",
-      "evidence_or_gap": "Configured listener/rule/target-group/binding paths to explicitly identified CVM or uniquely corroborated scoped ENI targets produce EXPOSE and evidence path nodes. Same-account/region/common-VPC gates enforced. This is configuration, not reachability; unsupported and cross-VPC target paths remain partial.",
+      "evidence_or_gap": "Configured exposure paths support collected CVM, ENI, NAT/HAVIP, scoped IP and SCF bindings. Cross-VPC/region 2.0 resolution requires exact frontend evidence and unique collected ENI/IP/VPC identity; legacy 1.0 uses explicit remote region/VPC and unique CVM identity. Stale and conflicting ownership/address evidence is rejected offline. Unavailable target identity remains partial. EXPOSE never proves reachability or execution. Live Tencent validation remains outstanding.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "live_validation": "not-performed",
+      "network_depth_report": "NETWORK-PARITY.md",
+      "network_gap_status": "feasible-metadata-implemented-provider-differences-retained"
     },
     {
       "aws_collector": "ec2:tgw",
       "source_enabled": true,
       "tencent_counterpart": "Cloud Connect Network",
       "status": "incomplete",
-      "evidence_or_gap": "CCN lifecycle/billing/routing-feature metadata and owner-qualified attachments implemented. Explicit network UIN/region, CIDRs, reported state and route-table identifier are retained; parent/owner mismatches fail the scope, and configured associations do not establish connectivity. Source tgw.py collects gateways and attachments, not route tables/routes. Shared CCN discovery, source SHARED_WITH ownership correspondence, provider-specific subnet association semantics and live validation remain incomplete.",
+      "evidence_or_gap": "Owned CCNs plus shared attachment discovery filtered to each collected local VPC implemented. Explicit CcnUin preserves foreign owner references and supports unique CCN route ownership resolution. Attachment CIDR inclusion links to collected subnets without inventing AWS attachment subnets. Inaccessible foreign shares and full remote inventory remain visibility limits; no connectivity is claimed. Live Tencent validation remains outstanding.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "live_validation": "not-performed",
+      "network_depth_report": "NETWORK-PARITY.md",
+      "network_gap_status": "feasible-metadata-implemented-provider-differences-retained"
     },
     {
       "aws_collector": "ec2:vpc",
       "source_enabled": true,
       "tencent_counterpart": "VPC",
       "status": "incomplete",
-      "evidence_or_gap": "Typed VPC default/multicast/DHCP/DNS/route-publication metadata and VPC-scoped primary/auxiliary IPv4 and multi-provider IPv6 CIDR nodes implemented. Legacy/provider IPv6 aliases merge without duplicate nodes; auxiliary subnet references follow explicit parent IDs and verified CIDR membership. Recursive nested-subnet placement removed. AWS tenancy/state and CIDR association ID/state/message equivalents are not present in these Tencent schemas; live validation remains incomplete.",
+      "evidence_or_gap": "Native VPC default/DHCP/DNS/multicast/publication metadata, primary/auxiliary/provider IPv4/IPv6 CIDRs and subnet containment implemented. AWS tenancy, VPC lifecycle state and CIDR association ID/state/message are absent from audited responses and remain documented provider differences. Live Tencent validation remains outstanding.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "live_validation": "not-performed",
+      "network_depth_report": "NETWORK-PARITY.md",
+      "network_gap_status": "feasible-metadata-implemented-provider-differences-retained"
     },
     {
       "aws_collector": "ec2:vpc_endpoint",
       "source_enabled": true,
       "tencent_counterpart": "Private Link",
       "status": "incomplete",
-      "evidence_or_gap": "Typed endpoint/service metadata and explicit VPC/subnet/security-group links implemented. All three IP-family scopes and four documented backend service types are queried; dual-stack uses token pagination. Exact authorized service lookups require returned ServiceUin, never APPID conversion. Cross-account collected services reconcile by region/service ID with VPC consistency; CLB/CDB/CRS/GWLB backend references are typed. AWS endpoint policy/private-DNS/requester-managed/ENI/route-table counterparts, GWLB backend enrichment and live validation remain incomplete.",
+      "evidence_or_gap": "Native endpoint-service UIN allowlists, auto-accept, three IP-family scopes, four service types and explicit owner reconciliation implemented. Endpoint ENI/address matching requires collected VPC/subnet/IP identity. Enabled Private DNS A/AAAA matches require explicit zone-VPC binding. Native endpoint route references and GWLB inventory/groups/backends/reported health are implemented. AWS endpoint IAM policies, PrivateDnsEnabled, requester-managed and gateway-endpoint association semantics are not synthesized. Live Tencent validation remains outstanding.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "live_validation": "not-performed",
+      "network_depth_report": "NETWORK-PARITY.md",
+      "network_gap_status": "feasible-metadata-implemented-provider-differences-retained"
     },
     {
       "aws_collector": "ec2:route_table",
       "source_enabled": true,
       "tencent_counterpart": "VPC routes",
       "status": "incomplete",
-      "evidence_or_gap": "Typed main/table/local-publication metadata, explicit subnet association nodes and paginated DescribeRouteList implemented. Embedded routes survive denied listing; conflicting/disappearing rows mark partial coverage. Routes preserve descriptions, enabled/type/publication state and stable IPv6 identity. CCN owner matching uses uniquely collected global CCNs; LOCAL_GATEWAY/GWLB_ENDPOINT are typed. NORMAL_CVM IPs resolve only to unique collected ENI addresses and corroborated CVMs within the route account/region/VPC. AWS association IDs/state and route origin/blackhole-state equivalents, INTRANAT gateway identity, effective route evaluation and live validation remain incomplete.",
+      "evidence_or_gap": "Native main/subnet associations, paginated/embedded routes, enabled and USER/NETD/CCN origin labels implemented. Private NAT, local/CDC, VPN, Direct Connect, HAVIP and GWLB endpoint identities are collected/typed; CCN ownership can use explicit shared attachment UIN. Scoped IP next hops require collected ENI/CVM identity. AWS association IDs, blackhole/origin semantics and effective route evaluation remain differences. Live Tencent validation remains outstanding.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "live_validation": "not-performed",
+      "network_depth_report": "NETWORK-PARITY.md",
+      "network_gap_status": "feasible-metadata-implemented-provider-differences-retained"
     },
     {
       "aws_collector": "ec2:vpc_peering",
       "source_enabled": true,
       "tencent_counterpart": "VPC peering",
       "status": "incomplete",
-      "evidence_or_gap": "Typed state/controller/bandwidth/QoS/billing metadata, required-total pagination and owner/region-qualified VPC endpoints implemented. Documented legacy region abbreviations normalize without guessing unknown regions; DestinationVpcId/PeerVpcId aliases must agree. Bare-metal/unknown network types require unique collected VPC/BMVPC inventory. CIDR edges join exact enriched endpoint-VPC inventory only; no reachability inferred. Source DNS/ClassicLink options, status messages, peer-returned CIDR association state, inaccessible remote CIDRs and live validation remain incomplete.",
+      "evidence_or_gap": "Native pending/active/rejected/deleted/failed/expired/isolated states, endpoint UIN/region, bandwidth/billing/QoS and collected/reference-only endpoint visibility implemented. CIDRs use collected endpoint VPCs only. Audited responses have no AWS DNS/ClassicLink options or detailed status-message counterpart; inaccessible remote CIDRs remain unknown. Live Tencent validation remains outstanding.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "live_validation": "not-performed",
+      "network_depth_report": "NETWORK-PARITY.md",
+      "network_gap_status": "feasible-metadata-implemented-provider-differences-retained"
     },
     {
       "aws_collector": "ec2:internet_gateway",
       "source_enabled": true,
       "tencent_counterpart": "Tencent VPC public egress model",
       "status": "incomplete",
-      "evidence_or_gap": "Tencent public egress uses collected CVM public-address configuration, EIP/NAT bindings and VPC route next hops. Those metadata relationships are implemented without fabricated AWS-style IGW resources. Routing/public reachability and exact AWS gateway-state correspondence are not established.",
+      "evidence_or_gap": "Tencent public address, EIP/NAT and native gateway route metadata is implemented directly. Private NAT INTRANAT is distinct from public NAT. No AWS-style IGW, attachment state or effective internet reachability is fabricated; this is a documented provider difference. Live Tencent validation remains outstanding.",
       "implementation_status": "provider-difference-with-metadata",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "live_validation": "not-performed",
+      "network_depth_report": "NETWORK-PARITY.md",
+      "network_gap_status": "feasible-metadata-implemented-provider-differences-retained"
     },
     {
       "aws_collector": "ec2:reserved_instances",
@@ -369,11 +395,13 @@
       "source_enabled": true,
       "tencent_counterpart": "VPC EIP",
       "status": "incomplete",
-      "evidence_or_gap": "Typed EIP lifecycle/billing/blocking/direct-connection metadata and explicit CVM/NAT/ENI/CLB instance references implemented. EIP-to-interface-address reconciliation requires the returned ENI ID and private IP, checks public-IP/EIP-ID contradictions and never joins by public IP alone. Unsupported target types remain metadata; broader IPv6 variants and live validation remain incomplete.",
+      "evidence_or_gap": "Typed HAVIP/DHCPIP bindings added to CVM/NAT/ENI/CLB, with native HAVIP/DHCP inventory. Legacy elastic IPv6 and current elastic/ordinary/high-quality IPv6 variants are collected. Explicit ENI/private-address reconciliation rejects contradictory EIP/public-IP metadata. Unknown future target types remain visible and partial; AWS allocation/association/domain semantics are not asserted. Live Tencent validation remains outstanding.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "live_validation": "not-performed",
+      "network_depth_report": "NETWORK-PARITY.md",
+      "network_gap_status": "feasible-metadata-implemented-provider-differences-retained"
     },
     {
       "aws_collector": "emr",

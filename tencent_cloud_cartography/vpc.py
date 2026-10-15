@@ -134,6 +134,20 @@ def prepare_subnet(raw, region):
     )
     rid = identity(raw.get("SubnetId"), "subnet")
     props["SubnetId"] = rid
+    props["network_acl_association"] = (
+        "unavailable"
+        if raw.get("NetworkAclId") is None
+        else "explicit"
+        if raw["NetworkAclId"]
+        else "none"
+    )
+    props["route_table_association"] = (
+        "unavailable"
+        if raw.get("RouteTableId") is None
+        else "explicit"
+        if raw["RouteTableId"]
+        else "none-reported"
+    )
     vpc = identity(raw.get("VpcId"), "vpc")
     props["VpcId"] = vpc
     links = [("vpc.vpc", vpc, "IN_VPC")]

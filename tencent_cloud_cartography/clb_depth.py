@@ -255,6 +255,17 @@ def members(runner, group):
                         status="reference",
                     )
                     graph.edge(nid, tid, "FORWARDS_TO", "clb.DescribeTargetGroupInstances")
+                elif props["Type"] == "ENI" and props.get("EniId", props["InstanceId"]).startswith(
+                    "eni-"
+                ):
+                    tid = graph.add(
+                        runner.account,
+                        group["region"],
+                        "vpc.networkinterface",
+                        identity(props.get("EniId") or props["InstanceId"], "eni-"),
+                        status="reference",
+                    )
+                    graph.edge(nid, tid, "FORWARDS_TO", "clb.DescribeTargetGroupInstances")
                 record["count"] += 1
 
     runner.scope(

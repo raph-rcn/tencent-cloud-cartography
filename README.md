@@ -39,7 +39,7 @@ checkout (requires uv and Node.js):
 
 ```bash
 uv run python scripts/build_distribution.py
-uv tool install dist/tencent_cloud_cartography-0.5.0-py3-none-any.whl
+uv tool install dist/tencent_cloud_cartography-0.6.0-py3-none-any.whl
 ```
 
 The installed `tencent-cloud-cartography` command works outside the source checkout.
@@ -285,3 +285,12 @@ Offline analysis also builds configured CLB exposure paths and direct EXPOSE lin
 to corroborated CVM/interface-address targets. Full graph view preserves the
 listener/rule and backend evidence. Unresolved backends remain partial; these
 relationships do not establish public reachability or successful connections.
+
+### Networking metadata coverage
+
+Version 0.6.0 adds native CLB/SCF and corroborated cross-VPC/region targets,
+shared CCN discovery, Private Link access lists and DNS/ENI reconciliation,
+GWLB, gateway identities and public IPv6 variants. Read the
+[14-row networking parity matrix](docs/NETWORK-PARITY.md) for the exact
+implementation and provider differences. Collection remains read-only and
+metadata-only; configured exposure does not prove runtime reachability.

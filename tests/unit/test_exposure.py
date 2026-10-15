@@ -110,6 +110,14 @@ def test_target_address_conflicts_are_partial(value):
     assert not expose(g) and g.coverage[-1]["status"] == "error"
 
 
+@pytest.mark.parametrize("reported_id", ["eni-other", "ins-other"])
+def test_target_id_and_ip_contradiction_does_not_expose_ip_match(reported_id):
+    g, ids = fixture()
+    g.nodes[ids["target"]]["properties"]["TargetId"] = reported_id
+    analyze(g)
+    assert not expose(g) and g.coverage[-1]["status"] == "error"
+
+
 def test_address_without_unique_collected_attachment_keeps_only_ip_exposure():
     g, ids = fixture()
     remove(g, ids["eni"], ids["instance"], "ATTACHED_TO")

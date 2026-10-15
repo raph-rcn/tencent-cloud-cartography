@@ -30,6 +30,15 @@ API_SERVICE_NAMES = {"autoscaling": "as"}
 
 COLLECTORS = (
     Collector(
+        "gwlb",
+        "DescribeGatewayLoadBalancers",
+        "LoadBalancerSet",
+        "clb.gatewayloadbalancer",
+        ("LoadBalancerId",),
+        ("LoadBalancerName",),
+        require_total=True,
+    ),
+    Collector(
         "sqlserver",
         "DescribeDBInstances",
         "DBInstances",
@@ -879,6 +888,22 @@ ALLOWED_ACTIONS = {
         ("cvm", "DescribeLaunchTemplateVersions"),
     }
 } | {
+    ("vpc", "DescribeIPv6Addresses"),
+    ("vpc", "DescribeIp6Addresses"),
+    ("vpc", "DescribeDhcpIps"),
+    ("vpc", "DescribeLocalGateway"),
+    ("vpc", "DescribePrivateNatGateways"),
+    ("vpc", "DescribeHaVips"),
+    ("vpc", "DescribeVpnGateways"),
+    ("vpc", "DescribeDirectConnectGateways"),
+    ("vpc", "DescribeSecurityGroupReferences"),
+    ("vpc", "DescribeSecurityGroupAssociationStatistics"),
+    ("vpc", "DescribeVpcEndPointServiceWhiteList"),
+    ("clb", "DescribeCrossTargets"),
+    ("clb", "DescribeTargets"),
+    ("gwlb", "DescribeTargetGroups"),
+    ("gwlb", "DescribeTargetGroupInstances"),
+    ("gwlb", "DescribeTargetGroupInstanceStatus"),
     ("region", "DescribeProducts"),
     ("region", "DescribeRegions"),
     ("tke", "DescribeClusterEndpoints"),
@@ -998,6 +1023,7 @@ ALLOWED_ACTIONS = {
 
 # Official archive titles; all assets are verified by tests against the manifest.
 SERVICE_ICONS = {
+    "gwlb": ("Gateway Load Balancer", "Cloud Load Balancer"),
     "lke": ("Tencent Cloud Agent Development Platform", "Application Programming Interface"),
     "tcaplusdb": ("TcaplusDB", "Tcaplus DataBase"),
     "hunyuan": ("Tencent Hunyuan", "Tencent Hunyuan"),
@@ -1053,6 +1079,17 @@ SERVICE_ICONS = {
     "privatedns": ("Private DNS", "Private DNS"),
 }
 KIND_ICONS = {
+    "vpc.havip": "Virtual Private Cloud",
+    "vpc.vpngateway": "VPN Connections",
+    "vpc.directconnectgateway": "Direct Connect",
+    "vpc.privatenat": "NAT Gateway",
+    "clb.functiontarget": "Cloud Load Balancer",
+    "clb.crosstarget": "Cloud Load Balancer",
+    "gwlb.targetgroup": "Cloud Load Balancer",
+    "gwlb.targetbinding": "Cloud Load Balancer",
+    "vpc.dhcpip": "Virtual Private Cloud",
+    "vpc.eniattachment": "Elastic Network Interface",
+    "vpc.endpointservicepermission": "Private Link",
     **{
         kind: "Cloud Identity Governance"
         for kind in (
@@ -1086,6 +1123,12 @@ KIND_ICONS = {
     "vpc.peeringconnection": "Peering Connection",
 }
 DETAIL_KINDS = {
+    "clb.functiontarget",
+    "clb.crosstarget",
+    "gwlb.targetgroup",
+    "gwlb.targetbinding",
+    "vpc.eniattachment",
+    "vpc.endpointservicepermission",
     "cos.authorizationdecision",
     "cam.assumptiondecision",
     "cam.authorizationpath",
@@ -1246,6 +1289,7 @@ DETAIL_KINDS = {
 }
 
 API_VERSIONS = {
+    "gwlb": "2024-09-06",
     "region": "2022-06-27",
     "tcaplusdb": "2019-08-23",
     "lke": "2023-11-30",

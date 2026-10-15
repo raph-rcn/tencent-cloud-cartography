@@ -52,6 +52,8 @@ def interface(raw, region):
             "Business",
             "Zone",
             "QosLevel",
+            "CdcId",
+            "ResourceId",
         ),
         ("EniType", "AttachType"),
         ("Primary",),
@@ -113,7 +115,7 @@ def interface(raw, region):
             if row.get("PublicIpAddress"):
                 p["PublicIpAddress"] = ip(row["PublicIpAddress"], version)
             if row.get("AddressId"):
-                p["AddressId"] = rid(row["AddressId"], "eip")
+                p["AddressId"] = rid(row["AddressId"], "(?:eip|eipv6)")
             if address in seen:
                 old, old_field = seen[address]
                 if old_field == field or any(old[k] != p[k] for k in old.keys() & p.keys()):
@@ -141,11 +143,16 @@ def eip(raw):
             "CreatedTime",
             "DeadlineDate",
             "RenewFlag",
+            "Egress",
+            "AntiDDoSPackageId",
+            "BandwidthPackageId",
+            "UnVpcId",
+            "DedicatedClusterId",
         ),
         ("Bandwidth",),
         ("IsArrears", "IsBlocked", "IsEipDirectConnection", "CascadeRelease", "LocalBgp"),
     )
-    identity = rid(raw.get("AddressId"), "eip")
+    identity = rid(raw.get("AddressId"), "(?:eip|eipv6)")
     refs = []
     for key in ("AddressIp", "PrivateAddressIp"):
         if raw.get(key):
@@ -158,11 +165,24 @@ def eip(raw):
         "NAT": ("nat", "vpc.nat"),
         "ENI": ("eni", "vpc.networkinterface"),
         "CLB": ("lb", "clb.clb"),
+        "HAVIP": ("havip", "vpc.havip"),
+        "DHCPIP": ("dhcpip", "vpc.dhcpip"),
     }
     if props.get("InstanceId") and props.get("InstanceType") in mapping:
         prefix, kind = mapping[props["InstanceType"]]
         refs.append((kind, rid(props["InstanceId"], prefix), "ATTACHED_TO"))
     props["state"] = props.get("AddressStatus", "")
+    props["target_resolution"] = (
+        "explicit-provider-type"
+        if props.get("InstanceType") in mapping and props.get("InstanceId")
+        else "unsupported-provider-type"
+        if props.get("InstanceId")
+        else "unbound-or-unreported"
+    )
+    if props.get("UnVpcId"):
+        refs.append(("vpc.vpc", rid(props["UnVpcId"], "vpc"), "IN_VPC"))
+    if props.get("AddressIp"):
+        props["ip_version"] = ipaddress.ip_address(props["AddressIp"]).version
     props["ip_addresses"] = props.get("AddressIp", "")
     props["reachability_verified"] = False
     return identity, props, refs, []
@@ -239,12 +259,25 @@ def collect(runner, spec, region):
 
 
 def link(graph):
+    derived = {
+        "Collected ENI attachment ID and CVM account/region/VPC",
+        "EIP explicit ENI ID and private address",
+        "Exact collected target IP and account/region/VPC",
+        "Unique collected ENI address and attachment",
+    }
+    graph.edges = {k: e for k, e in graph.edges.items() if e.get("provenance") not in derived}
     vpcs = {}
     parents = {}
     for edge in list(graph.edges.values()):
         if edge["relationship"] == "IN_VPC":
             vpcs.setdefault(edge["source"], set()).add(edge["target"])
-        if edge["relationship"] in {"HAS_LISTENER", "HAS_RULE", "FORWARDS_TO"}:
+        if edge["relationship"] in {
+            "HAS_LISTENER",
+            "HAS_RULE",
+            "HAS_TARGET_GROUP",
+            "HAS_BACKEND",
+            "FORWARDS_TO",
+        }:
             parents.setdefault(edge["target"], set()).add(edge["source"])
     addresses = {}
     by_interface = {}

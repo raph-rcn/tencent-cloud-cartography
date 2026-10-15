@@ -4,6 +4,21 @@ from .model import first, stable_id, walk_values
 
 
 def enrich(graph, account, region, kind, nid, raw, source):
+    if kind == "clb.clb":
+        from .clb import load_balancer_configuration
+        from .transport import CollectionError
+        from .vpc import identity
+
+        load_balancer_configuration(graph.nodes[nid], raw)
+        for key in ("SecureGroups", "SecurityGroup"):
+            values = raw.get(key) or []
+            if not isinstance(values, list):
+                raise CollectionError("InvalidClbSecurityGroups")
+            for value in values:
+                gid = graph.add(
+                    account, region, "vpc.securitygroup", identity(value, "sg"), status="reference"
+                )
+                graph.edge(nid, gid, "USES_SECURITY_GROUP", source)
     if kind.startswith("emr."):
         from .emr import configuration
 

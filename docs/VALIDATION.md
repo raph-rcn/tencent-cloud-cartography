@@ -873,3 +873,40 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
   ensures the installed bridge cannot expose the application's conflicting SDK
   directory to TCCLI's interpreter.
 - **No live Tencent authentication or Frankfurt collection was performed.**
+
+## Networking metadata closure — 2026-10-15 (0.6.0)
+
+- Implemented the feasible metadata work in all 14 requested networking rows;
+  [NETWORK-PARITY.md](NETWORK-PARITY.md) records the closure matrix, audited
+  provider differences and evidence limits. The AWS source checkout was read only.
+- Added **17 exact read operations / 233 total**. Native SDK request/response
+  contracts were inspected for cross targets, SCF bindings, IPv6 variants,
+  endpoint-service allowlists, shared CCN attachments, gateway identities and
+  GWLB target groups/bindings/reported health. No live cloud API call was made.
+- **1,390 backend tests** pass, including **70 new tests** covering cross-account,
+  cross-region, VPC/ENI/IP and exact-rule contradictions, duplicate owners,
+  legacy remote-region bindings, scoped SCF identity, stale offline evidence,
+  ACL/default-subnet semantics, shared CCN owners, private NAT next hops,
+  gateway denials, pagination and payload omission. The native TCCLI provider
+  fixture ran in the isolated installed TCCLI interpreter, without network access.
+- **13 frontend tests**, clean `npm ci`, production build and dependency audit
+  passed; npm reports **zero vulnerabilities**. The existing bundle-size advisory
+  remains. Pre-commit includes Python lint/format and official asset checks.
+- Browser smoke used a separate, explicitly labeled local example fixture:
+  **29 resources / 49 relationships / 5 services** in full graph view. New gateway
+  and CLB/SCF metadata rendered with official assets. Grid layout and local
+  draw.io export completed; the export contains **48 editable vertices including
+  grouping containers and all 49 edges**, with valid parent/source/target IDs
+  and embedded SVGs. No console errors were observed. Initial auto layout emitted
+  one node-overlap edge warning. The test did not replace any project inventory.
+- All **896 official SVGs**, the official wordmark and **222 registered kind
+  mappings** passed integrity checks. VPN and Direct Connect have explicit official
+  product mappings; GWLB uses the official CLB symbol because the pinned archive
+  has no dedicated GWLB asset.
+- The **0.6.0 wheel and source archive** bundle the viewer and official assets.
+  The isolated installation smoke verifies project isolation and local HTTP/UI
+  delivery away from the checkout. Artifacts are generated under `dist/`.
+- Authenticated Tencent/Frankfurt validation remains outstanding. AWS tenancy,
+  launch-time addressing, default ACL, endpoint IAM/private-DNS and other native
+  schema differences are documented; offline tests do not establish full AWS
+  equivalence, public reachability or effective authorization.
