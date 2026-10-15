@@ -1,5 +1,12 @@
 # AWS capability parity audit
 
+The current [platform/security/authorization extension](PLATFORM-PARITY.md)
+(version 0.8.0) implements 46 additional metadata reads and Kubernetes RBAC,
+condition and declared-session analysis. Its **15-area disposition** supersedes
+older gap descriptions for these services. Unsafe responses, unestablished
+provider correspondence and unverified runtime behavior remain explicit.
+
+
 The current [storage/database/secret metadata extension](STORAGE-DATABASE-PARITY.md)
 (version 0.7.0) adds bounded COS object ACL/inheritance and declared session
 analysis, database proxy/cluster/backup/parameter depth, DLC/CDWPG grants,

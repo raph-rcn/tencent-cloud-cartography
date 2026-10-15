@@ -124,6 +124,9 @@ def statements(graph, bucket, outgoing):
 
 
 def analyze(graph, max_decisions=25000, context=None):
+    from .authorization import context_values
+
+    context = context_values(context)
     obsolete = {nid for nid, n in graph.nodes.items() if n["kind"] == "cos.publicaccessdecision"}
     graph.nodes = {nid: n for nid, n in graph.nodes.items() if nid not in obsolete}
     graph.edges = {
@@ -152,7 +155,7 @@ def analyze(graph, max_decisions=25000, context=None):
                 else []
             )
             for scope in choices:
-                decision, evidence = evaluate(selected, action, scope, complete)
+                decision, evidence = evaluate(selected, action, scope, complete, context)
                 decision = decision.replace(
                     "collected_identity_policies", "collected_bucket_configuration"
                 )
@@ -175,6 +178,7 @@ def analyze(graph, max_decisions=25000, context=None):
                     evaluation_scope="collected_bucket_policy_and_acl",
                     effective_access_verified=False,
                     object_acl_overrides_evaluated=False,
+                    evaluated_context=json.dumps(context, sort_keys=True),
                     conditions=json.dumps([e[2] for e in evidence if e[2]], sort_keys=True),
                     configuration_complete=complete,
                 )

@@ -291,6 +291,9 @@ def test_payloads_are_selected_and_no_snapshot_or_mutation_api_is_allowed():
         "DescribeConfigRule",
         "DescribeConfigRecorder",
         "DescribeConfigDeliver",
+        "ListAggregators",
+        "DescribeAggregator",
+        "DescribeAggregateConfigDeliver",
     }
 
 
@@ -312,6 +315,8 @@ def test_pagination_partial_detail_denial_and_multi_region_single_account_scope(
                 return recorder()
             if action == "DescribeConfigDeliver":
                 raise CollectionError("ResourceNotFound.DeliverIsNotExist")
+            if action == "ListAggregators":
+                return dict(Items=[], Total=0)
             if action == "ListConfigRules":
                 assert set(kw) == {"Offset", "Limit"} and kw["Limit"] == 100
                 data = [{**rule(i), "RuleOwnerId": int(self.account)} for i in range(101)]

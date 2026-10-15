@@ -5,6 +5,7 @@ import json
 import re
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
 from .cam import _unique_object
@@ -22,13 +23,77 @@ ANONYMOUS = {"*", "qcs::cam::anyone:anyone", "qcs::cam::anonymous:anonymous"}
 CONTEXT_KEYS = {
     "qcs:ip",
     "qcs:current_time",
+    "qcs:request_tag",
     "cos:prefix",
     "cos:versionid",
     "cos:x-cos-storage-class",
     "cos:x-cos-acl",
     "cos:secure-transport",
+    "cos:content-length",
+    "cos:tls-version",
+    "cos:host",
+    "cos:content-type",
+    "cos:response-content-type",
+    "cos:x-cos-forbid-overwrite",
+    "cos:object-lock-mode",
 }
-STRING_KEYS = CONTEXT_KEYS - {"qcs:ip", "qcs:current_time", "cos:secure-transport"}
+ABSENT_KEYS = {k for k in CONTEXT_KEYS if k.startswith("cos:")} - {
+    "cos:host",
+    "cos:secure-transport",
+}
+NUMERIC_KEYS = {"cos:content-length", "cos:tls-version"}
+STRING_KEYS = (
+    CONTEXT_KEYS
+    - {"qcs:ip", "qcs:current_time", "qcs:request_tag", "cos:secure-transport"}
+    - NUMERIC_KEYS
+)
+NUMERIC_OPERATORS = {
+    "numeric_equal": lambda a, b: a == b,
+    "numeric_not_equal": lambda a, b: a == b,
+    "numeric_less_than": lambda a, b: a < b,
+    "numeric_less_than_equal": lambda a, b: a <= b,
+    "numeric_greater_than": lambda a, b: a > b,
+    "numeric_greater_than_equal": lambda a, b: a >= b,
+}
+
+
+def number(value):
+    if type(value) not in (int, float, str) or len(str(value)) > 128:
+        raise ValueError("Invalid numeric condition")
+    try:
+        result = Decimal(str(value))
+    except InvalidOperation:
+        raise ValueError("Invalid numeric condition") from None
+    if not result.is_finite():
+        raise ValueError("Invalid numeric condition")
+    return result
+
+
+def cos_pattern(actual, pattern):
+    # COS documents '*' only at the beginning/end. '?' and interior wildcards
+    # are not generalized from AWS or Python fnmatch.
+    if (
+        not isinstance(pattern, str)
+        or "*" in pattern.strip("*")
+        or pattern.count("*") > 2
+        or pattern.startswith("**")
+        or pattern.endswith("**")
+    ):
+        raise ValueError("Unsupported COS wildcard")
+    literal = pattern.strip("*")
+    if pattern == "*":
+        return True
+    return (
+        literal in actual
+        if pattern.startswith("*") and pattern.endswith("*")
+        else actual.endswith(literal)
+        if pattern.startswith("*")
+        else actual.startswith(literal)
+        if pattern.endswith("*")
+        else actual == literal
+    )
+
+
 POLICY_ACTIONS = {
     "ListUsers",
     "ListGroups",
@@ -75,6 +140,40 @@ def timestamp(value):
     return result
 
 
+def tag_values(value, unique_keys=True):
+    if not isinstance(value, list) or len(value) > 100:
+        raise ValueError("Invalid declared tag set")
+    keys = set()
+    for pair in value:
+        if (
+            not isinstance(pair, str)
+            or len(pair) > 4096
+            or pair.count("&") != 1
+            or any(ord(c) < 32 for c in pair)
+            or "${" in pair
+        ):
+            raise ValueError("Invalid tag condition pair")
+        key, _ = pair.split("&")
+        if not key or (unique_keys and key in keys):
+            raise ValueError("Duplicate or empty tag condition key")
+        keys.add(key)
+    return value
+
+
+def resource_context(context, target):
+    attrs = dict(context or {})
+    attrs.pop("qcs:resource_tag", None)
+    if target and target["properties"].get("tag_resolution") == "exact-collected-identity":
+        p = target["properties"]
+        try:
+            pairs = json.loads(p["tag_api_tags"])
+            values = [pair["TagKey"] + "&" + pair["TagValue"] for pair in pairs]
+            attrs["qcs:resource_tag"] = tag_values(values)
+        except (ValueError, TypeError, KeyError):
+            pass  # Incomplete/ambiguous tags never become an empty known set.
+    return attrs
+
+
 def context_values(context=None):
     """Only nonsecret, explicitly declared request attributes are accepted."""
     if context is None:
@@ -82,6 +181,18 @@ def context_values(context=None):
     if not isinstance(context, dict) or set(context) - CONTEXT_KEYS:
         raise ValueError("Unsupported authorization context key")
     for key, value in context.items():
+        # Explicit null means a known absent COS request header/parameter. An
+        # omitted key still means unknown and cannot satisfy an _if_exist clause.
+        if key == "qcs:request_tag":
+            tag_values(value)
+            continue
+        if value is None and key in ABSENT_KEYS:
+            continue
+        if key in NUMERIC_KEYS:
+            parsed = number(value)
+            if parsed < 0 or (key == "cos:content-length" and parsed != parsed.to_integral_value()):
+                raise ValueError("Invalid COS numeric request attribute")
+            continue
         if key == "cos:secure-transport":
             if type(value) is not bool:
                 raise ValueError("Transport context must be boolean")
@@ -118,7 +229,7 @@ def disjunction(values):
     return True if True in values else None if None in values else False
 
 
-def conditions(condition, context):
+def conditions(condition, context, action=None):
     """Unknown/missing attributes stay conditional; they are never read from env."""
     if not condition:
         return True, []
@@ -129,6 +240,9 @@ def conditions(condition, context):
             reasons.append("unsupported_condition_structure")
             continue
         for key, expected in clauses.items():
+            base_operator = (
+                operator.removesuffix("_if_exist") if key.startswith("cos:") else operator
+            )
             values = expected if isinstance(expected, list) else [expected]
             if not values:
                 results.append(None)
@@ -140,18 +254,73 @@ def conditions(condition, context):
                 continue
             try:
                 actual = context[key]
-                negative = operator in {
+                if key in {"qcs:request_tag", "qcs:resource_tag"}:
+                    # Audited applicability only. A generic list/Describe action
+                    # must not acquire AWS-like resource/tag deny semantics.
+                    applicable = (
+                        {"cos:PutBucket", "cos:PutBucketTagging"}
+                        if key == "qcs:request_tag"
+                        else {"cvm:RebootInstances", "tat:InvokeCommand", "tat:CancelInvocation"}
+                    )
+                    if action is not None and action not in applicable:
+                        raise ValueError("Unaudited service tag applicability")
+                    actual_tags, expected_tags = (
+                        set(tag_values(actual)),
+                        set(tag_values(values, unique_keys=False)),
+                    )
+                    if (
+                        operator not in {"for_any_value:string_equal", "for_all_value:string_equal"}
+                        or not actual_tags
+                        or not expected_tags
+                    ):
+                        raise ValueError("Unsupported tag set operator or empty-set semantics")
+                    results.append(
+                        bool(actual_tags & expected_tags)
+                        if operator.startswith("for_any_value:")
+                        else actual_tags <= expected_tags
+                    )
+                    continue
+                supported = (
+                    key in STRING_KEYS
+                    and base_operator
+                    in {
+                        "string_equal",
+                        "string_not_equal",
+                        "string_equal_ignore_case",
+                        "string_not_equal_ignore_case",
+                        "string_like",
+                    }
+                    or key in NUMERIC_KEYS
+                    and base_operator in NUMERIC_OPERATORS
+                    or key == "cos:secure-transport"
+                    and base_operator == "bool_equal"
+                )
+                if actual is None and key.startswith("cos:"):
+                    if not supported or key not in ABSENT_KEYS:
+                        raise ValueError("Unsupported condition operator/key")
+                    if key in NUMERIC_KEYS:
+                        [number(v) for v in values]
+                    elif key in STRING_KEYS:
+                        if not all(isinstance(v, str) for v in values):
+                            raise ValueError("Invalid absent string condition")
+                        if base_operator == "string_like":
+                            [cos_pattern("", v) for v in values]
+                    results.append(operator.endswith("_if_exist"))
+                    continue
+                op = base_operator
+                negative = op in {
                     "ip_not_equal",
                     "string_not_equal",
                     "string_not_equal_ignore_case",
                     "date_not_equal",
+                    "numeric_not_equal",
                 }
-                if key == "qcs:ip" and operator in {"ip_equal", "ip_not_equal"}:
+                if key == "qcs:ip" and op in {"ip_equal", "ip_not_equal"}:
                     if not all(isinstance(v, str) and "%" not in v for v in values):
                         raise ValueError("Invalid IP condition")
                     networks = [ipaddress.ip_network(v, strict=False) for v in values]
                     matched = any(ipaddress.ip_address(actual) in net for net in networks)
-                elif key == "qcs:current_time" and operator in {
+                elif key == "qcs:current_time" and op in {
                     "date_equal",
                     "date_not_equal",
                     "date_less_than",
@@ -168,9 +337,17 @@ def conditions(condition, context):
                         "date_less_than_equal": lambda a, b: a <= b,
                         "date_greater_than": lambda a, b: a > b,
                         "date_greater_than_equal": lambda a, b: a >= b,
-                    }[operator]
+                    }[op]
                     matched = any(comparison(now, value) for value in dates)
-                elif key in STRING_KEYS | {"qcs:assume_principal_arn"} and operator in {
+                elif key in NUMERIC_KEYS and op in NUMERIC_OPERATORS:
+                    numbers = [number(v) for v in values]
+                    matched = any(NUMERIC_OPERATORS[op](number(actual), v) for v in numbers)
+                elif key in STRING_KEYS and key.startswith("cos:") and op == "string_like":
+                    if not isinstance(actual, str):
+                        raise ValueError("Invalid COS string context")
+                    pattern_matches = [cos_pattern(actual, v) for v in values]
+                    matched = any(pattern_matches)
+                elif key in STRING_KEYS | {"qcs:assume_principal_arn"} and op in {
                     "string_equal",
                     "string_not_equal",
                     "string_equal_ignore_case",
@@ -178,11 +355,11 @@ def conditions(condition, context):
                 }:
                     if not isinstance(actual, str) or not all(isinstance(v, str) for v in values):
                         raise ValueError("Invalid string condition")
-                    if operator.endswith("ignore_case"):
+                    if op.endswith("ignore_case"):
                         matched = actual.casefold() in [v.casefold() for v in values]
                     else:
                         matched = actual in values
-                elif key == "cos:secure-transport" and operator == "bool_equal":
+                elif key == "cos:secure-transport" and op == "bool_equal":
                     if not all(type(v) is bool or v in ("true", "false") for v in values):
                         raise ValueError("Invalid boolean condition")
                     matched = actual in [v if type(v) is bool else v == "true" for v in values]
@@ -323,6 +500,7 @@ def normalize_resource(value, owner, target):
 
 
 def evaluate(statements, action, scopes, context=None, complete=True, owner=None, target=None):
+    context = resource_context(context, target) if target else dict(context or {})
     gate, allows, denies = Gate(complete=complete), [], []
     if not complete:
         gate.reasons.append("incomplete_policy_evidence")
@@ -340,7 +518,7 @@ def evaluate(statements, action, scopes, context=None, complete=True, owner=None
             match = disjunction(matches)
             if match is False:
                 continue
-            condition, reasons = conditions(row.get("condition", {}), context or {})
+            condition, reasons = conditions(row.get("condition", {}), context or {}, action)
             if "_principal_match" in row and row["_principal_match"] is None:
                 gate.complete = False
                 reasons.append("unresolved_principal_selector")

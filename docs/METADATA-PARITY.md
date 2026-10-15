@@ -1,5 +1,12 @@
 # Metadata implementation and remaining AWS parity gaps
 
+The current [platform/security/authorization extension](PLATFORM-PARITY.md)
+(version 0.8.0) implements 46 additional metadata reads and Kubernetes RBAC,
+condition and declared-session analysis. Its **15-area disposition** supersedes
+older gap descriptions for these services. Unsafe responses, unestablished
+provider correspondence and unverified runtime behavior remain explicit.
+
+
 The current [storage/database/secret metadata extension](STORAGE-DATABASE-PARITY.md)
 (version 0.7.0) adds bounded COS object ACL/inheritance and declared session
 analysis, database proxy/cluster/backup/parameter depth, DLC/CDWPG grants,
@@ -46,8 +53,8 @@ members. Live Tencent behavior remains unverified.
 | Database administration | Selected documented CAM actions for MySQL, PostgreSQL, SQL Server, MariaDB and CDWPG | These are control-plane matches, not SQL authentication or AWS IAM database-connect/Redshift credential equivalence |
 | Managed sessions | TAT StartSession/RunCommand decisions require a collected online agent on the exact CVM | No command/session is invoked; other service, session and local agent constraints remain unevaluated |
 | Stack execution | TIC ApplyStack identity-policy decisions with explicit global-wildcard scope | Narrow stack QCS expressions are not guessed; runtime TIC availability is unverified |
-| COS public configuration | Anonymous bucket policy and ACL analysis, deny precedence, conditions, object-prefix scopes, incomplete inputs | Bucket READ ACL establishes listing configuration; object read remains conditional on object ACL inheritance. No objects or object ACLs are retrieved |
-| Named COS authorization | Same-account identity/resource union, cross-account intersection, named deny precedence, evidence and separate unsigned routes | Object ACLs, some resource-only boundary interactions, unsupported syntax and session/effective access remain unknown |
+| COS public configuration | Anonymous bucket policy and ACL analysis, deny precedence, conditions, object-prefix scopes, incomplete inputs | Bucket READ ACL establishes listing configuration; object read remains conditional on object ACL inheritance. Selected literal object ACLs can be read with an explicit bounded manifest; object contents are never retrieved |
+| Named COS authorization | Same-account identity/resource union, cross-account intersection, named deny precedence, evidence and separate unsigned routes | Selected object ACLs and declared session restrictions are implemented; unselected objects, some resource-only boundary interactions, unsupported syntax and effective access remain unknown |
 | Role trust and paths | Caller policy/boundary/trust intersection; derived caller ARN restrictions; bounded shortest witnesses to COS and supported control-plane targets | Service/federation/workload trust, full condition satisfiability and runtime session propagation remain gaps; no role is assumed |
 | COS account controls | Account summary of collected selected-region bucket controls with completeness flags | No audited S3-style account-wide public-access-block equivalent; no global protection boolean is invented |
 | CLB exposure | Configured paths through listeners/rules/target groups/bindings to corroborated CVM/ENI targets | EXPOSE is a configuration edge. Corroborated cross-VPC/region, native ENI/NAT/HAVIP and SCF paths are implemented; arbitrary or inaccessible targets remain unresolved. No public reachability, firewall passage, HTTP success or exploit is proved |

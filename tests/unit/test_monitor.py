@@ -308,3 +308,44 @@ def test_truncated_bindings_and_missing_totals_remain_partial():
         collect_bindings(runner(graph, lambda *a, **kw: response), [(nid, {})])
         assert graph.coverage[-1]["error"] == error
         assert "bindings_collected" not in graph.nodes[nid]["properties"]
+
+
+@pytest.mark.parametrize(
+    "namespace,kind,key,rid",
+    [
+        ("cdb_detail", "cdb.instance", "uInstanceId", "cdb-one"),
+        ("redis_mem_proxy", "redis.instance", "instanceid", "crs-one"),
+        ("redis_mem_edition", "redis.instance", "InstanceId", "crs-one"),
+        ("BS", "cbs.disk", "diskid", "disk-one"),
+        ("cmongo_instance", "mongodb.instance", "target", "cmgo-one"),
+        ("COS", "cos.bucket", "bucket", "bucket-12345"),
+        ("nat_tc_stat", "vpc.nat", "uniq_nat_id", "nat-one"),
+        ("DC_GW", "vpc.directconnectgateway", "directconnectgatewayid", "dcg-one"),
+        ("vpc_region_conn", "vpc.peeringconnection", "peeringconnectionid", "pcx-one"),
+        ("CKAFKA_INSTANCE", "ckafka.instance", "instance_id", "ckafka-one"),
+        ("cfs_monitor", "cfs.filesystem", "FileSystemId", "cfs-one"),
+        ("ces_monitor", "es.instance", "cluster_name", "es-one"),
+        ("k8s_cluster2", "tke.cluster", "tke_cluster_instance_id", "cls-one"),
+    ],
+)
+def test_documented_product_dimensions_link_only_exact_collected_owner_region(
+    namespace, kind, key, rid
+):
+    graph = Graph()
+    nid = graph.add("100", "global", "monitor.binding", "binding-one")
+    graph.nodes[nid]["properties"].update(
+        MonitorType="MT_QCE",
+        Namespace=namespace,
+        binding_region="de",
+        dimensions=json.dumps({key: rid, "appid": "200"}),
+    )
+    graph.add("200", REGION, kind, rid)
+    graph.add("100", "ap-guangzhou", kind, rid)
+    link_bindings(graph)
+    assert not graph.edges
+    target = graph.add("100", REGION, kind, rid)
+    link_bindings(graph)
+    assert [e["target"] for e in graph.edges.values()] == [target]
+    graph.nodes[nid]["properties"]["dimensions"] = json.dumps({key: "different"})
+    link_bindings(graph)
+    assert not graph.edges

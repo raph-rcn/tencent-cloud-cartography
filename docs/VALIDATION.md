@@ -947,3 +947,43 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
 - Full AWS parity remains unverified. The account-wide COS block equivalence,
   native-model differences, unsafe mixed responses and missing runtime evidence
   stay explicit in the nine-area report and per-collector audit.
+
+
+## Platform/security/authorization extension — 2026-10-15 (0.8.0)
+
+- Added **46 exact metadata reads / 316 total**. Implemented configuration,
+  scoped relationships, condition/session evaluation and native Kubernetes RBAC
+  metadata for the requested areas; the [15-area report](PLATFORM-PARITY.md)
+  records the remaining excluded responses and unverified provider semantics.
+- **1634 Python tests passed** with the isolated native TCCLI runtime, including
+  recursive response contracts, explicit fixtures for all 42 new declarative
+  reads, TcaplusDB tag scopes, wrong owner/region/catalog/certificate/zone/asset
+  type controls, stable pagination, RBAC namespace/identity/reference controls,
+  session deny propagation, finite numeric/wildcard/absent-attribute/tag conditions
+  and offline reconciliation idempotence.
+- **13 frontend tests passed**. `npm ci`, production build and dependency audit
+  passed with **0 vulnerabilities**. The existing Vite large-chunk advisory remains.
+- Pre-commit Ruff lint/format and the asset checker passed: **896 official SVGs**,
+  the official wordmark and **322 kind mappings**. The kind-mapping count includes
+  catalog collectors, child/detail kinds and explicit kind-icon entries.
+- Separate browser validation used an explicitly labeled **EXAMPLE DATA** file on
+  loopback port 8793. Full relationship view with unresolved inventory displayed
+  **79 resources / 49 relationships / 23 services**; search located two configured
+  RBAC grants. No browser console errors were observed. The initial DOM checkbox
+  helper failed to toggle; the native accessible control succeeded and its checked
+  state was verified. No production snapshot/project settings were replaced.
+- Browser draw.io download preserved all **49 relationships**, **120 editable
+  vertices** (including structural containers) and **75 embedded resource SVGs**.
+  Export: `.local/validation/platform-metadata-export-20261015.drawio`. The fixture
+  intentionally includes an unknown inventory kind to exercise unresolved visibility.
+- Built the **0.8.0 wheel and source archive**. An isolated installation away from
+  the checkout verified packaged UI, checksummed official assets/wordmark and
+  separate empty project workspaces without cloud access.
+- Final local evidence: `.local/validation/platform-final-tests.txt`,
+  `platform-final-precommit.txt`, `platform-web-tests.txt`, `platform-web-build.txt`,
+  `platform-npm-audit.txt`, `platform-package-build.txt`, `platform-package-check.txt`.
+- No live Tencent/Kubernetes API requests, cloud writes, database login/query,
+  workload execution or object/secret contents were used for validation. Configured
+  access, vendor security counters and delivery settings remain configuration
+  evidence. Full AWS parity, actual authorization and live Frankfurt behavior are
+  **not established**.

@@ -63,7 +63,7 @@ def main(argv=None):
     sync.add_argument(
         "--kube-context",
         action="append",
-        help="Explicit ACCOUNT/REGION/CLUSTER=CONTEXT; reads only Kubernetes Tables without objects",
+        help="Explicit ACCOUNT/REGION/CLUSTER=CONTEXT; reads workload Tables and RBAC policy metadata",
     )
     sync.add_argument(
         "--cos-object-acls",

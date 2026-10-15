@@ -123,6 +123,7 @@ def test_all_type_and_encryption_scopes_versions_and_kms_configuration():
         "ListSecretVersionIds",
         "DescribeRotationDetail",
         "DescribeRotationHistory",
+        "DescribeSupportedProducts",
     }
 
 

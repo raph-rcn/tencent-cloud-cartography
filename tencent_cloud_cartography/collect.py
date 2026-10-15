@@ -573,6 +573,9 @@ class CollectorRunner:
         from .data_metadata import collect as collect_data_metadata
 
         collect_data_metadata(self, services)
+        from .platform_metadata import collect as collect_platform_metadata
+
+        collect_platform_metadata(self, services)
         from .exclusions import record as record_exclusions
 
         record_exclusions(
@@ -873,6 +876,9 @@ def collect(
     from .data_metadata import link as link_data_metadata
 
     link_data_metadata(graph)
+    from .platform_metadata import link as link_platform_metadata
+
+    link_platform_metadata(graph)
     from .dlc_authorization_metadata import link as link_dlc
 
     link_dlc(graph)
@@ -915,6 +921,9 @@ def collect(
     from .kubernetes_metadata import collect_contexts
 
     collect_contexts(graph, kube_contexts, kube_transport_factory)
+    from .kubernetes_rbac import link as link_rbac
+
+    link_rbac(graph, analysis_limit)
     from .exposure import analyze as analyze_exposure
 
     analyze_exposure(graph)

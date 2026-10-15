@@ -237,11 +237,17 @@ def test_owned_public_domain_scope_uses_filtered_total_and_retains_denied_record
             if service == "cloudrc":
                 return dict(Resources=[])
             if action == "DescribeDomainList":
+                if params["Type"] == "SHARE":
+                    return dict(DomainList=[], DomainCountInfo=dict(DomainTotal=0))
                 assert params["Type"] == "MINE"
                 return dict(
                     DomainList=[dict(DomainId=1, Name="example.test")],
                     DomainCountInfo=dict(DomainTotal=1, AllTotal=99),
                 )
+            if action == "DescribeDomainAliasList":
+                return dict(DomainAliasList=[])
+            if action == "DescribeDomainShareUserList":
+                return dict(DomainShareList=[])
             if action == "DescribeRecordList":
                 raise CollectionError("UnauthorizedOperation")
             pytest.fail(action)
@@ -256,7 +262,7 @@ def test_owned_public_domain_scope_uses_filtered_total_and_retains_denied_record
     assert len(data["nodes"]) == 1
     scope = next(c for c in data["coverage"] if c["action"] == "DescribeRecordList")
     assert scope["status"] == "denied"
-    assert len([c for c in calls if c[0] == "DescribeDomainList"]) == 1
+    assert len([c for c in calls if c[0] == "DescribeDomainList"]) == 2
 
 
 def test_private_zone_foreign_owner_is_rejected_before_graph_insertion():

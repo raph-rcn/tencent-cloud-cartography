@@ -21,6 +21,7 @@ from .authorization import (
 from .cam import parse_document
 from .model import stable_id
 from .permissions import identities
+from .session_policy import gate as session_gate
 from .transport import CollectionError
 
 SOURCE = "analysis.role-assumption"
@@ -111,7 +112,13 @@ def analyze(graph, context=None, max_decisions=DEFAULT_ANALYSIS_LIMIT):
                     Gate(complete=False, reasons=["unresolved_role_resource_identity"])
                     for _ in range(3)
                 ]
-            result, reason = combine([identity, trust, boundary], intersection=True)
+            gates = [identity, trust, boundary]
+            session = session_gate(
+                graph, caller, outgoing, "sts:AssumeRole", canonical, attrs, role
+            )
+            if session is not None:
+                gates.append(session)
+            result, reason = combine(gates, intersection=True)
             unknown |= result == "unknown"
             nid = graph.add(
                 role["account"],
@@ -133,18 +140,16 @@ def analyze(graph, context=None, max_decisions=DEFAULT_ANALYSIS_LIMIT):
                 evaluation_scope="collected_named_cam_identity_boundary_and_role_trust",
                 trust_evaluated=trust.complete,
                 boundary_evaluated=boundary.complete,
-                session_constraints="unknown",
+                session_constraints="operator_declared_hypothetical_session"
+                if session
+                else "unknown",
                 effective_access_decision="unknown",
                 effective_assumption_verified=False,
                 resulting_session_policy="unknown",
                 resulting_role_boundary_requires_separate_resource_analysis=True,
                 evaluated_context=json.dumps(attrs, sort_keys=True),
-                unresolved_reasons=json.dumps(
-                    sorted({r for g in (identity, trust, boundary) for r in g.reasons})
-                ),
-                authorization_evidence=attach_evidence(
-                    graph, nid, [identity, trust, boundary], SOURCE
-                ),
+                unresolved_reasons=json.dumps(sorted({r for g in gates for r in g.reasons})),
+                authorization_evidence=attach_evidence(graph, nid, gates, SOURCE),
             )
             graph.edge(caller["id"], nid, "HAS_ASSUMPTION_ANALYSIS", SOURCE)
             graph.edge(nid, role["id"], "TARGETS_ROLE", SOURCE)
@@ -222,7 +227,13 @@ def paths(graph, context=None, max_decisions=DEFAULT_ANALYSIS_LIMIT):
                 boundary = boundary_gate(
                     graph, caller, out, props["action"], scope, context, targets[0]
                 )
-                state, _ = combine([identity, boundary], intersection=True)
+                gates = [identity, boundary]
+                session = session_gate(
+                    graph, caller, out, props["action"], scope, context, targets[0]
+                )
+                if session is not None:
+                    gates.append(session)
+                state, _ = combine(gates, intersection=True)
                 if state != "denied":
                     permissions.setdefault(caller["id"], []).append(decision)
                     states[decision["id"]] = state

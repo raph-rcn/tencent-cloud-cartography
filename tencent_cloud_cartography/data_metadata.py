@@ -6,6 +6,7 @@ not a database login, query authorization, POSIX access point or AWS equivalence
 
 import ipaddress
 import json
+import math
 import re
 from dataclasses import dataclass
 
@@ -14,12 +15,13 @@ from .model import stable_id
 from .transport import CollectionError, pages
 
 
-def schema(strings="", integers="", booleans="", arrays="", **children):
+def schema(strings="", integers="", booleans="", arrays="", floats="", **children):
     return dict(
         strings=strings.split(),
         integers=integers.split(),
         booleans=booleans.split(),
         arrays=arrays.split(),
+        floats=floats.split(),
         children=children,
     )
 
@@ -32,9 +34,17 @@ def project(raw, spec):
         for field in spec[key]:
             if raw.get(field) is not None:
                 value = raw[field]
-                if type(value) is not typ or (typ is str and any(ord(c) < 32 for c in value)):
+                if type(value) is not typ or (
+                    typ is str and any(ord(c) < 32 and c not in "\n\r\t" for c in value)
+                ):
                     raise CollectionError("InvalidDataMetadataField")
                 result[field] = value
+    for field in spec["floats"]:
+        if raw.get(field) is not None:
+            value = raw[field]
+            if type(value) not in (int, float) or not math.isfinite(value):
+                raise CollectionError("InvalidDataMetadataNumber")
+            result[field] = value
     for field in spec["arrays"]:
         if raw.get(field) is not None:
             values = raw[field]
@@ -112,7 +122,7 @@ def emit(
         (("SubnetId", "UniqSubnetId"), "vpc.subnet", "IN_SUBNET"),
     ):
         values = {selected[key] for key in keys if selected.get(key)}
-        if len(values) == 1:
+        if len(values) == 1 and region != "global":
             target = graph.add(
                 account, region, kind, values.pop(), source=source, status="reference"
             )
@@ -538,7 +548,7 @@ def key_for(row, fields):
 
 def prepare(read, raw, parent):
     selected = project(raw, read.spec)
-    if parent:
+    if parent and read.action != "DescribeBillingResourceGroup":
         for key in ("InstanceId", "InstanceID", "DBInstanceId", "ClusterId", "MasterInstanceId"):
             if raw.get(key) not in (None, parent["resource_id"]):
                 raise CollectionError("DataMetadataIdentityMismatch")
@@ -617,9 +627,17 @@ def save(runner, read, region, rid, selected, parent):
     return node
 
 
-def collect_read(runner, read, region, parent=None, product=None):
+def collect_read(runner, read, region, parent=None, product=None, parameters=None):
     def operation(record):
-        params = {read.argument: parent["resource_id"]} if parent else {}
+        params = (
+            dict(parameters)
+            if parameters is not None
+            else {read.argument: parent["resource_id"]}
+            if parent
+            else {}
+        )
+        if parameters is not None:
+            record["metadata_query"] = json.dumps(params, sort_keys=True)
         if read.action == "DescribeDBProxySSLConfig":
             params = {
                 "ProxyAddressId": parent["properties"]["AddressId"],
@@ -644,7 +662,9 @@ def collect_read(runner, read, region, parent=None, product=None):
                 record["request_ids"].append(data["RequestId"])
             if data.get("ErrorMsg") or data.get("FailedMsgs"):
                 raise CollectionError("DataMetadataProviderFailure")
-            rawrows = data.get(read.result) if read.result else [data]
+            from .transport import path_value
+
+            rawrows = path_value(data, read.result) if read.result else [data]
             if not isinstance(rawrows, list) or (
                 read.total
                 and (type(data.get(read.total)) is not int or data[read.total] != len(rawrows))
@@ -677,6 +697,11 @@ def collect_read(runner, read, region, parent=None, product=None):
                 raise CollectionError("DuplicateDataMetadata")
             seen.update(ids)
             for rid, selected in prepared:
+                if read.service == "tcaplusdb" and params.get("ClusterId"):
+                    selected["query_cluster_id"] = params["ClusterId"]
+                    rid = stable_id(params["ClusterId"], rid)
+                if read.service == "tcss" and params.get("AssetType"):
+                    rid = stable_id(params["AssetType"], rid)
                 if product:
                     selected["Product"] = product
                     rid = stable_id(product, rid)

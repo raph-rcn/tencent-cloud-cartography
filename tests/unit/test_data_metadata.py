@@ -512,7 +512,11 @@ def test_all_new_operations_registered_and_excluded_sensitive_methods_stay_block
     )
 
 
-def test_all_projected_fields_match_current_native_sdk_contracts():
+@pytest.mark.parametrize("module_name", ["data_metadata", "platform_metadata"])
+def test_all_projected_fields_match_current_native_sdk_contracts(module_name):
+    from importlib import import_module
+
+    reads = import_module("tencent_cloud_cartography." + module_name).READS
     # Native transport deliberately supports audited APIs absent from the older
     # international SDK. Inspect the isolated TCCLI SDK when available.
     runtime = os.environ.get("TCCLI_TEST_PYTHON")
@@ -543,7 +547,7 @@ print(json.dumps(out))
                 "-c",
                 code,
                 json.dumps(
-                    [(r.service, API_VERSIONS[r.service].replace("-", ""), r.action) for r in READS]
+                    [(r.service, API_VERSIONS[r.service].replace("-", ""), r.action) for r in reads]
                 ),
             ],
             text=True,
@@ -557,8 +561,9 @@ print(json.dumps(out))
             ("integers", "int"),
             ("booleans", "bool"),
             ("arrays", "list of str"),
+            ("floats", "float"),
         ):
-            for field in spec[group]:
+            for field in spec.get(group, []):
                 assert types.get(field) == typ, (cls, field, types.get(field), typ)
         for field, child in spec["children"].items():
             typ = types[field]
@@ -567,13 +572,19 @@ print(json.dumps(out))
             )
             check(child[0] if isinstance(child, list) else child, name, prefix)
 
-    for read in READS:
+    for read in reads:
         prefix = (
             f"tencentcloud.{read.service}.v{API_VERSIONS[read.service].replace('-', '')}.models"
         )
         cls = read.action + "Response"
         if read.result:
-            cls = contracts[prefix + "." + cls][read.result].removeprefix("list of ")
+            for part in read.result.split("."):
+                typ = contracts[prefix + "." + cls][part]
+                cls = (
+                    typ.split(".")[-1].rstrip("`")
+                    if ":class:" in typ
+                    else typ.removeprefix("list of ")
+                )
         check(read.spec, cls, prefix)
 
 

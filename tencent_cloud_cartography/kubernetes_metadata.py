@@ -1,4 +1,4 @@
-"""Fixed Kubernetes Table endpoints; no full objects, annotations, env or manifests."""
+"""Workload Table summaries and RBAC policy metadata; no workload bodies or secrets."""
 
 import io
 import json
@@ -150,6 +150,55 @@ class TableTransport:
             raise
         except Exception:
             raise CollectionError("KubernetesMetadataReadFailed") from None
+
+    def rbac(self, path, cursor=""):
+        from .kubernetes_rbac import PREFIX, RESOURCES
+
+        if (
+            path not in {PREFIX + r for r in RESOURCES}
+            or not isinstance(cursor, str)
+            or len(cursor) > 65536
+        ):
+            raise CollectionError("BlockedKubernetesRbacPath")
+        headers = {"Accept": "application/json"}
+        params = {"limit": "200"}
+        if cursor:
+            params["continue"] = cursor
+        try:
+            with quiet_credentials():
+                self.client.update_params_for_auth(headers, [], ["BearerToken"], path, "GET", None)
+            response = self.client.rest_client.pool_manager.request(
+                "GET",
+                self.host + path + "?" + urlencode(params),
+                headers=headers,
+                redirect=False,
+                retries=False,
+                preload_content=False,
+                timeout=30,
+            )
+            try:
+                if response.status != 200:
+                    raise CollectionError(
+                        "UnauthorizedOperation"
+                        if response.status in (401, 403)
+                        else "UnsupportedKubernetesRbac"
+                        if response.status in (404, 406)
+                        else "KubernetesApiError"
+                    )
+                raw = response.read(10_000_001)
+                if len(raw) > 10_000_000:
+                    raise CollectionError("KubernetesRbacTooLarge")
+                data = json.loads(raw)
+                if not isinstance(data, dict):
+                    raise CollectionError("InvalidKubernetesRbacList")
+                return data
+            finally:
+                response.close()
+                response.release_conn()
+        except CollectionError:
+            raise
+        except Exception:
+            raise CollectionError("KubernetesRbacReadFailed") from None
 
     def review(self, kind, namespace=None, pod=None):
         return review(self, kind, namespace, pod)
@@ -346,6 +395,9 @@ def collect_contexts(graph, contexts, transport_factory=None):
                 from .kubernetes_permissions import collect as collect_permissions
 
                 collect_permissions(graph, node, context, transport)
+                from .kubernetes_rbac import collect as collect_rbac
+
+                collect_rbac(graph, node, transport)
             finally:
                 transport.close()
             record["count"] = 1

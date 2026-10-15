@@ -335,14 +335,45 @@ def collect_bindings(runner, collected):
         )
 
 
+# Official policy namespaces and native identity dimensions, product/248/39565.
+# AppId is intentionally never treated as UIN. Node dimensions below resolve
+# only the parent instance, not the individual Redis/MongoDB node.
+INSTANCE_DIMENSIONS = {
+    "cvm_device": ("cvm.instance", "unInstanceId", "ins"),
+    "BS": ("cbs.disk", "diskid", "disk"),
+    "cdb_detail": ("cdb.instance", "uInstanceId", "cdb"),
+    "redis_mem_proxy": ("redis.instance", "instanceid", "crs"),
+    "redis_mem_node": ("redis.instance", "instanceid", "crs"),
+    "redis_mem_edition": ("redis.instance", "InstanceId", "crs"),
+    "cmongo_instance": ("mongodb.instance", "target", "cmgo"),
+    "CMONGO_NODE": ("mongodb.instance", "target", "cmgo"),
+    "CMONGO_REPLICA": ("mongodb.instance", "target", "cmgo"),
+    "COS": ("cos.bucket", "bucket", ""),
+    "nat_tc_stat": ("vpc.nat", "uniq_nat_id", "nat"),
+    "DC_GW": ("vpc.directconnectgateway", "directconnectgatewayid", "dcg"),
+    "vpc_region_conn": ("vpc.peeringconnection", "peeringconnectionid", "pcx"),
+    "CKAFKA_INSTANCE": ("ckafka.instance", "instance_id", "ckafka"),
+    "cfs_monitor": ("cfs.filesystem", "FileSystemId", "cfs"),
+    "ces_monitor": ("es.instance", "cluster_name", "es"),
+    "k8s_cluster2": ("tke.cluster", "tke_cluster_instance_id", "cls"),
+    "cdn_domain": ("cdn.domain", "domain", ""),
+    "ov_cdn_domain": ("cdn.domain", "domain", ""),
+}
+
+
 def link_bindings(graph):
-    # Only CVM's documented cvm_device/unInstanceId mapping is currently audited.
-    # Other product dimensions remain inspectable, without guessed target kinds.
+    source = "monitor.DescribeBindingPolicyObjectList"
+    graph.edges = {
+        i: e
+        for i, e in graph.edges.items()
+        if not (e["relationship"] == "CONFIGURED_ALARM_OBJECT" and e.get("provenance") == source)
+    }
     for nid, node in list(graph.nodes.items()):
         if node["kind"] != "monitor.binding":
             continue
         props = node["properties"]
-        if props.get("MonitorType") != "MT_QCE" or props.get("Namespace") != "cvm_device":
+        namespace = props.get("Namespace")
+        if props.get("MonitorType") != "MT_QCE" or namespace not in INSTANCE_DIMENSIONS:
             props["resource_resolution"] = "unsupported-namespace"
             continue
         region = props.get("binding_region", "")
@@ -351,24 +382,29 @@ def link_bindings(graph):
             props["resource_resolution"] = "unknown-region"
             continue
         dims = dimensions(props["dimensions"])
-        rid = dims.get("unInstanceId")
-        if not isinstance(rid, str) or not re.fullmatch(r"ins-[a-zA-Z0-9]+", rid):
+        kind, key, prefix = INSTANCE_DIMENSIONS[namespace]
+        rid = dims.get(key)
+        if (
+            not isinstance(rid, str)
+            or not rid
+            or (prefix and not re.fullmatch(re.escape(prefix) + r"-[a-zA-Z0-9]+", rid))
+        ):
             props["resource_resolution"] = "unsupported-dimensions"
             continue
         candidates = [
             n
             for n in graph.nodes.values()
-            if n["kind"] == "cvm.instance"
+            if n["kind"] == kind
             and n["account"] == node["account"]
-            and n["region"] == region
+            and n["region"] == ("global" if kind == "cdn.domain" else region)
             and n["resource_id"] == rid
             and n["status"] == "enriched"
         ]
         props["resource_resolution"] = "resolved" if len(candidates) == 1 else "unresolved"
+        props["resource_resolution_level"] = (
+            "parent_instance"
+            if namespace in {"redis_mem_proxy", "redis_mem_node", "CMONGO_NODE", "CMONGO_REPLICA"}
+            else "resource"
+        )
         if len(candidates) == 1:
-            graph.edge(
-                nid,
-                candidates[0]["id"],
-                "CONFIGURED_ALARM_OBJECT",
-                "monitor.DescribeBindingPolicyObjectList",
-            )
+            graph.edge(nid, candidates[0]["id"], "CONFIGURED_ALARM_OBJECT", source)

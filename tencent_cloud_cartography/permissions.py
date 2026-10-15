@@ -80,7 +80,7 @@ def matches_scope(expression, scope):
     return None
 
 
-def evaluate(statements, action, scope, complete=True):
+def evaluate(statements, action, scope, complete=True, context=None):
     evidence = []
     allows, denies, uncertain_allow, uncertain_deny = False, False, False, False
     unsupported = False
@@ -97,8 +97,17 @@ def evaluate(statements, action, scope, complete=True):
                 continue
             matched = True if True in matches else None
             condition = statement.get("condition")
-            if condition or "principal" in statement:
-                matched = None
+            if condition:
+                from .authorization import conditions, conjunction
+
+                condition_match, _ = conditions(condition, context or {}, action)
+                matched = conjunction([matched, condition_match])
+            if "principal" in statement:
+                from .authorization import conjunction
+
+                matched = conjunction([matched, None])
+            if matched is False:
+                continue
             evidence.append((sid, statement["effect"], condition or {}, matched))
             if statement["effect"] == "deny":
                 denies |= matched is True
@@ -330,8 +339,11 @@ def intersect_boundary(identity_decision, boundary_decision):
     return "allow_from_collected_identity_and_boundary_policies"
 
 
-def analyze(graph, max_decisions=25000):
-    from .authorization import analysis_limit, limit_record
+def analyze(graph, max_decisions=25000, context=None):
+    from .authorization import analysis_limit, context_values, limit_record, resource_context
+    from .session_policy import gate as session_gate
+
+    context = context_values(context)
 
     max_decisions = analysis_limit(max_decisions)
     generated = 0
@@ -414,13 +426,29 @@ def analyze(graph, max_decisions=25000):
                     if generated >= max_decisions:
                         limit_record(graph, "AnalyzeIdentityPolicies", generated, max_decisions)
                         return
-                    decision, evidence = evaluate(statements, action, scope, complete)
+                    attrs = resource_context(context, target)
+                    decision, evidence = evaluate(statements, action, scope, complete, attrs)
                     if boundary_present:
                         boundary_decision, boundary_evidence = evaluate(
-                            boundary, action, scope, boundary_complete
+                            boundary, action, scope, boundary_complete, attrs
                         )
                         decision = intersect_boundary(decision, boundary_decision)
                         evidence.extend(boundary_evidence)
+                    session = session_gate(graph, principal, outgoing, action, scope, attrs, target)
+                    if session is not None:
+                        mapped = {
+                            "allowed": "allow_from_collected_identity_policies",
+                            "denied": "explicit_deny"
+                            if session.deny is True
+                            else "implicit_deny_from_collected_identity_policies",
+                            "conditional": "conditional",
+                            "unknown": "incomplete",
+                        }[session.decision]
+                        decision = intersect_boundary(decision, mapped)
+                        evidence.extend(
+                            (e["statement_id"], e["effect"], e.get("condition", {}), e["matched"])
+                            for e in session.evidence
+                        )
                     unsupported_analysis |= decision == "incomplete"
                     rid = stable_id(principal["id"], target["id"], action, scope)
                     nid = graph.add(
@@ -449,6 +477,10 @@ def analyze(graph, max_decisions=25000):
                         if target["kind"] == "cvm.instance"
                         else "",
                         policy_collection_complete=complete,
+                        evaluated_context=json.dumps(attrs, sort_keys=True),
+                        session_constraints="operator_declared_hypothetical_session"
+                        if session
+                        else "unknown",
                         conditions=json.dumps(
                             [row[2] for row in evidence if row[2]], sort_keys=True
                         ),
@@ -502,15 +534,20 @@ def analyze_snapshot(snapshot, context=None, max_decisions=25000, session_polici
     from .data_metadata import link as link_data_metadata
 
     link_data_metadata(graph)
+    from .platform_metadata import link as link_platform_metadata
+
+    link_platform_metadata(graph)
     from .dlc_authorization_metadata import link as link_dlc
     from .secrets import link_resources
 
     link_dlc(graph)
     link_resources(graph)
     from .exposure import analyze as analyze_exposure
+    from .kubernetes_rbac import link as link_rbac
 
+    link_rbac(graph, max_decisions)
     analyze_exposure(graph)
-    analyze(graph, max_decisions)
+    analyze(graph, max_decisions, context)
     from .public_access import analyze as analyze_public_access
 
     analyze_public_access(graph, max_decisions=max_decisions, context=context)

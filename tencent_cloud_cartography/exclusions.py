@@ -29,6 +29,28 @@ EXCLUSIONS = (
         "Backups.ExternalAddr/InternalAddr are backup download capabilities",
     ),
     ("tcss", "DescribeAssetContainerList", "List.Cmd"),
+    ("tcss", "DescribeAssetContainerDetail", "Cmd contains workload command"),
+    ("tcaplusdb", "DescribeTablesInRecycle", "TableInfos.IdlFiles.FileContent"),
+    ("lke", "DescribeApp", "AppKey and AppConfig contain application secrets/prompts"),
+    ("tione", "DescribeModelServiceCallInfo", "AppKey/AppSecret"),
+    ("tione", "DescribeModelServiceGroup", "ServiceGroup.AuthTokens and Services.ServiceInfo.Env"),
+    ("tione", "DescribeModelService", "Service.ServiceInfo.Env/ImageInfo.ImageSecret"),
+    ("tione", "DescribeTrainingTask", "TrainingTask.Envs"),
+    (
+        "tione",
+        "DescribeTrainingModelVersion",
+        "TrainingModelVersion.ReasoningImageInfo.ImageSecret",
+    ),
+    ("eb", "ListConnections", "Connections.DTSParams.Password"),
+    (
+        "monitor",
+        "DescribeAlarmHistories",
+        "Histories.Content may contain custom alert/workload text",
+    ),
+    ("ssl", "DescribeCertificate", "CertificatePrivateKey"),
+    ("ssl", "DescribeCertificateDetail", "CertificatePrivateKey"),
+    ("wedata", "GetTaskCode", "Data.Code task source"),
+    ("wedata", "GetOpsTaskCode", "Data.Code task source"),
     ("organization", "ListUsers", "Users.Password"),
     ("organization", "GetUser", "UserInfo.Password"),
     ("coding", "DescribeCodingCIJobs", "JobList.JenkinsFileStaticContent/EnvList"),
@@ -72,7 +94,7 @@ def record(graph, account, regions, services=None, region_map=None):
             raise ValueError("Excluded workload API is present in metadata allowlist")
         for region in (
             ["global"]
-            if service in ("csip", "cdn", "organization", "tcss")
+            if service in ("csip", "cdn", "organization", "tcss", "ssl", "monitor")
             else (region_map.get(service, []) if region_map is not None else regions)
         ):
             if any(

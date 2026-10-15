@@ -26,12 +26,15 @@
       "source_enabled": true,
       "tencent_counterpart": "CAM",
       "status": "incomplete",
-      "evidence_or_gap": "CAM users/groups/roles, attachments, identity/trust documents, boundaries and protection/federation metadata implemented. Offline caller-policy/boundary/role-trust intersection, derived caller ARN conditions, named COS composition and bounded permission paths added. Missing boundaries, unsupported conditions, service/federated/workload/session semantics and actual effective authorization remain gaps. Public SAML entities/SSO endpoints/certificate fingerprints and exact declared provider references added; no federation login or token is acquired.",
+      "evidence_or_gap": "CAM policy documents/boundaries, public federation metadata and offline conditions/session restrictions. Unsupported keys/operators and service/tag applicability remain unknown; federation assertions and effective authorization are unverified.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
-      "gap_report": "METADATA-PARITY.md",
+      "gap_report": "PLATFORM-PARITY.md",
       "live_validation": "not-performed",
-      "metadata_depth_report": "METADATA-DEPTH.md"
+      "metadata_depth_report": "METADATA-DEPTH.md",
+      "platform_metadata_report": "PLATFORM-PARITY.md",
+      "implemented_metadata": "CAM policy documents/boundaries, public federation metadata and offline conditions/session restrictions.",
+      "remaining_boundary": "Unsupported keys/operators and service/tag applicability remain unknown; federation assertions and effective authorization are unverified."
     },
     {
       "aws_collector": "iaminstanceprofiles",
@@ -73,12 +76,15 @@
       "source_enabled": true,
       "tencent_counterpart": "TcaplusDB",
       "status": "incomplete",
-      "evidence_or_gap": "For CloudRC-discovered numeric clusters: existing table groups plus paginated safe backup records and snapshots with explicit scoped table references. Native cluster/password and table/IDL APIs stay blocked. Backup/snapshot table references do not establish full schemas, indexes, table inventory, ownership or DynamoDB authorization equivalence.",
+      "evidence_or_gap": "CloudRC TcaplusDB references, table groups/backups/snapshots and exact cluster/group/table tag metadata. Native cluster/table/recycle details return passwords/IDL; references and snapshots are not a complete table census or DynamoDB data-model equivalence.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
       "live_validation": "not-performed",
-      "storage_database_report": "STORAGE-DATABASE-PARITY.md"
+      "storage_database_report": "STORAGE-DATABASE-PARITY.md",
+      "platform_metadata_report": "PLATFORM-PARITY.md",
+      "implemented_metadata": "CloudRC TcaplusDB references, table groups/backups/snapshots and exact cluster/group/table tag metadata.",
+      "remaining_boundary": "Native cluster/table/recycle details return passwords/IDL; references and snapshots are not a complete table census or DynamoDB data-model equivalence."
     },
     {
       "aws_collector": "ec2:launch_templates",
@@ -364,22 +370,28 @@
       "source_enabled": true,
       "tencent_counterpart": "TKE / TCSS container metadata",
       "status": "incomplete",
-      "evidence_or_gap": "Explicit Kubernetes contexts collect fixed metadata Tables for nodes/pods/services/controllers/jobs, container name/image summaries, exact scheduling/image references and current-context pods/exec authorization reviews with identity controls. TCSS cluster/image summaries collected. Full task/container definitions, UIDs/owners, bootstrap/env/volume/service-account/network detail and TCSS commands cannot be retrieved by this restricted design.",
+      "evidence_or_gap": "TKE/workload Table summaries, configured RBAC and TCSS assessment/scan/compliance metadata. TCSS container list/detail Cmd and unsafe TKE workload responses stay blocked. Vendor coverage is not an exact AWS assessment denominator.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
-      "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "gap_report": "PLATFORM-PARITY.md",
+      "live_validation": "not-performed",
+      "platform_metadata_report": "PLATFORM-PARITY.md",
+      "implemented_metadata": "TKE/workload Table summaries, configured RBAC and TCSS assessment/scan/compliance metadata.",
+      "remaining_boundary": "TCSS container list/detail Cmd and unsafe TKE workload responses stay blocked. Vendor coverage is not an exact AWS assessment denominator."
     },
     {
       "aws_collector": "eks",
       "source_enabled": true,
       "tencent_counterpart": "TKE",
       "status": "incomplete",
-      "evidence_or_gap": "Typed cluster/network/version/lifecycle inventory, endpoint ACL/SG, public CA metadata, service-account/OIDC options, control-plane logging and subaccount common-name mappings implemented. Optional existing Kubernetes contexts collect summaries/reviews. TKE instance API includes bootstrap UserScript and remains excluded; full node config, role mappings, RBAC/all-principal semantics and live behavior remain gaps.",
+      "evidence_or_gap": "TKE endpoint/auth metadata, object-free workload Tables, authorization reviews and four native RBAC policy lists with namespace-scoped configured grants. No workload definitions, token/federation propagation proof, other authorizer/admission emulation or actual execution. Missing RBAC lists/roles stay partial.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
-      "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "gap_report": "PLATFORM-PARITY.md",
+      "live_validation": "not-performed",
+      "platform_metadata_report": "PLATFORM-PARITY.md",
+      "implemented_metadata": "TKE endpoint/auth metadata, object-free workload Tables, authorization reviews and four native RBAC policy lists with namespace-scoped configured grants.",
+      "remaining_boundary": "No workload definitions, token/federation propagation proof, other authorizer/admission emulation or actual execution. Missing RBAC lists/roles stay partial."
     },
     {
       "aws_collector": "elasticache",
@@ -433,13 +445,16 @@
       "source_enabled": true,
       "tencent_counterpart": "TencentDB MySQL / PostgreSQL / SQL Server / MariaDB",
       "status": "incomplete",
-      "evidence_or_gap": "Existing four-product instance/SSL/SG/HA/backup/replica metadata extended with MySQL cloud-disk cluster nodes/addresses, backup encryption and all three product backup-summary scopes, local binlog retention and backup-download restrictions; PostgreSQL proxy groups/nodes/addresses/routes and independent proxy SSL configuration; SQL Server configured parameters, regional backup summary and read-only groups/member configuration; MariaDB backup schedules/retention. SQL workload-valued MySQL/MariaDB parameters and download-capability backup listings remain excluded. AWS option-group/IAM database-connect and full native-model equivalence remain unverified.",
+      "evidence_or_gap": "Native MySQL/PostgreSQL/SQL Server/MariaDB metadata including earlier backup/proxy/cluster depth; additional MySQL template descriptors, proxy capability and resource sizing. SQL-valued parameter and credential-bearing backup APIs remain excluded; AWS option-group/IAM SQL connect semantics and live behavior are unverified.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
       "live_validation": "not-performed",
       "metadata_depth_report": "METADATA-DEPTH.md",
-      "storage_database_report": "STORAGE-DATABASE-PARITY.md"
+      "storage_database_report": "STORAGE-DATABASE-PARITY.md",
+      "platform_metadata_report": "PLATFORM-PARITY.md",
+      "implemented_metadata": "Native MySQL/PostgreSQL/SQL Server/MariaDB metadata including earlier backup/proxy/cluster depth; additional MySQL template descriptors, proxy capability and resource sizing.",
+      "remaining_boundary": "SQL-valued parameter and credential-bearing backup APIs remain excluded; AWS option-group/IAM SQL connect semantics and live behavior are unverified."
     },
     {
       "aws_collector": "redshift",
@@ -458,11 +473,14 @@
       "source_enabled": true,
       "tencent_counterpart": "DNSPod / Private DNS",
       "status": "incomplete",
-      "evidence_or_gap": "Owned DNSPod domains, Private DNS zones, paginated records, assigned nameservers, configured subzones and explicit region/owner VPC bindings implemented. Record types/TTL/weight/line/status retained; scoped names and address matches prevent public/private or VPC conflation. Cross-zone private resolver precedence, remaining managed-service endpoint aliases, shared public-domain ownership and live validation remain incomplete.",
+      "evidence_or_gap": "Owned and shared DNSPod domains, owner-UIN-checked shared records, aliases/share grants; Private DNS forwarding/inbound endpoints, explicit regional VPC/subnet links and exact endpoint hosts. Cross-zone/forwarding precedence and runtime DNS answers remain unverified. Shared owners require explicit native UIN; outbound endpoint detail is unavailable in the audited public SDK response.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
-      "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "gap_report": "PLATFORM-PARITY.md",
+      "live_validation": "not-performed",
+      "platform_metadata_report": "PLATFORM-PARITY.md",
+      "implemented_metadata": "Owned and shared DNSPod domains, owner-UIN-checked shared records, aliases/share grants; Private DNS forwarding/inbound endpoints, explicit regional VPC/subnet links and exact endpoint hosts.",
+      "remaining_boundary": "Cross-zone/forwarding precedence and runtime DNS answers remain unverified. Shared owners require explicit native UIN; outbound endpoint detail is unavailable in the audited public SDK response."
     },
     {
       "aws_collector": "elasticsearch",
@@ -492,11 +510,14 @@
       "source_enabled": true,
       "tencent_counterpart": "CAM / COS / Kubernetes analysis",
       "status": "incomplete",
-      "evidence_or_gap": "Direct/group policy and boundary decisions for supported COS/secret/PassRole/DB/TIC/TAT actions; joined named COS resource-policy/ACL decisions; caller-policy/boundary/role-trust decisions and bounded shortest permission paths; anonymous COS, CLB configuration exposure and current-context Kubernetes exec reviews. No privileged operation executes. Unsupported syntax, object ACLs, federation/workload/session propagation, joint condition satisfiability, SQL/temporary-credential equivalence and effective access remain gaps.",
+      "evidence_or_gap": "Numeric/COS conditions, known absent attributes, qualified tag equality with scoped applicability, declared session gates, and native Kubernetes RBAC policy/rule/subject/configured-grant relationships. No automatic cross-hop session propagation, other Kubernetes authorizers/admission, joint-condition solver or effective access assertion.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
-      "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "gap_report": "PLATFORM-PARITY.md",
+      "live_validation": "not-performed",
+      "platform_metadata_report": "PLATFORM-PARITY.md",
+      "implemented_metadata": "Numeric/COS conditions, known absent attributes, qualified tag equality with scoped applicability, declared session gates, and native Kubernetes RBAC policy/rule/subject/configured-grant relationships.",
+      "remaining_boundary": "No automatic cross-hop session propagation, other Kubernetes authorizers/admission, joint-condition solver or effective access assertion."
     },
     {
       "aws_collector": "resourcegroupstaggingapi",
@@ -538,11 +559,14 @@
       "source_enabled": true,
       "tencent_counterpart": "LKE / Agent Development Platform / TI metadata",
       "status": "incomplete",
-      "evidence_or_gap": "LKE application summary, scoped model/configuration views and shared knowledge metadata implemented with exact unambiguous associations. No prompt/document/agent/tool/model payloads or inference. Hunyuan account asset census and Bedrock agent/entitlement equivalence not established. Agent detail API excluded; pinned icon archive lacks ADP product logo, uses labeled official generic API asset.",
+      "evidence_or_gap": "LKE applications/shared knowledge, available model catalogs/configuration views and provider-reported knowledge quota. App/agent/tool detail contains keys/prompts/configuration; no effective entitlement or complete owned Hunyuan asset census is established.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
-      "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "gap_report": "PLATFORM-PARITY.md",
+      "live_validation": "not-performed",
+      "platform_metadata_report": "PLATFORM-PARITY.md",
+      "implemented_metadata": "LKE applications/shared knowledge, available model catalogs/configuration views and provider-reported knowledge quota.",
+      "remaining_boundary": "App/agent/tool detail contains keys/prompts/configuration; no effective entitlement or complete owned Hunyuan asset census is established."
     },
     {
       "aws_collector": "cloudfront",
@@ -560,12 +584,15 @@
       "source_enabled": true,
       "tencent_counterpart": "Secrets Manager",
       "status": "incomplete",
-      "evidence_or_gap": "Existing eight type/encryption inventory scopes, lifecycle/version/current KMS/rotation/SSH/CAM/MySQL/Redis metadata extended with rotation-history version IDs, database-account status/host/time metadata and visible ten-version ceiling/truncation. Exact native product/resource matches can link collected PostgreSQL/SQL Server/MariaDB/MongoDB without asserting unsupported service behavior. Account Version is a native status, not an AWS stage/version ID. Audited schemas do not expose historical KMS, replica/primary-region or rotation-function equivalents; no values or runtime rotation proof.",
+      "evidence_or_gap": "Version/current-key/rotation/account metadata and exact product-resource links; additional native supported-product catalog. No values, historical KMS/version-stage/replication/rotation-function equivalents are asserted absent from audited metadata.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
       "live_validation": "not-performed",
-      "storage_database_report": "STORAGE-DATABASE-PARITY.md"
+      "storage_database_report": "STORAGE-DATABASE-PARITY.md",
+      "platform_metadata_report": "PLATFORM-PARITY.md",
+      "implemented_metadata": "Version/current-key/rotation/account metadata and exact product-resource links; additional native supported-product catalog.",
+      "remaining_boundary": "No values, historical KMS/version-stage/replication/rotation-function equivalents are asserted absent from audited metadata."
     },
     {
       "aws_collector": "ecr:pull_through_cache_rules",
@@ -583,11 +610,14 @@
       "source_enabled": true,
       "tencent_counterpart": "CSIP / CWP / TCSS",
       "status": "incomplete",
-      "evidence_or_gap": "CSIP configuration-check rules, license/service state and aggregate alert counts plus vendor-reported asset/security/vulnerability metadata implemented. No independent exploit validation. Alert detail includes leaked credentials/private payload fields and is excluded; AWS finding/integration/control equivalence not established.",
+      "evidence_or_gap": "Existing selected findings plus vendor compliance standards, policy-item results and risk/vulnerability definitions. CSIP alert bodies can include leaked data/secrets/payloads and stay blocked. Integrations and complete AWS control correspondence are unverified.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
-      "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "gap_report": "PLATFORM-PARITY.md",
+      "live_validation": "not-performed",
+      "platform_metadata_report": "PLATFORM-PARITY.md",
+      "implemented_metadata": "Existing selected findings plus vendor compliance standards, policy-item results and risk/vulnerability definitions.",
+      "remaining_boundary": "CSIP alert bodies can include leaked data/secrets/payloads and stay blocked. Integrations and complete AWS control correspondence are unverified."
     },
     {
       "aws_collector": "s3accountpublicaccessblock",
@@ -606,11 +636,14 @@
       "source_enabled": true,
       "tencent_counterpart": "TI Platform",
       "status": "incomplete",
-      "evidence_or_gap": "Billing resource groups, notebook summary/capacity metadata and exact selected resource-group/CFS/network associations implemented. Training/service/model-version responses containing Envs/Env/ImageSecret excluded. Full SageMaker job/model/config/resource-role equivalence unavailable under retained restriction.",
+      "evidence_or_gap": "Native TI resource pools/notebooks, pool resource instances/capacity and currently running-job identities with collected CVM links. This excludes jobs outside collected pools/completed/serverless tasks. Training/service/model-version responses contain environments/image secrets/tokens and remain blocked; no guessed execution-role depth.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
-      "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "gap_report": "PLATFORM-PARITY.md",
+      "live_validation": "not-performed",
+      "platform_metadata_report": "PLATFORM-PARITY.md",
+      "implemented_metadata": "Native TI resource pools/notebooks, pool resource instances/capacity and currently running-job identities with collected CVM links.",
+      "remaining_boundary": "This excludes jobs outside collected pools/completed/serverless tasks. Training/service/model-version responses contain environments/image secrets/tokens and remain blocked; no guessed execution-role depth."
     },
     {
       "aws_collector": "ses",
@@ -656,67 +689,85 @@
       "source_enabled": true,
       "tencent_counterpart": "SSL Certificates",
       "status": "incomplete",
-      "evidence_or_gap": "Global SSL certificate list metadata, domain/SANs, lifecycle dates/status, algorithm and renewal flags implemented. Explicit CLB listener/rule server and client-CA certificate links plus API Gateway certificate references reconcile with inventory. DescribeCertificateDetail is excluded because it can return private keys. Signature algorithm, other consumers and live verification remain incomplete.",
+      "evidence_or_gap": "Public list-time certificate lifecycle/hosting/renewal metadata and unique collected deployment consumers. Private-key detail APIs stay blocked; unsupported/ambiguous consumers and effective TLS behavior remain unresolved.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
-      "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "gap_report": "PLATFORM-PARITY.md",
+      "live_validation": "not-performed",
+      "platform_metadata_report": "PLATFORM-PARITY.md",
+      "implemented_metadata": "Public list-time certificate lifecycle/hosting/renewal metadata and unique collected deployment consumers.",
+      "remaining_boundary": "Private-key detail APIs stay blocked; unsupported/ambiguous consumers and effective TLS behavior remain unresolved."
     },
     {
       "aws_collector": "inspector",
       "source_enabled": true,
       "tencent_counterpart": "Cloud Workload Protection / Tencent Container Security",
       "status": "incomplete",
-      "evidence_or_gap": "CWP machines, package versions and selected vendor vulnerability/CVE/status/score metadata; TCSS cluster/image and vendor image vulnerability metadata implemented with exact asset scope and partial failures. independently_validated=false. Container list includes command content and is excluded; no working exploit or AWS coverage equivalence claimed.",
+      "evidence_or_gap": "CWP public CVE/CVSS definitions and TCSS image/asset/compliance scan counters, settings and policy items. Container Cmd is excluded; vendor counters and settings do not prove exact Inspector assessment coverage or effective protection.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
-      "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "gap_report": "PLATFORM-PARITY.md",
+      "live_validation": "not-performed",
+      "platform_metadata_report": "PLATFORM-PARITY.md",
+      "implemented_metadata": "CWP public CVE/CVSS definitions and TCSS image/asset/compliance scan counters, settings and policy items.",
+      "remaining_boundary": "Container Cmd is excluded; vendor counters and settings do not prove exact Inspector assessment coverage or effective protection."
     },
     {
       "aws_collector": "config",
       "source_enabled": true,
       "tencent_counterpart": "CloudConfig",
       "status": "incomplete",
-      "evidence_or_gap": "Account-scoped CloudConfig recorder/resource-type scope, delivery settings, paginated rules/details, parameter/condition/trigger definitions and explicit COS/CLS destination links implemented. Rule region/tag/exclusion scopes and provider compliance state are preserved without effective evaluation claims; no resource snapshots or remediation operations. Recorder CAM-role, delivery encryption/frequency, organization aggregators, custom function binding semantics and live validation remain incomplete.",
+      "evidence_or_gap": "Account recorder/rules/delivery plus organization aggregator owner/account configuration and aggregate delivery; exact custom SCF identity links. Audited schemas do not expose role/encryption-equivalent settings. No snapshots, function source, delivery probe or independent compliance execution.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
-      "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "gap_report": "PLATFORM-PARITY.md",
+      "live_validation": "not-performed",
+      "platform_metadata_report": "PLATFORM-PARITY.md",
+      "implemented_metadata": "Account recorder/rules/delivery plus organization aggregator owner/account configuration and aggregate delivery; exact custom SCF identity links.",
+      "remaining_boundary": "Audited schemas do not expose role/encryption-equivalent settings. No snapshots, function source, delivery probe or independent compliance execution."
     },
     {
       "aws_collector": "identitycenter",
       "source_enabled": true,
       "tencent_counterpart": "Cloud Identity Governance / organization / CAM federation",
       "status": "incomplete",
-      "evidence_or_gap": "CIC space, groups, safe group-member users, permission configs, custom/system policy attachments, account assignments, selected external-SAML metadata; organization units/members and CAM SAML/OIDC configuration implemented. ListUsers/GetUser include Password and are excluded, leaving ungrouped users unavailable. Provisioning status, managed-policy bodies and full federation semantics remain gaps; assignments do not scan foreign accounts. CIC configuration detail, deployment status, user/group synchronization settings, public SAML detail and identity-checked system-policy documents added. Full users/password-bearing APIs and effective federation remain excluded or unverified.",
+      "evidence_or_gap": "CIC groups/memberships/assignments, policy bodies and provisioning; additional user-sync detail, public SAML service-provider and IdP certificate metadata. Ungrouped user enumeration remains blocked by passwords in ListUsers/GetUser. Provisioning/federation/session success is unverified.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
-      "gap_report": "METADATA-PARITY.md",
+      "gap_report": "PLATFORM-PARITY.md",
       "live_validation": "not-performed",
-      "metadata_depth_report": "METADATA-DEPTH.md"
+      "metadata_depth_report": "METADATA-DEPTH.md",
+      "platform_metadata_report": "PLATFORM-PARITY.md",
+      "implemented_metadata": "CIC groups/memberships/assignments, policy bodies and provisioning; additional user-sync detail, public SAML service-provider and IdP certificate metadata.",
+      "remaining_boundary": "Ungrouped user enumeration remains blocked by passwords in ListUsers/GetUser. Provisioning/federation/session success is unverified."
     },
     {
       "aws_collector": "cloudtrail",
       "source_enabled": true,
       "tencent_counterpart": "CloudAudit",
       "status": "incomplete",
-      "evidence_or_gap": "Regional CloudAudit track lists/details, event selectors, status and organization-delivery flag implemented. Explicit CLS topic references and unambiguous collected COS destination links preserve destination owner/region without converting AppId to UIN. CKafka topic inventory now resolves configured destinations by collected instance, topic name, account and region. Legacy audit API equivalence, actual delivery verification and live account validation remain incomplete.",
+      "evidence_or_gap": "Modern trail configuration plus regional legacy audit lists/details and explicit collected destination/KMS links. Delivery remains configuration-only; no event/log bodies or write-based delivery validation. Legacy API scope is not asserted identical to AWS trails.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
-      "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "gap_report": "PLATFORM-PARITY.md",
+      "live_validation": "not-performed",
+      "platform_metadata_report": "PLATFORM-PARITY.md",
+      "implemented_metadata": "Modern trail configuration plus regional legacy audit lists/details and explicit collected destination/KMS links.",
+      "remaining_boundary": "Delivery remains configuration-only; no event/log bodies or write-based delivery validation. Legacy API scope is not asserted identical to AWS trails."
     },
     {
       "aws_collector": "cloudwatch",
       "source_enabled": true,
       "tencent_counterpart": "Cloud Monitor / CLS",
       "status": "incomplete",
-      "evidence_or_gap": "CLS logsets, log/metric topics, retention/index/web-tracking flags, KMS, COS shippers, regional alarms with queries/schedules/conditions, CLS notification groups with selected channel/escalation configuration and explicit cross-region delivery-topic references implemented. Cloud Monitor account-scoped policies, metric/event rules, embedded notice metadata, instance groups and object bindings are implemented, with strict CVM account/region links. CLS scheduled SQL tasks now retain query/schedule/output mappings with explicit topic-region links and declared metric nodes. Other monitored-product dimension mappings, current alarm-state equivalence, legacy/template rule expansion, detailed action delivery and live validation remain incomplete. No log contents, metric samples or effective evaluation/delivery claims.",
+      "evidence_or_gap": "Monitor/CLS alarm/action/metric configuration plus product namespaces/metric definitions and 19 documented native dimension mappings. Alarm history Content remains blocked. Unsupported/multi-resource dimensions, ALARM/OK state, actual metric evaluation and action delivery remain unverified.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
-      "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "gap_report": "PLATFORM-PARITY.md",
+      "live_validation": "not-performed",
+      "platform_metadata_report": "PLATFORM-PARITY.md",
+      "implemented_metadata": "Monitor/CLS alarm/action/metric configuration plus product namespaces/metric definitions and 19 documented native dimension mappings.",
+      "remaining_boundary": "Alarm history Content remains blocked. Unsupported/multi-resource dimensions, ALARM/OK state, actual metric evaluation and action delivery remain unverified."
     },
     {
       "aws_collector": "efs",
@@ -735,22 +786,28 @@
       "source_enabled": true,
       "tencent_counterpart": "CSIP / CWP / TCSS security metadata",
       "status": "incomplete",
-      "evidence_or_gap": "Vendor-reported security state, CSIP license/check-rule metadata and aggregate pending-alert counts, CWP/TCSS vulnerability summaries implemented. Alert-detail response includes private payload/credential fields and is excluded. No detector-equivalent feature inventory or actual finding/attack execution claimed.",
+      "evidence_or_gap": "CWP/TCSS/CSIP detector/scan settings, scope, schedules, counters and rule definitions. Unsafe detailed alerts remain blocked. Product-specific licenses/settings do not establish GuardDuty detector-feature or detection-efficacy correspondence.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
-      "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "gap_report": "PLATFORM-PARITY.md",
+      "live_validation": "not-performed",
+      "platform_metadata_report": "PLATFORM-PARITY.md",
+      "implemented_metadata": "CWP/TCSS/CSIP detector/scan settings, scope, schedules, counters and rule definitions.",
+      "remaining_boundary": "Unsafe detailed alerts remain blocked. Product-specific licenses/settings do not establish GuardDuty detector-feature or detection-efficacy correspondence."
     },
     {
       "aws_collector": "codebuild",
       "source_enabled": true,
       "tencent_counterpart": "CODING CI",
       "status": "incomplete",
-      "evidence_or_gap": "Audited official CODING OpenAPI list/detail schemas include JenkinsFileStaticContent and EnvList without a verified server-side metadata projection. Both deliberately excluded and reported unsupported. No CI project/job list is silently marked empty or equivalent.",
+      "evidence_or_gap": "CloudRC references plus explicit audited CODING CI list/detail exclusions. DescribeCodingCIJobs/DescribeCodingCIJob contain Jenkinsfile content and environment values; no safe metadata-only pipeline inventory has been established.",
       "implementation_status": "metadata-restricted-unsupported",
       "parity_verified": false,
-      "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "gap_report": "PLATFORM-PARITY.md",
+      "live_validation": "not-performed",
+      "platform_metadata_report": "PLATFORM-PARITY.md",
+      "implemented_metadata": "CloudRC references plus explicit audited CODING CI list/detail exclusions.",
+      "remaining_boundary": "DescribeCodingCIJobs/DescribeCodingCIJob contain Jenkinsfile content and environment values; no safe metadata-only pipeline inventory has been established."
     },
     {
       "aws_collector": "cognito",
@@ -768,22 +825,28 @@
       "source_enabled": true,
       "tencent_counterpart": "EventBridge",
       "status": "incomplete",
-      "evidence_or_gap": "Event buses, rules, exact JSON event-pattern configuration, enabled/lifecycle state, targets and scoped child identities now implemented. Explicit QCS ownership/region binds SCF qualifiers, collected Kafka topics, CLS and ES references; rule dead-letter targets and bus logging metadata retained. AWS schedule/role/managed-by correspondence and live validation remain incomplete. ListConnections is excluded because DTSParams can contain a password; safe connection summaries remain metadata.",
+      "evidence_or_gap": "Event buses, rules, patterns, targets and exact native target metadata; credential-bearing connections explicitly excluded. ListConnections DTSParams.Password stays blocked. No established complete AWS schedule/execution-role correspondence in audited rule/target schemas.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
-      "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "gap_report": "PLATFORM-PARITY.md",
+      "live_validation": "not-performed",
+      "platform_metadata_report": "PLATFORM-PARITY.md",
+      "implemented_metadata": "Event buses, rules, patterns, targets and exact native target metadata; credential-bearing connections explicitly excluded.",
+      "remaining_boundary": "ListConnections DTSParams.Password stays blocked. No established complete AWS schedule/execution-role correspondence in audited rule/target schemas."
     },
     {
       "aws_collector": "glue",
       "source_enabled": true,
       "tencent_counterpart": "WeData / Data Lake Compute",
       "status": "incomplete",
-      "evidence_or_gap": "WeData projects/workflow/task summaries with explicit project/workflow relationships and DLC engine metadata for documented generation/type/execution scopes implemented. No scripts, credential-bearing connections or query execution. Catalog/crawler/schema/job-definition and Glue permissions equivalence remain gaps.",
+      "evidence_or_gap": "WeData projects/tasks/workflow summaries, catalog/database/schema/table/column metadata, resource groups and DLC configured user/workgroup grants. Source/SQL and database credential/query APIs stay blocked. Crawlers, complete job definitions and Glue permission/runtime correspondence are not established.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
-      "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "gap_report": "PLATFORM-PARITY.md",
+      "live_validation": "not-performed",
+      "platform_metadata_report": "PLATFORM-PARITY.md",
+      "implemented_metadata": "WeData projects/tasks/workflow summaries, catalog/database/schema/table/column metadata, resource groups and DLC configured user/workgroup grants.",
+      "remaining_boundary": "Source/SQL and database credential/query APIs stay blocked. Crawlers, complete job definitions and Glue permission/runtime correspondence are not established."
     }
   ],
   "operator_constraint": "Keep metadata-only restriction; report resulting parity gaps. No mixed workload/secret response opt-in.",
@@ -826,5 +889,17 @@
     "requested_areas": 9,
     "live_validation": "not-performed",
     "full_aws_parity_verified": false
+  },
+  "platform_extension": {
+    "version": "0.8.0",
+    "report": "PLATFORM-PARITY.md",
+    "additional_allowlisted_reads": 46,
+    "allowlisted_reads": 316,
+    "verified_kind_mappings": 322,
+    "requested_platform_areas": 15,
+    "full_aws_parity_verified": false,
+    "live_validation": "not-performed",
+    "read_only": true,
+    "metadata_only": true
   }
 }

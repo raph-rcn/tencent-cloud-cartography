@@ -39,7 +39,7 @@ checkout (requires uv and Node.js):
 
 ```bash
 uv run python scripts/build_distribution.py
-uv tool install dist/tencent_cloud_cartography-0.7.0-py3-none-any.whl
+uv tool install dist/tencent_cloud_cartography-0.8.0-py3-none-any.whl
 ```
 
 The installed `tencent-cloud-cartography` command works outside the source checkout.
@@ -305,3 +305,15 @@ controls, CFS snapshots/lifecycle and secret rotation history. Optional
 Read the [nine-area parity and usage guide](docs/STORAGE-DATABASE-PARITY.md) for
 scope, examples and retained provider/security limits. No object contents,
 database credentials, queries or secret values are retrieved.
+
+
+### Platform, security and authorization metadata
+
+Version 0.8.0 adds 46 safe reads for DNS forwarding/shared domains, certificate
+consumers, security scan settings/coverage, CloudConfig aggregators, CIC SAML and
+provisioning metadata, legacy CloudAudit, metric dimensions, TI resource jobs,
+LKE quota and WeData catalogs/schemas. Kubernetes RBAC policy metadata and richer
+offline conditions/session restrictions extend authorization analysis. Read the
+[15-area implementation and disposition](docs/PLATFORM-PARITY.md) for exact scope,
+usage and the password/payload-bearing APIs that remain blocked. Full AWS parity
+and effective runtime access remain unverified.
