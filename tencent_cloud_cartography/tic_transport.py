@@ -2,12 +2,13 @@
 
 import re
 
+from .authentication import quiet_sdk
 from .transport import CollectionError
 
 ACTIONS = {"DescribeStacks", "DescribeStackVersions", "DescribeStackEvents"}
 
 
-def call(profile, action, region, params, timeout):
+def validate_scope(action, region, params):
     if action not in ACTIONS or not set(params) <= {"Offset", "Limit", "Filters"}:
         raise CollectionError("BlockedTicAction")
     if (
@@ -33,6 +34,11 @@ def call(profile, action, region, params, timeout):
             or not re.fullmatch(r"stk-[a-z0-9]+", str(filters[0]["Values"][0]))
         ):
             raise CollectionError("InvalidTicScope")
+
+
+@quiet_sdk()
+def call(profile, action, region, params, timeout, material=None):
+    validate_scope(action, region, params)
     from tencentcloud.common.common_client import CommonClient
     from tencentcloud.common.credential import Credential
     from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
@@ -41,7 +47,7 @@ def call(profile, action, region, params, timeout):
 
     from .cos_transport import credentials
 
-    selected = credentials(profile)
+    selected = material.sdk() if material else credentials(profile)
     http = HttpProfile()
     http.endpoint = "tic.tencentcloudapi.com"
     http.reqTimeout = timeout

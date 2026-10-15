@@ -601,6 +601,7 @@ def collect(
     kube_transport_factory=None,
     analysis_limit=25000,
     discover_regions=False,
+    tccli_python=None,
 ):
     from .authorization import analysis_limit as validate_analysis_limit
 
@@ -632,6 +633,8 @@ def collect(
         organization=[],
         organization_discovery=[],
     )
+    from .authentication import stable_identity
+
     accepted = set()
     for profile in profiles:
         outcome = dict(
@@ -644,147 +647,165 @@ def collect(
         )
         graph.collection["profiles"].append(outcome)
         temp = Graph()
-        progress(f"Profile {profile}: checking account identity")
+        transport = None
         try:
-            transport = (
-                transport_factory(profile) if transport_factory else TccliTransport(profile, tccli)
-            )
-            identity = transport.call("sts", "GetCallerIdentity")
-            account = str(identity.get("AccountId") or "")
-            if not re.fullmatch(r"[1-9][0-9]*", account):
-                raise CollectionError("InvalidIdentity")
-        except Exception as exc:
-            code = exc.code if isinstance(exc, CollectionError) else "ProfileIdentityFailed"
-            outcome["error"] = code
-            graph.coverage.append(
-                dict(
-                    account="unknown",
-                    profile=profile,
-                    region="global",
-                    service="sts",
-                    action="GetCallerIdentity",
-                    status="error",
-                    error=code,
-                    count=0,
-                    request_ids=[],
+            progress(f"Profile {profile}: checking account identity")
+            try:
+                transport = (
+                    transport_factory(profile)
+                    if transport_factory
+                    else TccliTransport(profile, tccli, tccli_python=tccli_python)
                 )
-            )
-            graph.collection["scopes"].extend(blank_scopes(profile, regions, services, code))
-            progress(f"Profile {profile}: identity unavailable ({code}); continuing")
-            continue
-        outcome.update(account=account, identity_verified=True)
-        if account in accepted:
-            outcome.update(
-                status="duplicate",
-                error="DuplicateAccount",
-                alias_of=graph.accounts[account]["name"],
-            )
-            progress(f"Profile {profile}: account {account} already collected; duplicate skipped")
-            continue
-        temp.accounts[account] = dict(
-            id=account,
-            name=profile,
-            display=f"{profile} · {account}",
-            principal_type=identity.get("Type", "unknown"),
-        )
-        try:
-            plan = RegionPlan.build(
-                transport,
-                account,
-                profile,
-                regions,
-                services,
-                temp.coverage,
-                discover_regions,
-                progress,
-            )
-        except Exception as exc:
-            code = exc.code if isinstance(exc, CollectionError) else "RegionPlanningFailed"
-            outcome.update(error=code)
-            graph.coverage.append(
-                dict(
-                    account=account,
-                    profile=profile,
-                    region="global",
-                    service="collection",
-                    action="PlanRegions",
-                    status="error",
-                    error=code,
-                    count=0,
-                    request_ids=[],
+                identity = transport.call("sts", "GetCallerIdentity")
+                account = str(identity.get("AccountId") or "")
+                if not re.fullmatch(r"[1-9][0-9]*", account):
+                    raise CollectionError("InvalidIdentity")
+            except Exception as exc:
+                code = exc.code if isinstance(exc, CollectionError) else "ProfileIdentityFailed"
+                outcome["error"] = code
+                graph.coverage.append(
+                    dict(
+                        account="unknown",
+                        profile=profile,
+                        region="global",
+                        service="sts",
+                        action="GetCallerIdentity",
+                        status="error",
+                        error=code,
+                        count=0,
+                        request_ids=[],
+                    )
                 )
+                graph.collection["scopes"].extend(blank_scopes(profile, regions, services, code))
+                progress(f"Profile {profile}: identity unavailable ({code}); continuing")
+                continue
+            outcome.update(account=account, identity_verified=True)
+            if account in accepted:
+                outcome.update(
+                    status="duplicate",
+                    error="DuplicateAccount",
+                    alias_of=graph.accounts[account]["name"],
+                )
+                progress(
+                    f"Profile {profile}: account {account} already collected; duplicate skipped"
+                )
+                continue
+            temp.accounts[account] = dict(
+                id=account,
+                name=profile,
+                display=f"{profile} · {account}",
+                principal_type=identity.get("Type", "unknown"),
             )
-            graph.collection["scopes"].extend(
-                {**s, "account": account} for s in blank_scopes(profile, regions, services, code)
-            )
-            continue
-        runner = CollectorRunner(temp, transport, account, plan.regions, progress, plan)
-        interrupted = None
-        try:
-            runner.run(services)
-            if not services or "tke" in services:
-                from .tke import collect_access_mappings
+            try:
+                plan = RegionPlan.build(
+                    transport,
+                    account,
+                    profile,
+                    regions,
+                    services,
+                    temp.coverage,
+                    discover_regions,
+                    progress,
+                )
+            except Exception as exc:
+                code = exc.code if isinstance(exc, CollectionError) else "RegionPlanningFailed"
+                outcome.update(error=code)
+                graph.coverage.append(
+                    dict(
+                        account=account,
+                        profile=profile,
+                        region="global",
+                        service="collection",
+                        action="PlanRegions",
+                        status="error",
+                        error=code,
+                        count=0,
+                        request_ids=[],
+                    )
+                )
+                graph.collection["scopes"].extend(
+                    {**s, "account": account}
+                    for s in blank_scopes(profile, regions, services, code)
+                )
+                continue
+            runner = CollectorRunner(temp, transport, account, plan.regions, progress, plan)
+            interrupted = None
+            try:
+                runner.run(services)
+                if not services or "tke" in services:
+                    from .tke import collect_access_mappings
 
-                collect_access_mappings(runner)
-        except Exception as exc:
-            interrupted = (
-                exc.code if isinstance(exc, CollectionError) else "AccountCollectionInterrupted"
-            )
-            temp.coverage.append(
-                dict(
-                    account=account,
-                    region="global",
-                    service="collection",
-                    action="CollectAccount",
-                    status="error",
-                    error=interrupted,
-                    count=0,
-                    request_ids=[],
+                    collect_access_mappings(runner)
+            except Exception as exc:
+                interrupted = (
+                    exc.code if isinstance(exc, CollectionError) else "AccountCollectionInterrupted"
                 )
+                temp.coverage.append(
+                    dict(
+                        account=account,
+                        region="global",
+                        service="collection",
+                        action="CollectAccount",
+                        status="error",
+                        error=interrupted,
+                        count=0,
+                        request_ids=[],
+                    )
+                )
+            try:
+                final = transport.call("sts", "GetCallerIdentity")
+                if stable_identity(final, strict=False) != stable_identity(identity, strict=False):
+                    raise CollectionError("IdentityChanged")
+            except Exception as exc:
+                code = (
+                    exc.code if isinstance(exc, CollectionError) else "ProfileReverificationFailed"
+                )
+                outcome.update(status="discarded", error=code)
+                graph.collection["scopes"].extend(plan.finish(temp, discarded=True))
+                # Preserve query evidence but never publish resources from an unverified account attempt.
+                for row in temp.coverage:
+                    graph.coverage.append({**row, "profile": profile, "inventory_discarded": True})
+                graph.coverage.append(
+                    dict(
+                        account=account,
+                        profile=profile,
+                        region="global",
+                        service="sts",
+                        action="VerifyCallerIdentity",
+                        status="error",
+                        error=code,
+                        count=0,
+                        request_ids=[],
+                    )
+                )
+                progress(f"Profile {profile}: account inventory discarded ({code}); continuing")
+                continue
+            accepted.add(account)
+            graph.nodes.update(temp.nodes)
+            graph.edges.update(temp.edges)
+            graph.accounts.update(temp.accounts)
+            graph.coverage.extend({**r, "profile": profile} for r in temp.coverage)
+            scopes = plan.finish(temp)
+            graph.collection["scopes"].extend(scopes)
+            partial = (
+                interrupted
+                or temp.snapshot()["status"] == "partial"
+                or any(r["state"] in {"failed", "unscanned"} or r["partial"] for r in scopes)
             )
-        try:
-            final = transport.call("sts", "GetCallerIdentity")
-            if str(final.get("AccountId")) != account or any(
-                final.get(k) != identity.get(k) for k in ("PrincipalId", "Arn", "Type")
+            outcome.update(
+                status="partial" if partial else "scanned", committed=True, error=interrupted or ""
+            )
+        finally:
+            if transport is not None and callable(
+                getattr(transport, "authentication_report", None)
             ):
-                raise CollectionError("IdentityChanged")
-        except Exception as exc:
-            code = exc.code if isinstance(exc, CollectionError) else "ProfileReverificationFailed"
-            outcome.update(status="discarded", error=code)
-            graph.collection["scopes"].extend(plan.finish(temp, discarded=True))
-            # Preserve query evidence but never publish resources from an unverified account attempt.
-            for row in temp.coverage:
-                graph.coverage.append({**row, "profile": profile, "inventory_discarded": True})
-            graph.coverage.append(
-                dict(
-                    account=account,
-                    profile=profile,
-                    region="global",
-                    service="sts",
-                    action="VerifyCallerIdentity",
-                    status="error",
-                    error=code,
-                    count=0,
-                    request_ids=[],
-                )
-            )
-            progress(f"Profile {profile}: account inventory discarded ({code}); continuing")
-            continue
-        accepted.add(account)
-        graph.nodes.update(temp.nodes)
-        graph.edges.update(temp.edges)
-        graph.accounts.update(temp.accounts)
-        graph.coverage.extend({**r, "profile": profile} for r in temp.coverage)
-        scopes = plan.finish(temp)
-        graph.collection["scopes"].extend(scopes)
-        partial = (
-            interrupted
-            or temp.snapshot()["status"] == "partial"
-            or any(r["state"] in {"failed", "unscanned"} or r["partial"] for r in scopes)
-        )
-        outcome.update(
-            status="partial" if partial else "scanned", committed=True, error=interrupted or ""
-        )
+                outcome["authentication"] = transport.authentication_report()
+                auth = outcome["authentication"]
+                if auth["status"] in {"failed", "login-required"}:
+                    progress(
+                        f"Profile {profile}: authentication {auth['status']} ({auth['code']})"
+                        + (f"; {auth['remediation']}" if auth["remediation"] else "")
+                    )
     reconcile_organization(graph)
     from .inventory import reconcile_global_inventory
 

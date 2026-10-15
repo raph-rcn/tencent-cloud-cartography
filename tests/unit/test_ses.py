@@ -215,21 +215,26 @@ def test_frankfurt_is_explicit_unsupported_without_ses_request():
 
 
 @pytest.mark.parametrize("region,endpoint", list(SES_ENDPOINTS.items()))
-def test_transport_uses_documented_regional_endpoint(monkeypatch, region, endpoint):
+def test_transport_uses_documented_regional_endpoint(monkeypatch, region, endpoint, frozen_session):
+    from tencent_cloud_cartography import _tccli_bridge as bridge
+
     commands = []
 
-    def execute(args, **kw):
-        commands.append(args)
+    def client(service, version, material, selected_region, selected_endpoint, timeout):
+        commands.append((service, version, selected_region, selected_endpoint, timeout))
         return SimpleNamespace(
-            returncode=0, stdout='{"EmailIdentities": [], "Total": 0}', stderr=""
+            call_json=lambda *a: {"Response": {"EmailIdentities": [], "Total": 0}}
         )
 
-    monkeypatch.setattr("subprocess.run", execute)
-    TccliTransport().call("ses", "ListEmailIdentities", region=region, Limit=100, Offset=0)
-    args = commands[0]
-    assert args[args.index("--endpoint") + 1] == endpoint
-    assert args[args.index("--region") + 1] == region
-    assert args[args.index("--version") + 1] == "2020-10-02"
+    monkeypatch.setattr(bridge, "common_client", client)
+    transport = TccliTransport(session=frozen_session)
+    monkeypatch.setattr(
+        transport.runtime,
+        "invoke",
+        lambda operation, **payload: bridge.metadata(dict(payload, timeout=90)),
+    )
+    transport.call("ses", "ListEmailIdentities", region=region, Limit=100, Offset=0)
+    assert commands == [("ses", "2020-10-02", region, endpoint, 90)]
 
 
 def test_endpoint_not_chosen_from_default_profile_or_unknown_region(monkeypatch):

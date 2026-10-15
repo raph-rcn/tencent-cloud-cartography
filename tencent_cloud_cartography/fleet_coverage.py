@@ -217,6 +217,10 @@ def validate_collection(value, snapshot):
         raise ValueError("Collection profile outcomes are incomplete")
     accounts = {a["id"] for a in snapshot["accounts"]}
     for p in value["profiles"]:
+        if "authentication" in p:
+            from .authentication import validate_report
+
+            validate_report(p["authentication"])
         account = p.get("account")
         if account is not None and (
             not isinstance(account, str) or not re.fullmatch(r"[1-9][0-9]*", account)

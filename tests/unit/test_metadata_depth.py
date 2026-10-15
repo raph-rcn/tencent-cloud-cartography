@@ -670,7 +670,9 @@ def test_new_action_contracts_exist_in_official_sdk(service, action):
     assert getattr(models, action + "Request") and getattr(models, action + "Response")
 
 
-def test_notification_fixed_signed_xml_request_and_repeated_elements(tmp_path, monkeypatch):
+def test_notification_fixed_signed_xml_request_and_repeated_elements(
+    tmp_path, monkeypatch, frozen_session
+):
     import qcloud_cos
 
     monkeypatch.setattr(
@@ -689,7 +691,9 @@ def test_notification_fixed_signed_xml_request_and_repeated_elements(tmp_path, m
         return SimpleNamespace(content=xml)
 
     monkeypatch.setattr(qcloud_cos.CosS3Client, "send_request", send)
-    data = TccliTransport().call("cos", "get_bucket_notification", REGION, Bucket="assets-12345")
+    data = TccliTransport(session=frozen_session).call(
+        "cos", "get_bucket_notification", REGION, Bucket="assets-12345"
+    )
     g = Graph()
     b = node(g, "cos.bucket", "assets-12345")
     notification(g, b, data, "fixture")

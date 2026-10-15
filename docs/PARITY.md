@@ -1,6 +1,6 @@
 # AWS capability parity audit
 
-## Current implementation — 2026-10-14
+## Current implementation — 2026-10-15
 
 See [the metadata depth extension](METADATA-DEPTH.md) for COS notifications,
 database backup/proxy/replica depth, gateway backend mappings/bindings and federation
@@ -22,6 +22,8 @@ member/profile reconciliation, isolated account failures and a scope coverage
 overview are implemented. [Collection guide](COLLECTION-COVERAGE.md) describes
 failed-attempt tracking and the observed/planned scope universe. Environment-specific
 permissions, credential support and service availability still govern coverage.
+
+[Shared renewable authentication](AUTHENTICATION.md) now covers browser/OAuth, SSO and explicitly configured role sessions across all transports, with identity checks at every credential generation and safe per-profile expiry reporting. Collection remains read-only and metadata-only; initial login and live account permissions still require operator validation.
 
 The sections below preserve earlier source comparison and implementation
 history. Statements describing features as future work predate this extension;
@@ -46,7 +48,7 @@ The authoritative comparison is the AWS checkout's collector registry, model/ana
 | Service component grouping | Per-location service components implemented and browser validated | Further large-graph/export validation |
 | Direct Neo4j-backed viewer | Direct reads, complete metadata, auth/database options and refresh implemented; 5 real Neo4j integration tests passed in CI | Large-inventory performance validation remains; runtime results recorded in VALIDATION.md |
 | PNG / editable draw.io | Initial browser downloads verified | Preserve grouping and assets across new graph types |
-| Multi-account and region orchestration | Per-account/service RMS discovery, region restrictions, verified profile/member reconciliation, failure isolation and scope overview implemented | Runtime validation, unavailable RMS mappings and automatic federation/session acquisition remain gaps |
+| Multi-account and region orchestration | Per-account/service RMS discovery, region restrictions, verified profile/member reconciliation, failure isolation and scope overview implemented | Live validation, unavailable RMS mappings and unconfigured organization member access remain gaps; configured OAuth/SSO/role renewal is implemented |
 | Metadata safeguards | Exact action allowlist and property filtering tested | Audit new APIs, preserve exclusions and avoid fetching object/secret values |
 | Live validation | No authenticated default profile in prior check | Authenticate with a suitable read-only profile and reconcile results to native API evidence |
 

@@ -1,10 +1,8 @@
 """Structured COS XML metadata using the official SDK and the selected TCCLI profile."""
 
-import json
-import os
 import re
-from pathlib import Path
 
+from .authentication import quiet_sdk
 from .transport import CollectionError
 
 COS_ACTIONS = frozenset(
@@ -15,38 +13,33 @@ BUCKET = re.compile(r"[a-z0-9][a-z0-9-]*-\d+")
 
 
 def credentials(profile):
-    path = Path.home() / ".tccli" / (profile + ".credential")
-    env = {
-        k: os.environ.get(v)
-        for k, v in (
-            ("secretId", "TENCENTCLOUD_SECRET_ID"),
-            ("secretKey", "TENCENTCLOUD_SECRET_KEY"),
-            ("token", "TENCENTCLOUD_TOKEN"),
-        )
-    }
-    if any(env.values()):
-        if path.exists():
-            raise CollectionError("CredentialSourceConflict")
-        raw = env
-    else:
-        try:
-            raw = json.loads(path.read_text())
-        except (OSError, ValueError):
-            raise CollectionError("MissingCredentials") from None
-    if not isinstance(raw, dict):
-        raise CollectionError("InvalidCredentialConfiguration")
-    # Never silently consume cached SSO/OAuth/role credentials without refreshing.
-    if raw.get("type", "default") != "default":
-        raise CollectionError("UnsupportedCosCredentialType")
-    if not all(isinstance(raw.get(k), str) and raw[k] for k in ("secretId", "secretKey")):
-        raise CollectionError("MissingCredentials")
-    if raw.get("token") is not None and not isinstance(raw["token"], str):
-        raise CollectionError("InvalidCredentialConfiguration")
-    return dict(SecretId=raw["secretId"], SecretKey=raw["secretKey"], Token=raw.get("token"))
+    from .authentication import VerifiedSession
+    from .tccli_runtime import TccliRuntime
+
+    return VerifiedSession(profile, TccliRuntime()).material().sdk()
 
 
-def call(profile, action, region, params, timeout):
+def validate_scope(action, region, params):
     # Restrict both method and parameters: no object operations, custom hosts or headers.
+    if action == "list_buckets":
+        if (
+            not set(params) <= {"Marker", "MaxKeys"}
+            or region is not None
+            or (
+                "Marker" in params
+                and (
+                    not isinstance(params["Marker"], str)
+                    or len(params["Marker"]) > 1024
+                    or any(ord(c) < 32 for c in params["Marker"])
+                )
+            )
+            or (
+                "MaxKeys" in params
+                and (type(params["MaxKeys"]) is not int or not 1 <= params["MaxKeys"] <= 2000)
+            )
+        ):
+            raise CollectionError("InvalidCosScope")
+        return
     if action not in COS_ACTIONS:
         raise CollectionError("BlockedAction", "COS action is outside the metadata allowlist")
     if (
@@ -57,16 +50,21 @@ def call(profile, action, region, params, timeout):
         or not re.fullmatch(r"[a-z]+-[a-z0-9-]+", region)
     ):
         raise CollectionError("InvalidCosScope")
+
+
+@quiet_sdk()
+def call(profile, action, region, params, timeout, material=None):
+    validate_scope(action, region, params)
     from qcloud_cos import CosConfig, CosS3Client, CosServiceError
     from qcloud_cos.cos_exception import CosClientError
 
     config = CosConfig(
-        Region=region,
+        Region=region or "ap-guangzhou",
         Scheme="https",
         Timeout=timeout,
         AllowRedirects=False,
         VerifySSL=True,
-        **credentials(profile),
+        **(material.sdk() if material else credentials(profile)),
     )
     try:
         client = CosS3Client(config, retry=0)

@@ -2,16 +2,10 @@
 
 import json
 import re
-import subprocess
 import time
 
-from .catalog import ALLOWED_ACTIONS, API_VERSIONS, SES_ENDPOINTS
-
-
-class CollectionError(RuntimeError):
-    def __init__(self, code, message="Collection failed"):
-        self.code = code
-        super().__init__(message)
+from .catalog import ALLOWED_ACTIONS, SES_ENDPOINTS
+from .errors import CollectionError as CollectionError
 
 
 def failure_code(text):
@@ -27,94 +21,100 @@ def failure_code(text):
 
 
 class TccliTransport:
-    def __init__(self, profile="default", executable="tccli", timeout=90):
+    def __init__(
+        self, profile="default", executable="tccli", timeout=90, tccli_python=None, session=None
+    ):
         if not re.fullmatch(r"[A-Za-z0-9_.-]+", profile) or profile in {".", ".."}:
             raise ValueError("Invalid TCCLI profile name")
+        from .authentication import VerifiedSession
+        from .tccli_runtime import TccliRuntime
+
         self.profile, self.executable, self.timeout = profile, executable, timeout
+        self.runtime = TccliRuntime(executable, tccli_python, timeout)
+        self.session = session or VerifiedSession(profile, self.runtime)
+
+    def authentication_report(self):
+        return self.session.report()
 
     def _run(self, service, action, region, params):
-        if (service, action) not in ALLOWED_ACTIONS:
-            raise CollectionError(
-                "BlockedAction", f"{service}.{action} is outside the metadata allowlist"
+        validate_operation(service, action, region, params)
+        return json.dumps(
+            self.session.execute(
+                lambda material: self.runtime.invoke(
+                    "metadata",
+                    service=service,
+                    action=action,
+                    region=region,
+                    params=params,
+                    material=material.wire(),
+                )
             )
-        if (service, action) == ("postgres", "DescribeDBInstanceParameters"):
-            from .database_depth import PG_PARAMETERS
-
-            if (
-                set(params) != {"DBInstanceId", "ParamName"}
-                or params.get("ParamName") not in PG_PARAMETERS
-            ):
-                raise CollectionError("BlockedParameterScope")
-        args = [
-            self.executable,
-            service,
-            action,
-            "--profile",
-            self.profile,
-            "--output",
-            "json",
-            "--timeout",
-            str(self.timeout),
-        ]
-        if service == "ses":
-            if region not in SES_ENDPOINTS:
-                raise CollectionError("UnsupportedSesRegion")
-            args.extend(["--endpoint", SES_ENDPOINTS[region]])
-        if service in API_VERSIONS:
-            args.extend(["--version", API_VERSIONS[service]])
-        if region and region != "global":
-            args.extend(["--region", region])
-        for key, value in params.items():
-            if not re.fullmatch("[A-Za-z][A-Za-z0-9_]*", key):
-                raise ValueError("Invalid API parameter")
-            args.extend(
-                [
-                    "--" + key,
-                    json.dumps(value) if isinstance(value, (list, dict, bool)) else str(value),
-                ]
-            )
-        try:
-            result = subprocess.run(
-                args, capture_output=True, text=True, timeout=self.timeout + 30, check=False
-            )
-        except FileNotFoundError as exc:
-            raise CollectionError("TccliNotFound", "Install TCCLI or provide --tccli") from exc
-        except subprocess.TimeoutExpired as exc:
-            raise CollectionError("Timeout") from exc
-        if result.returncode:
-            raise CollectionError(failure_code(result.stdout + result.stderr))
-        return result.stdout
+        )
 
     def buckets(self):
-        # The COS plugin gives environment credentials precedence. Reject ambiguous
-        # mixed sources so it cannot silently inventory a different account.
-        import os
-        from pathlib import Path
-
-        credential = Path.home() / ".tccli" / (self.profile + ".credential")
-        if (
-            any(
-                os.environ.get(k)
-                for k in ("TENCENTCLOUD_SECRET_ID", "TENCENTCLOUD_SECRET_KEY", "TENCENTCLOUD_TOKEN")
+        rows, names, markers, marker, owner = [], set(), set(), "", None
+        for _ in range(10000):
+            response = self.call("cos", "list_buckets", Marker=marker, MaxKeys=2000)
+            current_owner = (
+                response.get("Owner", {}).get("ID")
+                if isinstance(response.get("Owner", {}), dict)
+                else None
             )
-            and credential.exists()
-        ):
-            raise CollectionError("CredentialSourceConflict")
-        return parse_buckets(self._run("cos", "list_buckets", None, {}))
+            if owner is not None and current_owner != owner:
+                raise CollectionError("InventoryChanged")
+            owner = current_owner
+            buckets = response.get("Buckets")
+            if buckets == "":
+                buckets = {}
+            if not isinstance(buckets, dict):
+                raise CollectionError("InvalidCosBucketList")
+            page = buckets.get("Bucket", [])
+            if isinstance(page, dict):
+                page = [page]
+            if not isinstance(page, list):
+                raise CollectionError("InvalidCosBucketList")
+            for row in page:
+                if (
+                    not isinstance(row, dict)
+                    or not isinstance(row.get("Name"), str)
+                    or not re.fullmatch(r"[a-z0-9][a-z0-9-]*-\d+", row["Name"])
+                    or not isinstance(row.get("Location"), str)
+                    or not re.fullmatch(r"[a-z]+-[a-z0-9-]+", row["Location"])
+                ):
+                    raise CollectionError("InvalidCosBucketList")
+                if row["Name"] in names:
+                    raise CollectionError("PaginationStalled")
+                names.add(row["Name"])
+                rows.append(dict(name=row["Name"], region=row["Location"]))
+            next_marker = response.get("NextMarker", "")
+            if not isinstance(next_marker, str):
+                raise CollectionError("InvalidCosBucketList")
+            if not next_marker:
+                if response.get("IsTruncated") in (True, "true"):
+                    raise CollectionError("IncompletePagination")
+                return rows
+            if not page or next_marker in markers or next_marker == marker:
+                raise CollectionError("PaginationStalled")
+            markers.add(next_marker)
+            marker = next_marker
+        raise CollectionError("PageLimit")
 
     def call(self, service, action, region=None, **params):
+        validate_operation(service, action, region, params)
+        adapter = None
         if service == "cos":
-            from .cos_transport import call
-
-            return call(self.profile, action, region, params, self.timeout)
-        if service == "tic":
-            from .tic_transport import call
-
-            return call(self.profile, action, region, params, self.timeout)
-        if service == "cvm" and action == "DescribeReservedInstances":
-            from .international import call
-
-            return call(self.profile, action, region, params, self.timeout)
+            from . import cos_transport as adapter
+        elif service == "tic":
+            from . import tic_transport as adapter
+        elif service == "cvm" and action == "DescribeReservedInstances":
+            from . import international as adapter
+        if adapter:
+            adapter.validate_scope(action, region, params)
+            return self.session.execute(
+                lambda material: adapter.call(
+                    self.profile, action, region, params, self.timeout, material=material
+                )
+            )
         for attempt in range(4):
             try:
                 raw = self._run(service, action, region, params)
@@ -136,6 +136,33 @@ class TccliTransport:
                     raise
                 time.sleep(2**attempt)
         raise CollectionError("RetryExhausted")
+
+
+def validate_operation(service, action, region, params):
+    if (service, action) not in ALLOWED_ACTIONS:
+        raise CollectionError(
+            "BlockedAction", f"{service}.{action} is outside the metadata allowlist"
+        )
+    if not isinstance(params, dict) or any(
+        not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", k) for k in params
+    ):
+        raise CollectionError("BlockedParameterScope")
+    if (
+        region
+        and region != "global"
+        and (not isinstance(region, str) or not re.fullmatch(r"[a-z]+-[a-z0-9-]+", region))
+    ):
+        raise CollectionError("InvalidRegion")
+    if service == "ses" and region not in SES_ENDPOINTS:
+        raise CollectionError("UnsupportedSesRegion")
+    if (service, action) == ("postgres", "DescribeDBInstanceParameters"):
+        from .database_depth import PG_PARAMETERS
+
+        if (
+            set(params) != {"DBInstanceId", "ParamName"}
+            or params.get("ParamName") not in PG_PARAMETERS
+        ):
+            raise CollectionError("BlockedParameterScope")
 
 
 def path_value(obj, path, default=None):

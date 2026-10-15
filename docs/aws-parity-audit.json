@@ -8,7 +8,7 @@
     "registry_sha256": "2102c4667d969921948dc9d1f8ed753008de00f6a791dee97161ecc33d3e4451",
     "enabled_collectors": 66
   },
-  "audited_at": "2026-10-14",
+  "audited_at": "2026-10-15",
   "collectors": [
     {
       "aws_collector": "resourceexplorer",
@@ -60,7 +60,7 @@
       "source_enabled": true,
       "tencent_counterpart": "COS",
       "status": "incomplete",
-      "evidence_or_gap": "COS bucket ACL/policy/encryption/versioning/logging metadata; anonymous analysis and named-principal identity/resource/boundary composition with same-account union and cross-account intersection. Signed versus unsigned routes remain separate. Object ACLs/inheritance, resource-only implicit-boundary behavior, session constraints, global block equivalence and runtime access remain gaps; static credential adapter only. V2 notification rules/events/filters, exact scoped SCF/CKafka destination and delivery-role references added; delivery remains unverified.",
+      "evidence_or_gap": "COS bucket ACL/policy/encryption/versioning/logging metadata; anonymous analysis and named-principal identity/resource/boundary composition with same-account union and cross-account intersection. Signed versus unsigned routes remain separate. Object ACLs/inheritance, resource-only implicit-boundary behavior, session constraints, global block equivalence and runtime access remain gaps; shared renewable OAuth/SSO/configured-role sessions with identity checks across refresh are implemented offline. V2 notification rules/events/filters, exact scoped SCF/CKafka destination and delivery-role references added; delivery remains unverified.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
@@ -778,5 +778,6 @@
     "new_read_actions": 23,
     "total_read_actions": 216,
     "live_validation": "not-performed"
-  }
+  },
+  "authentication_report": "AUTHENTICATION.md"
 }

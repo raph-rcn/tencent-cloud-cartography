@@ -8,7 +8,7 @@ A derivative of [raph-rcn/aws-cartography](https://github.com/raph-rcn/aws-carto
 
 - **Reusable project workspaces:** named projects keep profiles, regions, service selections and snapshots separate; switch projects in the local viewer.
 - **Automatic regions per service and account:** new projects default to discovery; `--regions eu-frankfurt` keeps collection restricted to Frankfurt.
-- **Read-only collection:** existing TCCLI profiles, an exact API allowlist, pagination, identity checks before/after each account, and isolated account failures.
+- **Read-only collection:** existing TCCLI profiles, an exact metadata API allowlist, pagination, identity checks across credential refresh, and isolated account failures. Authentication may issue temporary sessions and refresh the selected local credential cache.
 - **Environment coverage:** account/region/service scope outcomes, organization member/profile reconciliation, explicit exclusions and failed-attempt reporting with previous inventory retained.
 - **Architecture and full graph views:** account → region → VPC → availability zone → subnet, based on returned resource IDs. Search, service/account/region filters, inspector, three layouts, collapse/expand.
 - **Exports:** PNG and editable draw.io diagrams with embedded Tencent SVGs.
@@ -39,7 +39,7 @@ checkout (requires uv and Node.js):
 
 ```bash
 uv run python scripts/build_distribution.py
-uv tool install dist/tencent_cloud_cartography-0.4.0-py3-none-any.whl
+uv tool install dist/tencent_cloud_cartography-0.5.0-py3-none-any.whl
 ```
 
 The installed `tencent-cloud-cartography` command works outside the source checkout.
@@ -81,7 +81,7 @@ No setup screen fabricates resources or silently opens synthetic inventory.
 
 ## Collect your account
 
-Authenticate locally, using your usual TCCLI profile. Do not put keys in repository files or command history.
+Authenticate locally, using your usual TCCLI profile. Browser/SSO sessions and explicitly configured roles share one renewable, identity-checked session across all collectors. See [authentication and read-only boundaries](docs/AUTHENTICATION.md). Do not put keys in repository files or command history.
 
 ```bash
 tccli auth login
@@ -165,7 +165,7 @@ SES supports `ap-guangzhou` and `ap-hongkong` on the mainland API endpoint, and 
 - Denied, unsupported, failed, excluded, empty and completed queries are distinguishable in **Collection coverage**. Pagination detects stalled pages, count changes, missing arrays, and premature EOF. Request IDs are retained when the API supplies them.
 - The graph includes conservative named COS authorization, role trust/permission paths, identity-policy/boundary matches, anonymous COS policy/ACL decisions and configured CLB exposure paths with evidence and completeness flags. It does not establish complete effective cloud authorization, public reachability, routing outcomes or exploitable attack paths. Kubernetes authorization reviews apply only to the selected current context and never execute a command.
 - Multi-subnet resources remain at their common returned VPC/region with explicit subnet edges. References may be incomplete when APIs omit IDs or use unsupported formats.
-- COS listing uses TCCLI's current table-format plugin because it ignores `--output json`; unexpected output fails visibly. Six bucket configuration operations use the bundled official COS Python SDK over verified HTTPS. The SDK reads the selected static TCCLI profile credential or a complete environment credential pair/token in memory. Mixed sources are rejected; SSO/OAuth/role refresh is not yet supported for these COS checks. Credentials and raw SDK errors are never saved. These SDK methods and the listing plugin do not expose successful request IDs.
+- COS listing and six bucket configuration operations use the official COS SDK over verified HTTPS. Structured bucket listing follows continuation markers. COS, Cloud API, international CVM and TIC collectors share the selected profile, renewable authentication and credential-generation identity checks. Explicit profiles take precedence; environment credentials are used only for an absent default profile, with no source merging or fallback for missing named profiles. [Supported sessions and expiry handling](docs/AUTHENTICATION.md). COS methods do not expose successful request IDs.
 - Additional COS notifications, database backup/proxy/replica settings, gateway backend/domain mappings and federation provisioning metadata are implemented. See [implemented contracts and retained exclusions](docs/METADATA-DEPTH.md).
 - Native collectors are schema-checked against the installed Tencent SDK and covered by offline tests. **Live account validation requires your own authenticated profile.** API availability and permissions can differ between accounts and regions.
 - The frontend defaults to 2,500 selected resources with a visible truncation notice. Containment parents may add a small number of nodes. PNG dimensions are bounded; large graphs are better explored with filters.

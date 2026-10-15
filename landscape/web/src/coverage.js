@@ -13,6 +13,12 @@ export function outcomeCounts(rows) {
   return Object.fromEntries(['scanned','failed','excluded','unscanned'].map((state) => [state, rows.filter((r) => r.state === state).length]));
 }
 
+export function authenticationSummary(profile) {
+  const a = profile.authentication;
+  if (!a) return 'Not recorded in this snapshot';
+  return `${a.provider} · ${a.status} · ${a.refreshes} refreshes${a.code ? ' · ' + a.code : ''}${a.remediation ? ' · ' + a.remediation : ''}`;
+}
+
 function table(headers, rows) {
   return `<table><thead><tr>${headers.map((h) => `<th>${escape(h)}</th>`).join('')}</tr></thead><tbody>${rows.length ? rows.join('') : `<tr><td colspan="${headers.length}">No matching records</td></tr>`}</tbody></table>`;
 }
@@ -60,8 +66,8 @@ export function showCoverage(container, payload) {
       `${r.successful_queries} / ${r.failed_queries} / ${r.excluded_queries}`,escape(r.resource_count ?? 'Unknown'),escape(r.reason) + '<br><small>' + escape((r.errors || []).join(', ')) + '</small>'
     ])));
     const query = filters.query.toLowerCase();
-    const profiles = data.profiles.filter((r) => (!filters.account || accountKey(r) === filters.account) && (!query || [r.profile,r.account,r.status,r.error].join(' ').toLowerCase().includes(query)));
-    el('coverage-profiles').innerHTML = table(['Profile','Returned account','Outcome','Inventory committed','Reason'], profiles.map((r) => row([escape(r.profile),escape(r.account || 'Identity unknown'),escape(r.status),escape(r.committed),escape(r.error || '') + (r.alias_of ? ' · alias of ' + escape(r.alias_of) : '')])));
+    const profiles = data.profiles.filter((r) => (!filters.account || accountKey(r) === filters.account) && (!query || [r.profile,r.account,r.status,r.error,authenticationSummary(r)].join(' ').toLowerCase().includes(query)));
+    el('coverage-profiles').innerHTML = table(['Profile','Returned account','Outcome','Inventory committed','Authentication','Reason'], profiles.map((r) => row([escape(r.profile),escape(r.account || 'Identity unknown'),escape(r.status),escape(r.committed),escape(authenticationSummary(r)),escape(r.error || '') + (r.alias_of ? ' · alias of ' + escape(r.alias_of) : '')])));
     const members = data.organization.filter((r) => (!filters.account || r.member_account === filters.account || r.collector_account === filters.account) && (!filters.state || r.state === filters.state) && (!query || [r.member_account,r.member_name,r.collector_account,...r.matched_profiles,r.reason].join(' ').toLowerCase().includes(query)));
     el('coverage-members').innerHTML = table(['Discovered by account','Member account / name','Matched profiles','Outcome','Reason'], slice(members, membersPage, 'members').map((r) => row([escape(r.collector_account),escape(r.member_account) + '<br>' + escape(r.member_name),escape(r.matched_profiles.join(', ') || 'No verified profile'),outcome(r),escape(r.reason)])));
     el('coverage-organizations').innerHTML = table(['Collector account','Outcome','Enumeration complete','Members observed','Reason'], data.organization_discovery.filter((r) => !filters.account || r.collector_account === filters.account).map((r) => row([escape(r.collector_account),outcome(r),escape(r.enumeration_complete),escape(r.discovered_members),escape(r.reason)])));

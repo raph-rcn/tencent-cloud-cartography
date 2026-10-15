@@ -57,6 +57,10 @@ def main(argv=None):
     )
     sync.add_argument("--tccli", default="tccli")
     sync.add_argument(
+        "--tccli-python",
+        help="TCCLI interpreter for custom wrappers; normally detected from the tccli launcher",
+    )
+    sync.add_argument(
         "--kube-context",
         action="append",
         help="Explicit ACCOUNT/REGION/CLUSTER=CONTEXT; reads only Kubernetes Tables without objects",
@@ -159,6 +163,7 @@ def main(argv=None):
                 regions,
                 services,
                 args.tccli,
+                tccli_python=args.tccli_python,
                 kube_contexts=parse_contexts(args.kube_context),
                 analysis_limit=args.analysis_limit,
                 discover_regions=args.discover_regions

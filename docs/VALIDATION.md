@@ -832,3 +832,44 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
   differences and the exact implementation scope are in `METADATA-DEPTH.md`.
 - Live Tencent account/API availability, delivery, database access and federation
   login remain unverified. Authentication-provider refresh is separate work.
+
+
+## 2026-10-15 — shared authentication and renewable scan sessions
+
+- Unified explicit profile precedence across Cloud API/COS/international CVM/TIC;
+  no named-profile fallback, source merging or implicit instance metadata lookup.
+- Native TCCLI 3.1.181.1 OAuth/SSO helpers, forced renewal, SSO expiry, configured
+  role exchange (including OAuth source token), CVM credentials and TKE web identity
+  are exercised offline in TCCLI's own interpreter. HTTP fixtures check real SDK
+  signing, token use, pinned API version, region, verified TLS and no redirects;
+  socket connections are blocked. Cache schema, `0600` modes, atomic cleanup and
+  absence of TCCLI request log creation are asserted.
+- New-generation caller checks bind account, source principal, ARN, identity type
+  and user/role ID. Tests distinguish rotating role-session names from a changed
+  role or federated user; a failed identity check stays failed after a reversion.
+- Expired-token replay is bounded to one forced refresh. Permission denials never
+  select another identity. Session/refresh failures have safe structured status
+  and local remediation; healthy account inventory survives other profile failures.
+- Coverage now displays provider, auth state, renewal count and login guidance.
+  Prior snapshots explicitly show when authentication status was not recorded.
+- COS listing uses official structured SDK metadata with continuation markers;
+  the historical table parser is retained only for compatibility tests. The exact
+  **216-operation inventory allowlist is unchanged**; session issuance is isolated
+  authentication, and no resource mutation or workload/secret API is enabled.
+- **1,316 backend tests and 13 frontend tests passed**. Native fixtures ran in
+  both the installed Homebrew Python 3.10 CLI and a fresh isolated Python 3.13
+  TCCLI environment. All generic signing names/endpoints are reconciled against
+  official SDK clients; Auto Scaling retains its native `as` API name.
+- Pre-commit/lint, the production web build, icon checks (**896 SVGs and 211 kind
+  mappings**) and npm audit (zero vulnerabilities) passed. The existing roughly
+  725 kB frontend bundle advisory remains.
+- An explicit temporary offline browser fixture showed a healthy OAuth profile
+  with one renewal alongside an expired SSO profile and its local login command.
+  The healthy resource remained visible; no JavaScript errors were observed.
+  The temporary tab/server were closed; the normal viewer's data was untouched.
+- **0.5.0** wheel/source archive include the compiled viewer, official assets and
+  authentication bridge. Isolated wheel installation verifies the UI, asset
+  hashes and independent project setup without cloud calls. A regression test
+  ensures the installed bridge cannot expose the application's conflicting SDK
+  directory to TCCLI's interpreter.
+- **No live Tencent authentication or Frankfurt collection was performed.**

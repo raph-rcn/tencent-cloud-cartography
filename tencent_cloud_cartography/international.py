@@ -3,10 +3,11 @@
 import json
 import re
 
+from .authentication import quiet_sdk
 from .transport import CollectionError
 
 
-def call(profile, action, region, params, timeout):
+def validate_scope(action, region, params):
     if action != "DescribeReservedInstances" or set(params) != {"Offset", "Limit"}:
         raise CollectionError("BlockedInternationalAction")
     if (
@@ -18,6 +19,11 @@ def call(profile, action, region, params, timeout):
         or not 1 <= params["Limit"] <= 100
     ):
         raise CollectionError("InvalidInternationalScope")
+
+
+@quiet_sdk()
+def call(profile, action, region, params, timeout, material=None):
+    validate_scope(action, region, params)
     from tencentcloud.common.credential import Credential
     from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
     from tencentcloud.common.profile.client_profile import ClientProfile
@@ -26,7 +32,7 @@ def call(profile, action, region, params, timeout):
 
     from .cos_transport import credentials
 
-    selected = credentials(profile)
+    selected = material.sdk() if material else credentials(profile)
     http = HttpProfile()
     http.endpoint = "cvm.intl.tencentcloudapi.com"
     http.reqTimeout = timeout

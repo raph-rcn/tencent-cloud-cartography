@@ -1,6 +1,6 @@
 # Metadata implementation and remaining AWS parity gaps
 
-Updated 2026-10-14. The operator explicitly retained metadata-only collection.
+Updated 2026-10-15. The operator explicitly retained metadata-only collection.
 The requested permission/exposure, container, CLB/database and service-family
 implementation is delivered within that restriction. **Full AWS parity is not
 established.** The table below records the actual implementation and the remaining
@@ -18,8 +18,10 @@ paginated scope coverage overview are implemented. Failed account attempts do
 not discard healthy inventory; completely unusable runs retain the prior snapshot
 and expose their coverage report. See [collection semantics](COLLECTION-COVERAGE.md).
 Missing RMS product mappings, unavailable discovery and unscanned members remain
-visible gaps. Existing profiles supply authentication; membership does not grant
-access or cause role assumption. Live Tencent behavior remains unverified.
+visible gaps. Existing profiles now support shared OAuth/SSO/configured-role renewal and identity
+checks across credential generations; see [authentication](AUTHENTICATION.md).
+Membership does not grant access or cause automatic role assumption into discovered
+members. Live Tencent behavior remains unverified.
 
 ## Permission and exposure analysis
 

@@ -1,4 +1,3 @@
-import json
 import os
 import subprocess
 from xml.etree import ElementTree as ET
@@ -103,17 +102,17 @@ def test_blocked_operations_never_start_process(monkeypatch, service, action):
         TccliTransport().call(service, action)
 
 
-def test_cli_transport_validates_json_without_name_false_positive(monkeypatch):
-    def run(args, **kwargs):
-        assert "--version" in args and "2017-03-12" in args
-        assert "--region" in args and "eu-frankfurt" in args
-        assert kwargs["timeout"] == 120
-        return subprocess.CompletedProcess(
-            args, 0, json.dumps({"VpcSet": [{"VpcName": "AuthFailure"}]}), ""
-        )
+def test_cli_transport_validates_json_without_name_false_positive(monkeypatch, frozen_session):
+    transport = TccliTransport(session=frozen_session)
 
-    monkeypatch.setattr(subprocess, "run", run)
-    assert TccliTransport().call("vpc", "DescribeVpcs", "eu-frankfurt")["VpcSet"]
+    def invoke(operation, **payload):
+        assert operation == "metadata"
+        assert payload["service"] == "vpc" and payload["region"] == "eu-frankfurt"
+        assert payload["material"]["secretId"] == "fixture-id"
+        return {"VpcSet": [{"VpcName": "AuthFailure"}]}
+
+    monkeypatch.setattr(transport.runtime, "invoke", invoke)
+    assert transport.call("vpc", "DescribeVpcs", "eu-frankfurt")["VpcSet"]
 
 
 @pytest.mark.parametrize("payload", ["[]", "null", '{"Response":[]}', "not-json"])
@@ -123,16 +122,22 @@ def test_invalid_cli_json(monkeypatch, payload):
         TccliTransport().call("sts", "GetCallerIdentity")
 
 
-def test_error_does_not_leak_raw_payload(monkeypatch):
+def test_error_does_not_leak_raw_payload(monkeypatch, frozen_session):
+    from tencent_cloud_cartography.tccli_runtime import TccliRuntime
+
+    runtime = TccliRuntime()
+    runtime._resolved = "fixture-python"
     monkeypatch.setattr(
         subprocess,
         "run",
         lambda *a, **kw: subprocess.CompletedProcess(
-            a, 1, "", "AuthFailure.SecretIdNotFound secret-material"
+            a, 0, '{"error":"AuthFailure.SecretIdNotFound"}', "secret-material"
         ),
     )
+    transport = TccliTransport(session=frozen_session)
+    transport.runtime = runtime
     with pytest.raises(CollectionError) as e:
-        TccliTransport().call("sts", "GetCallerIdentity")
+        transport.call("sts", "GetCallerIdentity")
     assert "secret-material" not in str(e.value)
     assert e.value.code == "AuthFailure.SecretIdNotFound"
 

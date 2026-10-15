@@ -25,6 +25,9 @@ SES_ENDPOINTS = {
     "ap-singapore": "ses.intl.tencentcloudapi.com",
 }
 
+# TCCLI's module name differs from the native API hostname/signing service.
+API_SERVICE_NAMES = {"autoscaling": "as"}
+
 COLLECTORS = (
     Collector(
         "sqlserver",

@@ -3,10 +3,11 @@ from types import SimpleNamespace
 
 import pytest
 
+from tencent_cloud_cartography.auth_source import load_source
 from tencent_cloud_cartography.catalog import ALLOWED_ACTIONS
 from tencent_cloud_cartography.collect import CollectorRunner
 from tencent_cloud_cartography.cos import ALL_USERS, collect_bucket
-from tencent_cloud_cartography.cos_transport import COS_ACTIONS, credentials
+from tencent_cloud_cartography.cos_transport import COS_ACTIONS
 from tencent_cloud_cartography.icons import icon_for
 from tencent_cloud_cartography.model import Graph
 from tencent_cloud_cartography.transport import CollectionError, TccliTransport
@@ -199,27 +200,27 @@ def test_profile_credentials_conflicts_dynamic_and_incomplete(isolated_profile, 
     path.write_text(
         json.dumps(dict(secretId="fixture-id", secretKey="fixture-key", token="fixture-token"))
     )
-    assert credentials("test")["Token"] == "fixture-token"
+    assert load_source("test").material().token == "fixture-token"
     monkeypatch.setenv("TENCENTCLOUD_SECRET_ID", "env-id")
-    with pytest.raises(CollectionError) as exc:
-        credentials("test")
-    assert exc.value.code == "CredentialSourceConflict"
+    assert load_source("test").material().secret_id == "fixture-id"
     path.unlink()
     with pytest.raises(CollectionError) as exc:
-        credentials("test")
-    assert exc.value.code == "MissingCredentials"
+        load_source("test")
+    assert exc.value.code == "MissingProfile"
     monkeypatch.delenv("TENCENTCLOUD_SECRET_ID")
     path.write_text(json.dumps(dict(type="oauth", secretId="cached-id", secretKey="cached-key")))
     with pytest.raises(CollectionError) as exc:
-        credentials("test")
-    assert exc.value.code == "UnsupportedCosCredentialType"
+        load_source("test")
+    assert exc.value.code == "InvalidCredentialConfiguration"
 
 
-def test_sdk_dispatch_tls_errors_and_no_raw_error_text(isolated_profile, monkeypatch):
+def test_sdk_dispatch_tls_errors_and_no_raw_error_text(
+    isolated_profile, monkeypatch, frozen_session
+):
     import qcloud_cos
 
     isolated_profile.write_text(json.dumps(dict(secretId="fixture-id", secretKey="fixture-key")))
-    transport = TccliTransport(profile="test")
+    transport = TccliTransport(profile="test", session=frozen_session)
     calls = []
 
     def client(config, retry):
@@ -265,7 +266,7 @@ def test_scope_allowlist_before_credentials(action, region, params, monkeypatch)
     assert all(("cos", action) in ALLOWED_ACTIONS for action in COS_ACTIONS)
 
 
-def test_real_sdk_xml_parsing_without_network(isolated_profile, monkeypatch):
+def test_real_sdk_xml_parsing_without_network(isolated_profile, monkeypatch, frozen_session):
     import qcloud_cos
 
     isolated_profile.write_text(json.dumps(dict(secretId="fixture-id", secretKey="fixture-key")))
@@ -298,7 +299,14 @@ def test_real_sdk_xml_parsing_without_network(isolated_profile, monkeypatch):
     graph = Graph()
     nid = graph.add("100", REGION, "cos.bucket", "assets-12345")
     collect_bucket(
-        CollectorRunner(graph, TccliTransport(profile="test"), "100", [REGION], lambda _: None), nid
+        CollectorRunner(
+            graph,
+            TccliTransport(profile="test", session=frozen_session),
+            "100",
+            [REGION],
+            lambda _: None,
+        ),
+        nid,
     )
     assert set(requests) == set(payloads)
     assert all(c["status"] == "complete" for c in graph.coverage)

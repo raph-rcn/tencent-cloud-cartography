@@ -26,7 +26,13 @@ jobs:
           cache-dependency-path: landscape/web/package-lock.json
       - name: Install Python dependencies
         run: uv sync --frozen
+      - name: Install isolated native TCCLI test runtime
+        run: |
+          uv venv .local/tccli-runtime --python 3.13
+          uv pip install --python .local/tccli-runtime/bin/python tccli==3.1.181.1
       - name: Run Python tests
+        env:
+          TCCLI_TEST_PYTHON: ${{ github.workspace }}/.local/tccli-runtime/bin/python
         run: uv run pytest tests/unit
       - name: Run lint and icon provenance checks
         run: uv run pre-commit run --all-files
