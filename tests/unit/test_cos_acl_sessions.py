@@ -1,4 +1,5 @@
 import copy
+import json
 from types import SimpleNamespace
 
 import pytest
@@ -145,6 +146,18 @@ def test_selected_object_version_and_only_fixed_metadata_api_sent(monkeypatch, f
         "cos", "get_object_acl", REGION, Bucket="assets-12345", Key="docs/file.txt", VersionId="v1"
     )
     assert data["CannedACL"] == "default" and data["x-cos-request-id"] == "acl-1"
+    from pathlib import Path
+
+    inventory = json.loads(
+        (Path(__file__).resolve().parents[2] / "docs/api-actions.json").read_text()
+    )
+    contract = next(
+        row
+        for row in inventory["actions"]
+        if (row["service"], row["action"]) == ("cos", "get_object_acl")
+    )
+    assert contract["cam_action"] == "cos:GetObjectACL"
+    assert contract["versioned_cam_action"] == "cos:GetObjectVersionACL"
     assert len(calls) == 1
     for forbidden in ("get_object", "list_objects", "put_object_acl"):
         with pytest.raises(CollectionError, match="metadata allowlist"):

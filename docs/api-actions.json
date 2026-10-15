@@ -470,8 +470,9 @@
     {
       "service": "cos",
       "action": "get_object_acl",
-      "api_version": "XML",
-      "cam_action": "name/cos:GetObjectACL"
+      "api_version": "COS XML API",
+      "cam_action": "cos:GetObjectACL",
+      "versioned_cam_action": "cos:GetObjectVersionACL"
     },
     {
       "service": "cos",

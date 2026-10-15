@@ -56,6 +56,9 @@ otherwise an explicit ACL document overrides bucket ACL grants. An empty default
 ACL on a nested object requires every intervening directory's metadata before
 falling back to bucket configuration. Missing evidence is unknown, including 404s.
 
+Current reads require `cos:GetObjectACL`; version-specific reads require
+`cos:GetObjectVersionACL`, as recorded in the API permission inventory.
+
 Versioned reads use a fixed signed `GET ?acl&versionId=...` query. The SDK's object
 ACL helper maps `VersionId` into a header, so this adapter constructs the fixed
 query through the official signing transport. ACL XML parsing rejects DTDs,
