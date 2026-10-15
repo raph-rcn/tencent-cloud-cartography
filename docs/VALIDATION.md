@@ -856,7 +856,7 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
   the historical table parser is retained only for compatibility tests. The exact
   **216-operation inventory allowlist is unchanged**; session issuance is isolated
   authentication, and no resource mutation or workload/secret API is enabled.
-- **1,316 backend tests and 13 frontend tests passed**. Native fixtures ran in
+- **1,320 backend tests and 13 frontend tests passed**. Native fixtures ran in
   both the installed Homebrew Python 3.10 CLI and a fresh isolated Python 3.13
   TCCLI environment. All generic signing names/endpoints are reconciled against
   official SDK clients; Auto Scaling retains its native `as` API name.

@@ -63,8 +63,10 @@ class TccliTransport:
             if owner is not None and current_owner != owner:
                 raise CollectionError("InventoryChanged")
             owner = current_owner
-            buckets = response.get("Buckets")
-            if buckets == "":
+            if "Buckets" not in response:
+                raise CollectionError("InvalidCosBucketList")
+            buckets = response["Buckets"]
+            if buckets in (None, ""):
                 buckets = {}
             if not isinstance(buckets, dict):
                 raise CollectionError("InvalidCosBucketList")
@@ -87,6 +89,8 @@ class TccliTransport:
                 names.add(row["Name"])
                 rows.append(dict(name=row["Name"], region=row["Location"]))
             next_marker = response.get("NextMarker", "")
+            if next_marker is None:
+                next_marker = ""
             if not isinstance(next_marker, str):
                 raise CollectionError("InvalidCosBucketList")
             if not next_marker:

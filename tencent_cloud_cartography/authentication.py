@@ -149,34 +149,31 @@ class VerifiedSession:
         with self._lock:
             if self._failure:
                 raise AuthenticationError(self._failure)
-            try:
-                material = self.resolver.resolve(force)
-                candidate = fingerprint(material)
-                if candidate != self._fingerprint or force:
-                    try:
+            for forced in (True,) if force else (False, True):
+                try:
+                    material = self.resolver.resolve(forced)
+                    candidate = fingerprint(material)
+                    if candidate != self._fingerprint or forced:
                         identity = stable_identity(self._probe(material))
-                    except CollectionError as exc:
-                        if exc.code in EXPIRED_CODES and not force:
-                            return self.material(force=True)
-                        raise
-                    if material.target_account and identity[0] != material.target_account:
-                        raise AuthenticationError("IdentityChanged")
-                    if self._identity is not None and identity != self._identity:
-                        raise AuthenticationError("IdentityChanged")
-                    if (
-                        material.expires_at is not None
-                        and material.expires_at <= self.resolver.clock() + 5
-                    ):
-                        if not force:
-                            return self.material(force=True)
-                        raise AuthenticationError("AuthSessionExpired")
-                    self._identity = identity
-                    self.generations += int(candidate != self._fingerprint)
-                    self._fingerprint = candidate
-                return material
-            except CollectionError as exc:
-                self._failure = exc.code
-                raise
+                        if material.target_account and identity[0] != material.target_account:
+                            raise AuthenticationError("IdentityChanged")
+                        if self._identity is not None and identity != self._identity:
+                            raise AuthenticationError("IdentityChanged")
+                        if (
+                            material.expires_at is not None
+                            and material.expires_at <= self.resolver.clock() + 5
+                        ):
+                            raise AuthenticationError("AuthSessionExpired")
+                        self._identity = identity
+                        self.generations += int(candidate != self._fingerprint)
+                        self._fingerprint = candidate
+                    return material
+                except CollectionError as exc:
+                    if exc.code in EXPIRED_CODES and not forced:
+                        continue
+                    self._failure = "AuthSessionExpired" if exc.code in EXPIRED_CODES else exc.code
+                    raise AuthenticationError(self._failure) from None
+            raise AuthenticationError("AuthSessionExpired")
 
     def execute(self, operation):
         material = self.material()

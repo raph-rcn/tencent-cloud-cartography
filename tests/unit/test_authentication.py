@@ -404,6 +404,33 @@ def test_authentication_report_rejects_credential_fields(profiles):
         validate_report(report)
 
 
+@pytest.mark.parametrize("empty", [False, True])
+def test_actual_cos_sdk_bucket_list_xml_including_empty_tags(monkeypatch, frozen_session, empty):
+    import qcloud_cos
+
+    calls = []
+
+    def send(self, **kwargs):
+        assert kwargs["method"] == "GET" and kwargs["bucket"] is None
+        assert kwargs["url"].startswith("https://service.cos.")
+        assert set(kwargs["params"]) == {"marker", "max-keys"}
+        calls.append(kwargs["params"])
+        if empty:
+            xml = "<ListAllMyBucketsResult><Owner><ID>owner</ID></Owner><Buckets/><NextMarker/></ListAllMyBucketsResult>"
+        else:
+            first = not kwargs["params"]["marker"]
+            xml = (
+                "<ListAllMyBucketsResult><Owner><ID>owner</ID></Owner><Buckets><Bucket><Name>%s-12345</Name><Location>eu-frankfurt</Location></Bucket></Buckets><NextMarker>%s</NextMarker></ListAllMyBucketsResult>"
+                % ("one" if first else "two", "next" if first else "")
+            )
+        return SimpleNamespace(content=xml.encode())
+
+    monkeypatch.setattr(qcloud_cos.CosS3Client, "send_request", send)
+    rows = TccliTransport(session=frozen_session).buckets()
+    assert len(rows) == (0 if empty else 2)
+    assert len(calls) == (1 if empty else 2)
+
+
 def test_auth_failure_discards_only_failed_account_and_reports_remediation(monkeypatch, profiles):
     profiles("healthy")
     profiles(
@@ -554,3 +581,34 @@ def test_installed_bridge_does_not_expose_application_site_packages(tmp_path):
     )
     assert result.returncode == 0
     assert json.loads(result.stdout)["result"]["secretId"] == "FIXTURE"
+
+
+@pytest.mark.parametrize("always_expired", [False, True])
+def test_expired_source_during_role_resolution_gets_exactly_one_forced_renewal(
+    profiles, always_expired
+):
+    profiles(**{"role-arn": "qcs::cam::uin/100:roleName/Reader", "role-session-name": "scan"})
+    runtime = Runtime(role())
+    invoke = runtime.invoke
+    attempts = []
+
+    def expired_source(operation, **payload):
+        if operation == "resolve":
+            attempts.append(payload["force"])
+            if len(attempts) == 1 or always_expired:
+                raise CollectionError("AuthFailure.TokenExpired")
+        return invoke(operation, **payload)
+
+    runtime.invoke = expired_source
+    session = VerifiedSession(
+        "default", runtime, ProfileResolver("default", runtime, clock=lambda: NOW)
+    )
+    if always_expired:
+        with pytest.raises(CollectionError) as failure:
+            session.material()
+        assert failure.value.code == "AuthSessionExpired"
+        assert session.report()["status"] == "login-required"
+    else:
+        assert session.material().provider == "role"
+        assert session.generations == 1
+    assert attempts == [False, True]
