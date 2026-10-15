@@ -955,12 +955,13 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
   scoped relationships, condition/session evaluation and native Kubernetes RBAC
   metadata for the requested areas; the [15-area report](PLATFORM-PARITY.md)
   records the remaining excluded responses and unverified provider semantics.
-- **1634 Python tests passed** with the isolated native TCCLI runtime, including
+- **1635 Python tests passed** with the isolated native TCCLI runtime, including
   recursive response contracts, explicit fixtures for all 42 new declarative
   reads, TcaplusDB tag scopes, wrong owner/region/catalog/certificate/zone/asset
   type controls, stable pagination, RBAC namespace/identity/reference controls,
   session deny propagation, finite numeric/wildcard/absent-attribute/tag conditions
-  and offline reconciliation idempotence.
+  and offline reconciliation idempotence. Grant-budget regression checks preserve
+  every collected RBAC binding/role/subject relationship while capping derived grants.
 - **13 frontend tests passed**. `npm ci`, production build and dependency audit
   passed with **0 vulnerabilities**. The existing Vite large-chunk advisory remains.
 - Pre-commit Ruff lint/format and the asset checker passed: **896 official SVGs**,

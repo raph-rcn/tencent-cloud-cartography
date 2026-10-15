@@ -370,7 +370,7 @@ def link(graph, max_decisions=25000):
                     )
                 ):
                     graph.edge(role["id"], other["id"], "SELECTS_AGGREGATED_ROLE", LINK)
-    generated = 0
+    generated, limited = 0, False
     for binding in list(graph.nodes.values()):
         if (
             binding["kind"] not in {"tke.rolebinding", "tke.clusterrolebinding"}
@@ -466,8 +466,10 @@ def link(graph, max_decisions=25000):
                 continue
             for rid in rules[target["id"]]:
                 if generated >= max_decisions:
-                    limit_record(graph, "AnalyzeKubernetesRbac", generated, max_decisions)
-                    return
+                    if not limited:
+                        limit_record(graph, "AnalyzeKubernetesRbac", generated, max_decisions)
+                        limited = True
+                    continue
                 raw = graph.nodes[rid]["properties"]
                 # Namespaced bindings cannot grant cluster-scoped nonresource URLs.
                 if p.get("namespace") and raw.get("nonResourceURLs"):

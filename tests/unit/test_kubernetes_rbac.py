@@ -230,3 +230,31 @@ def test_paginated_rbac_identity_stability_and_duplicate_controls():
 
         collect(g, c, P(data))
         assert any(r["status"] == "error" and r["detail"].endswith("/roles") for r in g.coverage)
+
+
+def test_grant_budget_preserves_all_collected_binding_role_subject_relationships():
+    g, c, data = setup()
+    other = copy.deepcopy(data["rolebindings"][0])
+    other["metadata"].update(name="second", uid="uid-second")
+    data["rolebindings"].append(other)
+    collect(g, c, T(data))
+    link(g, max_decisions=1)
+    assert len([n for n in g.nodes.values() if n["kind"] == "tke.rbacgrant"]) == 1
+    bindings = [n for n in g.nodes.values() if n["kind"] == "tke.rolebinding"]
+    for b in bindings:
+        assert any(
+            e["source"] == b["id"] and e["relationship"] == "BINDS_ROLE" for e in g.edges.values()
+        )
+        assert (
+            len(
+                [
+                    e
+                    for e in g.edges.values()
+                    if e["source"] == b["id"] and e["relationship"] == "BINDS_SUBJECT"
+                ]
+            )
+            == 2
+        )
+    assert (
+        len([r for r in g.coverage if r.get("error") == "AuthorizationDecisionLimitExceeded"]) == 1
+    )
