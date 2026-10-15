@@ -5,6 +5,11 @@ from .catalog import ALLOWED_ACTIONS
 # These operations are deliberately never called. Response-field paths were
 # audited against the Tencent SDK shipped with TCCLI 3.1.181.1.
 EXCLUSIONS = (
+    (
+        "teo",
+        "DescribeSecurityPolicy",
+        "SecurityPolicy custom/rate-limit/bot rule Condition can contain authentication header/cookie match values; no server-side field selector",
+    ),
     ("tke", "DescribeClusterNodePools", "NodePoolSet.UserScript/PreStartUserScript"),
     ("tke", "DescribeClusterNodePoolDetail", "NodePool.UserScript/PreStartUserScript"),
     ("apigateway", "DescribeApiAppsStatus", "Result.ApiAppSet.ApiAppSecret"),

@@ -486,6 +486,30 @@ READS = (
         "EmailSenders",
         ("EmailAddress",),
     ),
+    Read(
+        "tse",
+        "DescribeWafProtection",
+        "tse.wafprotection",
+        schema(
+            Result=schema(
+                "GlobalStatus ObjectStatus",
+                ServicesStatus=[schema("Name Id Type Status")],
+                RouteStatus=[
+                    schema("Name Id Status ServiceName ServiceId", arrays="Methods Paths Hosts")
+                ],
+            )
+        ),
+        parent="tse.gateway",
+        argument="GatewayId",
+    ),
+    Read(
+        "tse",
+        "DescribeWafDomains",
+        "tse.wafdomains",
+        schema(Result=schema(arrays="Domains")),
+        parent="tse.gateway",
+        argument="GatewayId",
+    ),
 )
 ACTIONS = {(r.service, r.action) for r in READS}
 KINDS = {r.kind for r in READS}
@@ -576,6 +600,8 @@ def parameters(graph, read, parent):
         result = dict(
             GatewayId=ancestor(graph, parent, "tse.gateway")["resource_id"], ServiceName=p["Name"]
         )
+    elif read.action == "DescribeWafProtection":
+        result["TypeList"] = ["Global", "Service", "Route", "Object"]
     return result
 
 
@@ -791,6 +817,21 @@ def link(graph):
             for target in json.loads(p.get("Target", "[]")):
                 exact(n, "cvm.instance", target.get("CvmInstanceId"), "CONFIGURED_CVM_BACKEND")
             p["backend_probe_performed"] = False
+        elif kind == "tse.wafprotection":
+            configuration = json.loads(p.get("Result", "{}"))
+            service_ids = {row.get("Id") for row in configuration.get("ServicesStatus", [])}
+            service_ids.update(row.get("ServiceId") for row in configuration.get("RouteStatus", []))
+            for service in nodes:
+                if (
+                    service["kind"] == "tse.gatewayservice"
+                    and service["account"] == n["account"]
+                    and service["region"] == n["region"]
+                    and service["properties"].get("parent_resource_id")
+                    == p.get("parent_resource_id")
+                    and service["properties"].get("ID") in service_ids
+                ):
+                    graph.edge(n["id"], service["id"], "REPORTED_WAF_SERVICE_CONFIGURATION", source)
+            p.update(full_route_inventory_collected=False, waf_enforcement_verified=False)
         elif kind == "tcr.replicationinstance":
             region, rid = p.get("ReplicationRegionName"), p.get("ReplicationRegistryId")
             if (

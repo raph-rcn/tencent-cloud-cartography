@@ -1561,6 +1561,16 @@
       "api_version": "2020-12-07"
     },
     {
+      "service": "tse",
+      "action": "DescribeWafDomains",
+      "api_version": "2020-12-07"
+    },
+    {
+      "service": "tse",
+      "action": "DescribeWafProtection",
+      "api_version": "2020-12-07"
+    },
+    {
       "service": "vpc",
       "action": "DescribeAddressTemplateGroups",
       "api_version": "2017-03-12"

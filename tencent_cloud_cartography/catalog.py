@@ -888,6 +888,8 @@ ALLOWED_ACTIONS = {
         ("cvm", "DescribeLaunchTemplateVersions"),
     }
 } | {
+    ("tse", "DescribeWafDomains"),
+    ("tse", "DescribeWafProtection"),
     ("tcr", "DescribeReplicationInstances"),
     ("tse", "DescribeCloudNativeAPIGatewayUpstream"),
     ("teo", "DescribeDDoSProtection"),
@@ -1245,6 +1247,8 @@ KIND_ICONS = {
     "vpc.peeringconnection": "Peering Connection",
 }
 DETAIL_KINDS = {
+    "tse.wafdomains",
+    "tse.wafprotection",
     "tcr.replicationinstance",
     "tse.gatewayupstream",
     "teo.accelerationsettings",

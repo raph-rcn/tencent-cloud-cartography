@@ -25,6 +25,28 @@ from tencent_cloud_cartography.workload_metadata import (
 REGION = "eu-frankfurt"
 # These are explicit native API fixtures, independent of the projection schemas.
 RESPONSES = {
+    "DescribeWafProtection": dict(
+        Result=dict(
+            GlobalStatus="Open",
+            ObjectStatus="Close",
+            ServicesStatus=[
+                dict(Name="worker-service", Id="service-one", Type="SCF", Status="Open")
+            ],
+            RouteStatus=[
+                dict(
+                    Name="jobs",
+                    Id="route-one",
+                    Status="Open",
+                    Methods=["GET"],
+                    Paths=["/jobs"],
+                    Hosts=["api.example.test"],
+                    ServiceName="worker-service",
+                    ServiceId="service-one",
+                )
+            ],
+        )
+    ),
+    "DescribeWafDomains": dict(Result=dict(Domains=["api.example.test"])),
     "DescribeReplicationInstances": dict(
         ReplicationRegistries=[
             dict(
@@ -638,7 +660,11 @@ def test_collector_chains_native_ids_and_rebuilds_exact_links():
         "USES_CERTIFICATE",
         "CONFIGURED_CLUSTER_PERMISSION",
         "USES_SUBNET",
+        "REPORTED_WAF_SERVICE_CONFIGURATION",
     }
+    assert next(p for _, a, _, p in calls if a == "DescribeWafProtection") == dict(
+        GatewayId="gateway-one", TypeList=["Global", "Service", "Route", "Object"]
+    )
     before = g.snapshot()
     link(g)
     assert g.snapshot()["edges"] == before["edges"]

@@ -320,7 +320,7 @@ and effective runtime access remain unverified.
 
 ### Container, serverless, gateway and edge metadata
 
-Version 0.9.0 adds 34 audited reads for TCR retention/immutability/executions,
+Version 0.9.0 adds 36 audited reads for TCR retention/immutability/executions,
 TKE virtual nodes/routes/permissions, SCF concurrency/domains, gateway quotas
 and Cloud Native gateways, EdgeOne sites/cache/TLS/DDoS and SES sender addresses.
 Offline CAM analysis includes SCF invocation policy decisions. Collection remains

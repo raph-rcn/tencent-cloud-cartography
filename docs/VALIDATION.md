@@ -2,7 +2,7 @@
 
 ## Container, serverless, gateway and edge extension — 2026-10-15 / v0.9.0
 
-- **1,733 Python tests pass**, including provider-shaped fixtures for all 34 new
+- **1,736 Python tests pass**, including provider-shaped fixtures for all 36 new
   reads, recursive native SDK response contracts, wrong registry/policy/execution/
   cluster/zone/gateway/principal/region controls, duplicate/count/pagination checks,
   isolated SES region behavior and actual orchestration of the new TSE/EdgeOne
@@ -13,17 +13,17 @@
   Missing CMQ policy/encryption/FIFO/confirmation fields remain explicit unknowns.
 - **13 frontend tests**, clean `npm ci`, production build and dependency audit
   pass; the audit reports zero vulnerabilities. All **896 official SVGs**, the
-  official wordmark and **356 registered kind mappings** pass provenance checks.
+  official wordmark and **358 registered kind mappings** pass provenance checks.
 - Isolated browser verification used a clearly marked **EXAMPLE DATA** fixture
   on loopback port 8794; no real project snapshot was replaced. Full graph showed
-  **49 resources / 49 relationships / 11 services**, including TSE and EdgeOne.
+  **51 resources / 52 relationships / 11 services**, including TSE and EdgeOne.
   Search for the native upstream name returned one match. The downloaded draw.io
-  parsed as **69 editable vertices / 49 edges / 47 embedded SVG icons**, with valid
+  parsed as **71 editable vertices / 52 edges / 49 embedded SVG icons**, with valid
   containment and edge endpoints. The inspected browser error log was empty.
 - The **v0.9.0 wheel and source archive build successfully**. A fresh environment
   installed the wheel outside the checkout and verified the packaged UI, all
   official icons/logo and two isolated project configurations without cloud access.
-- The exact operation manifest now contains **350 audited reads**. The
+- The exact operation manifest now contains **352 audited reads**. The
   [13-area disposition](WORKLOAD-EDGE-PARITY.md) and machine-readable AWS comparison
   retain blocked responses, provider differences and unverified parity. No live
   Tencent validation, actual workload reads, invocation, mail/message send or
@@ -421,7 +421,7 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
 
 ## 2026-10-13 — Shared resource-tag graph
 
-- `uv run pytest -q`: **540 passed**, including **34** new tag cases for
+- `uv run pytest -q`: **540 passed**, including **36** new tag cases for
   continuation tokens and page bounds, empty intermediate pages, account/region
   isolation, case-sensitive key/value identity, Unicode/empty values, malformed
   data, CAM global IDs, CBS aliases, COS AppId forms, ambiguous EMR node IDs,
