@@ -123,7 +123,7 @@ def statements(graph, bucket, outgoing):
     return result, complete and acl_complete
 
 
-def analyze(graph):
+def analyze(graph, max_decisions=25000, context=None):
     obsolete = {nid for nid, n in graph.nodes.items() if n["kind"] == "cos.publicaccessdecision"}
     graph.nodes = {nid: n for nid, n in graph.nodes.items() if nid not in obsolete}
     graph.edges = {
@@ -197,5 +197,7 @@ def analyze(graph):
         )
 
     from .cos_account import analyze as summarize_accounts
+    from .cos_object_acls import analyze as analyze_object_acls
 
+    analyze_object_acls(graph, context=context, max_decisions=max_decisions)
     summarize_accounts(graph)

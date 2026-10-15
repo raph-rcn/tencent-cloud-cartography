@@ -54,6 +54,15 @@ def analyze(graph):
             account_level_block_configuration="no_equivalent_audited_api",
             global_block_state_verified=False,
             object_acl_overrides_evaluated=False,
+            selected_object_acl_count=sum(
+                n["kind"] == "cos.objectacl" and n["account"] == account
+                for n in graph.nodes.values()
+            ),
+            selected_object_acl_decision_count=sum(
+                n["kind"] == "cos.objectacldecision" and n["account"] == account
+                for n in graph.nodes.values()
+            ),
+            object_acl_inventory_complete=False,
             effective_access_verified=False,
         )
         for bucket in buckets:

@@ -477,7 +477,7 @@ def analyze(graph, max_decisions=25000):
             )
 
 
-def analyze_snapshot(snapshot, context=None, max_decisions=25000):
+def analyze_snapshot(snapshot, context=None, max_decisions=25000, session_policies=None):
     """Run offline; preserve original account/mode/time and validate endpoints."""
     from copy import deepcopy
 
@@ -492,16 +492,28 @@ def analyze_snapshot(snapshot, context=None, max_decisions=25000):
     graph.nodes = {row["id"]: row for row in data["nodes"]}
     graph.edges = {row["id"]: row for row in data["edges"]}
     graph.coverage = data["coverage"]
+    if session_policies is not None:
+        from .session_policy import apply as apply_session_policies
+
+        apply_session_policies(graph, session_policies)
     from .network_parity import link as link_network_parity
 
     link_network_parity(graph)
+    from .data_metadata import link as link_data_metadata
+
+    link_data_metadata(graph)
+    from .dlc_authorization_metadata import link as link_dlc
+    from .secrets import link_resources
+
+    link_dlc(graph)
+    link_resources(graph)
     from .exposure import analyze as analyze_exposure
 
     analyze_exposure(graph)
     analyze(graph, max_decisions)
     from .public_access import analyze as analyze_public_access
 
-    analyze_public_access(graph)
+    analyze_public_access(graph, max_decisions=max_decisions, context=context)
     from .cos_authorization import analyze as analyze_cos_authorization
     from .role_assumption import analyze as analyze_role_assumption
 

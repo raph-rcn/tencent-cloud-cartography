@@ -39,7 +39,7 @@ checkout (requires uv and Node.js):
 
 ```bash
 uv run python scripts/build_distribution.py
-uv tool install dist/tencent_cloud_cartography-0.6.0-py3-none-any.whl
+uv tool install dist/tencent_cloud_cartography-0.7.0-py3-none-any.whl
 ```
 
 The installed `tencent-cloud-cartography` command works outside the source checkout.
@@ -294,3 +294,14 @@ GWLB, gateway identities and public IPv6 variants. Read the
 [14-row networking parity matrix](docs/NETWORK-PARITY.md) for the exact
 implementation and provider differences. Collection remains read-only and
 metadata-only; configured exposure does not prove runtime reachability.
+
+### Storage, database and secret metadata coverage
+
+Version 0.7.0 adds 37 metadata reads: database proxy/cluster/backup/parameter
+configuration, DLC/CDWPG accounts and grants, Elasticsearch request/backup
+controls, CFS snapshots/lifecycle and secret rotation history. Optional
+`sync --cos-object-acls FILE` reads ACL metadata for explicitly named objects;
+`analyze --session-policies FILE` evaluates declared session restrictions offline.
+Read the [nine-area parity and usage guide](docs/STORAGE-DATABASE-PARITY.md) for
+scope, examples and retained provider/security limits. No object contents,
+database credentials, queries or secret values are retrieved.

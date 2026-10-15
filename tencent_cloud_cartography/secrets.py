@@ -185,6 +185,11 @@ def collect_details(runner, nid):
 
 
 def link_resources(graph):
+    graph.edges = {
+        i: e
+        for i, e in graph.edges.items()
+        if not (e["relationship"] == "CREDENTIAL_FOR" and e.get("provenance") == "ssm.ListSecrets")
+    }
     index = {
         (n["account"], n["region"], n["kind"], n["resource_id"]): n
         for n in graph.nodes.values()
@@ -195,10 +200,25 @@ def link_resources(graph):
             continue
         props = node["properties"]
         target = None
-        if props.get("SecretType") == 1 and props.get("ProductName", "").lower() == "mysql":
-            target = index.get(
-                (node["account"], node["region"], "cdb.instance", props.get("ResourceID"))
+        if props.get("SecretType") == 1:
+            product = props.get("ProductName", "").lower()
+            kind = {
+                "mysql": "cdb.instance",
+                "cdb": "cdb.instance",
+                "postgresql": "postgres.dbinstanceid",
+                "postgres": "postgres.dbinstanceid",
+                "sqlserver": "sqlserver.instance",
+                "mariadb": "mariadb.instance",
+                "mongodb": "mongodb.instance",
+            }.get(product)
+            if kind:
+                target = index.get((node["account"], node["region"], kind, props.get("ResourceID")))
+            props["database_link_resolution"] = (
+                "matched_native_product_and_resource_id"
+                if target
+                else "unresolved_or_unsupported_product"
             )
+
         elif props.get("SecretType") == 4:
             target = index.get(
                 (node["account"], node["region"], "redis.instance", props.get("ResourceID"))

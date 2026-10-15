@@ -27,7 +27,13 @@ from .public_access import statements as anonymous_statements
 from .transport import CollectionError
 
 SOURCE = "analysis.cos-named-authorization"
-OBJECT_ACTIONS = {"cos:GetObject", "cos:PutObject", "cos:DeleteObject"}
+OBJECT_ACTIONS = {
+    "cos:GetObject",
+    "cos:PutObject",
+    "cos:DeleteObject",
+    "cos:GetObjectACL",
+    "cos:PutObjectACL",
+}
 
 
 def bucket_statements(graph, bucket, principal, outgoing, anonymous=False):
@@ -116,7 +122,7 @@ def bucket_statements(graph, bucket, principal, outgoing, anonymous=False):
     return rows, complete
 
 
-def selections(bucket, rows, action):
+def selections(bucket, rows, action, objects=None):
     canonical = identities(bucket)
     if not canonical:
         return []
@@ -124,7 +130,11 @@ def selections(bucket, rows, action):
         # Both forms appear in provider bucket-operation examples. Treat these as
         # aliases of one bucket operation, not as an object read scope.
         return [[canonical[0][:-1], canonical[0]]]
-    choices = {canonical[0]}
+    choices = (
+        set(objects or {}) if action in {"cos:GetObjectACL", "cos:PutObjectACL"} else {canonical[0]}
+    )
+    if action == "cos:GetObject":
+        choices.update(objects or {})
     prefix = canonical[0][:-1]
     for _, row in rows:
         if row["effect"] != "allow":
@@ -172,6 +182,8 @@ def analyze(graph, context=None, max_decisions=DEFAULT_ANALYSIS_LIMIT):
     buckets = [
         n for n in graph.nodes.values() if n["kind"] == "cos.bucket" and n["status"] == "enriched"
     ]
+    from .cos_object_acls import current_objects, scoped_rows
+
     for principal in principals:
         identity_rows, identity_complete = identity_statements(graph, principal, outgoing)
         for bucket in buckets:
@@ -179,8 +191,14 @@ def analyze(graph, context=None, max_decisions=DEFAULT_ANALYSIS_LIMIT):
             anonymous_rows, anonymous_complete = bucket_statements(
                 graph, bucket, principal, outgoing, True
             )
+            objects = current_objects(graph, bucket) if identities(bucket) else {}
             count, unresolved = 0, False
-            for action, capability in ACTIONS.items():
+            actions = dict(ACTIONS)
+            if objects:
+                actions.update(
+                    {"cos:GetObjectACL": "READ_OBJECT_ACL", "cos:PutObjectACL": "WRITE_OBJECT_ACL"}
+                )
+            for action, capability in actions.items():
                 for scope in selections(
                     bucket,
                     [
@@ -192,7 +210,35 @@ def analyze(graph, context=None, max_decisions=DEFAULT_ANALYSIS_LIMIT):
                         *anonymous_rows,
                     ],
                     action,
+                    objects,
                 ):
+                    obj = (
+                        objects.get(scope)
+                        if isinstance(scope, str)
+                        and action in {"cos:GetObject", "cos:GetObjectACL", "cos:PutObjectACL"}
+                        else None
+                    )
+                    scoped_resource_rows, scoped_anonymous_rows = resource_rows, anonymous_rows
+                    scoped_resource_complete, scoped_anonymous_complete = (
+                        resource_complete,
+                        anonymous_complete,
+                    )
+                    acl_complete = False
+                    if obj:
+                        scoped_resource_rows, acl_complete = scoped_rows(
+                            graph, bucket, obj, principal, outgoing, resource_rows
+                        )
+                        scoped_anonymous_rows, anonymous_acl_complete = scoped_rows(
+                            graph, bucket, obj, principal, outgoing, anonymous_rows, True
+                        )
+                        policy_complete = bucket["properties"].get(
+                            "policy_collected"
+                        ) is True and bool(
+                            bucket["properties"].get("policy_document")
+                            or bucket["properties"].get("policy_absent")
+                        )
+                        scoped_resource_complete = policy_complete and acl_complete
+                        scoped_anonymous_complete = policy_complete and anonymous_acl_complete
                     if generated >= max_decisions:
                         limit_record(
                             graph, "AnalyzeCosNamedAuthorization", generated, max_decisions
@@ -210,7 +256,7 @@ def analyze(graph, context=None, max_decisions=DEFAULT_ANALYSIS_LIMIT):
                     resource = evaluate(
                         [
                             row
-                            for row in resource_rows
+                            for row in scoped_resource_rows
                             if principal["account"] != bucket["account"]
                             or not row[1].get("_account_delegation")
                             or row[1]["effect"] == "deny"
@@ -218,7 +264,7 @@ def analyze(graph, context=None, max_decisions=DEFAULT_ANALYSIS_LIMIT):
                         action,
                         scope,
                         context,
-                        resource_complete,
+                        scoped_resource_complete,
                         bucket["account"],
                         bucket,
                     )
@@ -227,17 +273,18 @@ def analyze(graph, context=None, max_decisions=DEFAULT_ANALYSIS_LIMIT):
                     )
                     if (
                         action in OBJECT_ACTIONS
+                        and not acl_complete
                         and resource.allow is False
                         and resource.deny is not True
                     ):
                         resource.grants_complete = False
                         resource.reasons.append("object_acl_grants_not_collected")
                     public = evaluate(
-                        anonymous_rows,
+                        scoped_anonymous_rows,
                         action,
                         scope,
                         context,
-                        anonymous_complete,
+                        scoped_anonymous_complete,
                         bucket["account"],
                         bucket,
                     )
@@ -275,8 +322,28 @@ def analyze(graph, context=None, max_decisions=DEFAULT_ANALYSIS_LIMIT):
                                 else base
                             )
                         )
+                    from .session_policy import gate as session_gate
+
+                    session = session_gate(
+                        graph, principal, outgoing, action, scope, context, bucket
+                    )
+                    if session is not None:
+                        gates.append(session)
+                        if session.deny is True:
+                            result, reason = "denied", "explicit_declared_session_deny"
+                        elif result != "denied":
+                            if session.decision == "denied":
+                                result, reason = "denied", "declared_session_has_no_allow"
+                            elif session.decision == "unknown":
+                                result, reason = (
+                                    "unknown",
+                                    "declared_session_constraints_unresolved",
+                                )
+                            elif session.decision == "conditional" and result == "allowed":
+                                result, reason = "conditional", "declared_session_conditions"
                     if (
                         action in OBJECT_ACTIONS
+                        and not acl_complete
                         and result == "denied"
                         and reason == "no_collected_grant"
                     ):
@@ -285,6 +352,7 @@ def analyze(graph, context=None, max_decisions=DEFAULT_ANALYSIS_LIMIT):
                         public.decision == "denied"
                         and public.deny is not True
                         and action in OBJECT_ACTIONS
+                        and not acl_complete
                     ):
                         public.grants_complete = False
                         public.reasons.append("object_acl_grants_not_collected")
@@ -323,11 +391,15 @@ def analyze(graph, context=None, max_decisions=DEFAULT_ANALYSIS_LIMIT):
                         if cross
                         else "identity_or_resource",
                         anonymous_route_decision=public.decision,
-                        session_constraints="unknown",
+                        session_constraints="operator_declared_policy_evaluated"
+                        if session is not None
+                        else "unknown",
+                        live_session_verified=False,
                         effective_access_decision="unknown",
                         effective_access_verified=False,
                         data_access_verified=False,
-                        object_acls_collected=False,
+                        object_acls_collected=obj is not None,
+                        selected_acl_inheritance_complete=acl_complete,
                         boundary_evaluated=boundary.complete,
                         identity_collection_complete=identity.complete,
                         resource_collection_complete=resource.complete,
@@ -340,6 +412,8 @@ def analyze(graph, context=None, max_decisions=DEFAULT_ANALYSIS_LIMIT):
                     )
                     graph.edge(principal["id"], nid, "HAS_COS_AUTHORIZATION_ANALYSIS", SOURCE)
                     graph.edge(nid, bucket["id"], "TARGETS_RESOURCE", SOURCE)
+                    if obj:
+                        graph.edge(nid, obj["id"], "USES_SELECTED_OBJECT_ACL", SOURCE)
                     # Reuse existing anonymous configuration nodes only when the
                     # exact action AND scope agree; never attach a broader prefix.
                     for selected_scope in scope if isinstance(scope, list) else [scope]:

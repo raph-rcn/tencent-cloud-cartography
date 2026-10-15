@@ -163,7 +163,27 @@
     },
     {
       "service": "cdb",
+      "action": "DescribeBackupDownloadRestriction",
+      "api_version": "2017-03-20"
+    },
+    {
+      "service": "cdb",
+      "action": "DescribeBackupEncryptionStatus",
+      "api_version": "2017-03-20"
+    },
+    {
+      "service": "cdb",
+      "action": "DescribeBackupSummaries",
+      "api_version": "2017-03-20"
+    },
+    {
+      "service": "cdb",
       "action": "DescribeCdbProxyInfo",
+      "api_version": "2017-03-20"
+    },
+    {
+      "service": "cdb",
+      "action": "DescribeClusterInfo",
       "api_version": "2017-03-20"
     },
     {
@@ -188,6 +208,11 @@
     },
     {
       "service": "cdb",
+      "action": "DescribeLocalBinlogConfig",
+      "api_version": "2017-03-20"
+    },
+    {
+      "service": "cdb",
       "action": "DescribeRemoteBackupConfig",
       "api_version": "2017-03-20"
     },
@@ -203,8 +228,28 @@
     },
     {
       "service": "cdwpg",
+      "action": "DescribeAccounts",
+      "api_version": "2020-12-30"
+    },
+    {
+      "service": "cdwpg",
+      "action": "DescribeInstanceNodes",
+      "api_version": "2020-12-30"
+    },
+    {
+      "service": "cdwpg",
       "action": "DescribeInstances",
       "api_version": "2020-12-30"
+    },
+    {
+      "service": "cdwpg",
+      "action": "DescribeUserHbaConfig",
+      "api_version": "2020-12-30"
+    },
+    {
+      "service": "cfs",
+      "action": "DescribeAutoSnapshotPolicies",
+      "api_version": "2019-07-19"
     },
     {
       "service": "cfs",
@@ -219,6 +264,16 @@
     {
       "service": "cfs",
       "action": "DescribeCfsRules",
+      "api_version": "2019-07-19"
+    },
+    {
+      "service": "cfs",
+      "action": "DescribeCfsSnapshots",
+      "api_version": "2019-07-19"
+    },
+    {
+      "service": "cfs",
+      "action": "DescribeLifecyclePolicies",
       "api_version": "2019-07-19"
     },
     {
@@ -414,6 +469,12 @@
     },
     {
       "service": "cos",
+      "action": "get_object_acl",
+      "api_version": "XML",
+      "cam_action": "name/cos:GetObjectACL"
+    },
+    {
+      "service": "cos",
       "action": "list_buckets",
       "api_version": "COS plugin",
       "cam_action": "cos:GetService"
@@ -480,7 +541,42 @@
     },
     {
       "service": "dlc",
+      "action": "DescribeDLCCatalogAccess",
+      "api_version": "2021-01-25"
+    },
+    {
+      "service": "dlc",
       "action": "DescribeDataEngines",
+      "api_version": "2021-01-25"
+    },
+    {
+      "service": "dlc",
+      "action": "DescribeSubUserAccessPolicy",
+      "api_version": "2021-01-25"
+    },
+    {
+      "service": "dlc",
+      "action": "DescribeThirdPartyAccessUser",
+      "api_version": "2021-01-25"
+    },
+    {
+      "service": "dlc",
+      "action": "DescribeUserInfo",
+      "api_version": "2021-01-25"
+    },
+    {
+      "service": "dlc",
+      "action": "DescribeUsers",
+      "api_version": "2021-01-25"
+    },
+    {
+      "service": "dlc",
+      "action": "DescribeWorkGroupInfo",
+      "api_version": "2021-01-25"
+    },
+    {
+      "service": "dlc",
+      "action": "DescribeWorkGroups",
       "api_version": "2021-01-25"
     },
     {
@@ -530,7 +626,22 @@
     },
     {
       "service": "es",
+      "action": "DescribeCosBackupStrategyViews",
+      "api_version": "2018-04-16"
+    },
+    {
+      "service": "es",
       "action": "DescribeInstances",
+      "api_version": "2018-04-16"
+    },
+    {
+      "service": "es",
+      "action": "DescribeRequestInstancePolicy",
+      "api_version": "2018-04-16"
+    },
+    {
+      "service": "es",
+      "action": "DescribeSnapshotViews",
       "api_version": "2018-04-16"
     },
     {
@@ -582,6 +693,11 @@
       "service": "lke",
       "action": "ListSharedKnowledge",
       "api_version": "2023-11-30"
+    },
+    {
+      "service": "mariadb",
+      "action": "DescribeBackupConfigs",
+      "api_version": "2017-03-12"
     },
     {
       "service": "mariadb",
@@ -715,6 +831,16 @@
     },
     {
       "service": "postgres",
+      "action": "DescribeDBProxy",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "postgres",
+      "action": "DescribeDBProxySSLConfig",
+      "api_version": "2017-03-12"
+    },
+    {
+      "service": "postgres",
       "action": "DescribeLogBackups",
       "api_version": "2017-03-12"
     },
@@ -735,6 +861,26 @@
     },
     {
       "service": "redis",
+      "action": "DescribeAutoBackupConfig",
+      "api_version": "2018-04-12"
+    },
+    {
+      "service": "redis",
+      "action": "DescribeInstanceBackups",
+      "api_version": "2018-04-12"
+    },
+    {
+      "service": "redis",
+      "action": "DescribeInstanceParams",
+      "api_version": "2018-04-12"
+    },
+    {
+      "service": "redis",
+      "action": "DescribeInstancePasswordPolicy",
+      "api_version": "2018-04-12"
+    },
+    {
+      "service": "redis",
       "action": "DescribeInstanceSecurityGroup",
       "api_version": "2018-04-12"
     },
@@ -751,6 +897,16 @@
     {
       "service": "redis",
       "action": "DescribeInstances",
+      "api_version": "2018-04-12"
+    },
+    {
+      "service": "redis",
+      "action": "DescribeReplicationGroup",
+      "api_version": "2018-04-12"
+    },
+    {
+      "service": "redis",
+      "action": "DescribeReplicationGroupInstance",
       "api_version": "2018-04-12"
     },
     {
@@ -815,6 +971,11 @@
     },
     {
       "service": "sqlserver",
+      "action": "DescribeBackupSummary",
+      "api_version": "2018-03-28"
+    },
+    {
+      "service": "sqlserver",
       "action": "DescribeDBInstances",
       "api_version": "2018-03-28"
     },
@@ -826,6 +987,16 @@
     {
       "service": "sqlserver",
       "action": "DescribeDBSecurityGroups",
+      "api_version": "2018-03-28"
+    },
+    {
+      "service": "sqlserver",
+      "action": "DescribeInstanceParams",
+      "api_version": "2018-03-28"
+    },
+    {
+      "service": "sqlserver",
+      "action": "DescribeReadOnlyGroupList",
       "api_version": "2018-03-28"
     },
     {
@@ -841,6 +1012,11 @@
     {
       "service": "ssm",
       "action": "DescribeRotationDetail",
+      "api_version": "2019-09-23"
+    },
+    {
+      "service": "ssm",
+      "action": "DescribeRotationHistory",
       "api_version": "2019-09-23"
     },
     {
@@ -867,6 +1043,16 @@
       "service": "tat",
       "action": "DescribeAutomationAgentStatus",
       "api_version": "2020-10-28"
+    },
+    {
+      "service": "tcaplusdb",
+      "action": "DescribeBackupRecords",
+      "api_version": "2019-08-23"
+    },
+    {
+      "service": "tcaplusdb",
+      "action": "DescribeSnapshots",
+      "api_version": "2019-08-23"
     },
     {
       "service": "tcaplusdb",

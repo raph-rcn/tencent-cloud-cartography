@@ -1,5 +1,12 @@
 # Metadata depth: implemented contracts and retained exclusions
 
+The current [storage/database/secret metadata extension](STORAGE-DATABASE-PARITY.md)
+(version 0.7.0) adds bounded COS object ACL/inheritance and declared session
+analysis, database proxy/cluster/backup/parameter depth, DLC/CDWPG grants,
+CFS snapshots/lifecycle and secret rotation history. Its nine-row disposition
+supersedes older gap descriptions for these areas. The read-only metadata
+restriction, provider differences and unverified live behavior remain explicit.
+
 Updated 2026-10-14. This extension implements the feasible audited contracts for
 COS notifications, relational database depth, API Gateway backends and federation
 metadata. It adds 23 exact read operations (216 total). It does not establish full

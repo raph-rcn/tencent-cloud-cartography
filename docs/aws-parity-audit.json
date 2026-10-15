@@ -60,23 +60,25 @@
       "source_enabled": true,
       "tencent_counterpart": "COS",
       "status": "incomplete",
-      "evidence_or_gap": "COS bucket ACL/policy/encryption/versioning/logging metadata; anonymous analysis and named-principal identity/resource/boundary composition with same-account union and cross-account intersection. Signed versus unsigned routes remain separate. Object ACLs/inheritance, resource-only implicit-boundary behavior, session constraints, global block equivalence and runtime access remain gaps; shared renewable OAuth/SSO/configured-role sessions with identity checks across refresh are implemented offline. V2 notification rules/events/filters, exact scoped SCF/CKafka destination and delivery-role references added; delivery remains unverified.",
+      "evidence_or_gap": "Bounded named-object ACL metadata, authoritative default-header handling, explicit/default/directory inheritance, current-object named identity/resource/boundary analysis, version-specific anonymous analysis and optional offline declared-session policy intersections added. Existing V2 SCF/CKafka notifications and shared renewable verified authentication retained. No object contents or listing requested. Unselected objects, missing directory metadata, actual live STS restrictions, resource-only implicit-boundary interactions and runtime/CDN/custom-domain behavior remain unknown.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
       "live_validation": "not-performed",
-      "metadata_depth_report": "METADATA-DEPTH.md"
+      "metadata_depth_report": "METADATA-DEPTH.md",
+      "storage_database_report": "STORAGE-DATABASE-PARITY.md"
     },
     {
       "aws_collector": "dynamodb",
       "source_enabled": true,
       "tencent_counterpart": "TcaplusDB",
       "status": "incomplete",
-      "evidence_or_gap": "Table-group metadata collected for CloudRC-discovered numeric cluster IDs. Native cluster and table APIs excluded because they include Password or IDL file content. Full tables/index/schema/ownership and DynamoDB authorization semantics unavailable under retained restriction.",
+      "evidence_or_gap": "For CloudRC-discovered numeric clusters: existing table groups plus paginated safe backup records and snapshots with explicit scoped table references. Native cluster/password and table/IDL APIs stay blocked. Backup/snapshot table references do not establish full schemas, indexes, table inventory, ownership or DynamoDB authorization equivalence.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "live_validation": "not-performed",
+      "storage_database_report": "STORAGE-DATABASE-PARITY.md"
     },
     {
       "aws_collector": "ec2:launch_templates",
@@ -384,11 +386,12 @@
       "source_enabled": true,
       "tencent_counterpart": "TencentDB Redis",
       "status": "incomplete",
-      "evidence_or_gap": "Typed Redis instance and private/public endpoint metadata, SSL/security-group checks, replication groups/nodes/shards and scoped network links implemented. AWS cluster/parameter/replication field equivalence and runtime behavior remain unverified; no database operations.",
+      "evidence_or_gap": "Existing Redis instance/network/SSL/shard/replica metadata extended with allowlisted known parameters, native replication groups/member fields and per-instance group membership, automatic backup retention, in-progress/successful retained backup metadata and password-policy requirements. Numeric AppId/region/VPC IDs are retained without guessing UIN/canonical ownership; group members do not create inferred cross-account identities. Unknown parameters are counted/excluded. Provider-default backup time window is explicit; all historical backups and AWS field/runtime equivalence remain unverified.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "live_validation": "not-performed",
+      "storage_database_report": "STORAGE-DATABASE-PARITY.md"
     },
     {
       "aws_collector": "elastic_ip_addresses",
@@ -430,23 +433,25 @@
       "source_enabled": true,
       "tencent_counterpart": "TencentDB MySQL / PostgreSQL / SQL Server / MariaDB",
       "status": "incomplete",
-      "evidence_or_gap": "Native typed inventory for four relational products; capacity/version/lifecycle/encryption and separate public/private endpoints, explicit network/parent associations, supported MySQL/PostgreSQL SSL/SG and MySQL key references. Selected documented admin-action CAM decisions implemented. AWS IAM database-connect authentication, parameter/option/proxy/backup and cluster-field equivalence remain gaps. MySQL backup/remote-region/standby/proxy/read-only configuration, PostgreSQL plans/HA/read-only groups/selected parameters/base-log backup metadata, SQL Server TLS/TDE/backup attributes and SGs, and MariaDB SG/retention/DCN configuration added. Unrestricted workload-valued parameters and credential-bearing backup listings remain excluded.",
+      "evidence_or_gap": "Existing four-product instance/SSL/SG/HA/backup/replica metadata extended with MySQL cloud-disk cluster nodes/addresses, backup encryption and all three product backup-summary scopes, local binlog retention and backup-download restrictions; PostgreSQL proxy groups/nodes/addresses/routes and independent proxy SSL configuration; SQL Server configured parameters, regional backup summary and read-only groups/member configuration; MariaDB backup schedules/retention. SQL workload-valued MySQL/MariaDB parameters and download-capability backup listings remain excluded. AWS option-group/IAM database-connect and full native-model equivalence remain unverified.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
       "live_validation": "not-performed",
-      "metadata_depth_report": "METADATA-DEPTH.md"
+      "metadata_depth_report": "METADATA-DEPTH.md",
+      "storage_database_report": "STORAGE-DATABASE-PARITY.md"
     },
     {
       "aws_collector": "redshift",
       "source_enabled": true,
       "tencent_counterpart": "CDWPG / DLC",
       "status": "incomplete",
-      "evidence_or_gap": "Native CDWPG warehouse and DLC engine metadata, selected network/capacity/state/version fields and documented CDWPG admin CAM actions implemented. DLC queries generation/type/execution combinations independently. This does not implement Redshift temporary DB credentials, query authorization or identical warehouse semantics.",
+      "evidence_or_gap": "Existing native CDWPG/DLC warehouse metadata extended with CDWPG database accounts/privileges, ordered HBA methods/selectors and nodes. DLC collects both TencentAccount/EntraAccount users, workgroups, paginated data/engine grants and memberships, catalog VPC access, third-party identity and current platform-subuser policy. Exact scoped members/unique engine references linked without CAM identity substitution. No temporary database credentials, queries or runtime query authorization; row-filter and identical Redshift warehouse semantics remain unverified.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "live_validation": "not-performed",
+      "storage_database_report": "STORAGE-DATABASE-PARITY.md"
     },
     {
       "aws_collector": "route53",
@@ -464,11 +469,12 @@
       "source_enabled": true,
       "tencent_counterpart": "Elasticsearch Service",
       "status": "incomplete",
-      "evidence_or_gap": "Typed ES version/lifecycle/capacity/node-configuration/access/ACL/endpoint metadata and explicit VpcUid/SubnetUid/security-group links implemented with scope/duplicate/page validation. Free-form ES/Kibana configs are not saved. Public OPEN and ACL metadata are not effective internet access or anonymous query authorization; AWS OpenSearch/access-policy/logging/provider equivalence and live behavior remain gaps.",
+      "evidence_or_gap": "Existing typed ES endpoint/IP-ACL/security/capacity metadata extended with HTTP request-path controls, native COS backup strategies and all-time manual/automatic snapshot metadata. Request paths are not AWS principal policies. Free-form config remains unretained and log contents are not queried. Remaining AWS logging/access-policy correspondence and effective query/internet access remain unverified.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "live_validation": "not-performed",
+      "storage_database_report": "STORAGE-DATABASE-PARITY.md"
     },
     {
       "aws_collector": "cloudformation",
@@ -554,11 +560,12 @@
       "source_enabled": true,
       "tencent_counterpart": "Secrets Manager",
       "status": "incomplete",
-      "evidence_or_gap": "Eight explicit ListSecrets type/encryption scopes, required-total pagination, lifecycle and rotation metadata, version ID/time nodes, KMS configuration, SSH instance associations and exact collected MySQL/Redis/CAM-user links implemented. Creator-qualified QCS tags resolve from returned creator UIN metadata without changing account ownership. No secret values/key material requested. Version stages/historical KMS, replication/primary-region, rotation-function and last-access/change equivalents, broader database products and live validation remain incomplete.",
+      "evidence_or_gap": "Existing eight type/encryption inventory scopes, lifecycle/version/current KMS/rotation/SSH/CAM/MySQL/Redis metadata extended with rotation-history version IDs, database-account status/host/time metadata and visible ten-version ceiling/truncation. Exact native product/resource matches can link collected PostgreSQL/SQL Server/MariaDB/MongoDB without asserting unsupported service behavior. Account Version is a native status, not an AWS stage/version ID. Audited schemas do not expose historical KMS, replica/primary-region or rotation-function equivalents; no values or runtime rotation proof.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "live_validation": "not-performed",
+      "storage_database_report": "STORAGE-DATABASE-PARITY.md"
     },
     {
       "aws_collector": "ecr:pull_through_cache_rules",
@@ -587,11 +594,12 @@
       "source_enabled": true,
       "tencent_counterpart": "COS account controls summary",
       "status": "incomplete",
-      "evidence_or_gap": "Account-level summary of selected-region bucket controls/decisions/completeness implemented without inventing global block flags. Bucket ACL/policy analyses available. No audited S3-style account-wide block API equivalence; global_block_state_verified=false and explicit unsupported equivalence coverage.",
+      "evidence_or_gap": "Selected-region bucket controls and coverage summaries now include selected-object ACL/decision counts. Object inventory completeness remains false. No audited global public-access-block equivalent is established; global_block_state_verified=false and explicit unsupported equivalence coverage remain.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "live_validation": "not-performed",
+      "storage_database_report": "STORAGE-DATABASE-PARITY.md"
     },
     {
       "aws_collector": "sagemaker",
@@ -715,11 +723,12 @@
       "source_enabled": true,
       "tencent_counterpart": "CFS",
       "status": "incomplete",
-      "evidence_or_gap": "CFS file-system lifecycle/capacity/protocol/encryption metadata, explicit UUID KMS links, per-file-system mount targets with VPC/subnet or Turbo CCN links, permission groups and export rules now implemented. Mounts preserve endpoint/root/state and truncated allocated-IP metadata; rules preserve client selectors, read/write mode, user squash and priority. AWS access-point POSIX/root-directory equivalence, KMS ARN resolution, wider lifecycle/snapshot policy detail and live validation remain incomplete; no mounted-client or effective-access claims.",
+      "evidence_or_gap": "Existing CFS filesystem/mount/export/permission/encryption metadata extended with paginated snapshots, automatic snapshot policies, lifecycle rules and path associations; same-account/region filesystem references are rebuilt offline. These do not establish AWS access-point POSIX UID/GID/root enforcement, KMS ARN translation or effective client behavior.",
       "implementation_status": "metadata-implemented-with-gaps",
       "parity_verified": false,
       "gap_report": "METADATA-PARITY.md",
-      "live_validation": "not-performed"
+      "live_validation": "not-performed",
+      "storage_database_report": "STORAGE-DATABASE-PARITY.md"
     },
     {
       "aws_collector": "guardduty",
@@ -807,5 +816,15 @@
     "total_read_actions": 216,
     "live_validation": "not-performed"
   },
-  "authentication_report": "AUTHENTICATION.md"
+  "authentication_report": "AUTHENTICATION.md",
+  "storage_database_extension": {
+    "version": "0.7.0",
+    "implementation_status": "implemented-with-explicit-restrictions",
+    "report": "STORAGE-DATABASE-PARITY.md",
+    "new_read_actions": 37,
+    "total_read_actions": 270,
+    "requested_areas": 9,
+    "live_validation": "not-performed",
+    "full_aws_parity_verified": false
+  }
 }

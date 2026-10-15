@@ -1,3 +1,4 @@
+import json
 import os
 import subprocess
 from xml.etree import ElementTree as ET
@@ -413,6 +414,35 @@ def test_end_to_end_collection_all_scopes_and_clb_field_selection():
                 return dict(List=[], AutoRepurchaseSwitch=0)
             if action == "DescribeEdrAlertSummary":
                 return dict(CriticalPendingCount=0, TotalPendingCount=0)
+            if action == "DescribeBackupSummaries":
+                return dict(Items=[], TotalCount=0)
+            if action == "DescribeBackupSummary":
+                return dict(BackupFilesTotal=0, FreeSpace=0)
+            if action == "DescribeReplicationGroup":
+                return dict(Groups=[], TotalCount=0)
+            if action == "DescribeAutoSnapshotPolicies":
+                return dict(AutoSnapshotPolicies=[], TotalCount=0)
+            if action == "DescribeCfsSnapshots":
+                return dict(Snapshots=[], TotalCount=0)
+            if action == "DescribeLifecyclePolicies":
+                return dict(LifecyclePolicies=[], TotalCount=0)
+            if action == "DescribeSubUserAccessPolicy":
+                return dict(
+                    PolicyDocument=json.dumps(
+                        dict(
+                            version="2.0",
+                            statement=[dict(effect="deny", action="name/dlc:*", resource="*")],
+                        )
+                    )
+                )
+            if action == "DescribeDLCCatalogAccess":
+                return dict(Rows=[], TotalCount=0)
+            if action == "DescribeThirdPartyAccessUser":
+                return dict(UserInfo=dict(Uin="12345", AppId="999", Id=1))
+            if action == "DescribeUsers":
+                return dict(UserSet=[], TotalCount=0)
+            if action == "DescribeWorkGroups":
+                return dict(WorkGroupSet=[], TotalCount=0)
             spec = specs[service, action]
             result = {}
             current = result
@@ -457,7 +487,7 @@ def test_end_to_end_collection_all_scopes_and_clb_field_selection():
         transport_factory=lambda _: InventoryTransport(),
     )
     assert data["status"] == "partial"
-    assert len(data["nodes"]) == 15
+    assert len(data["nodes"]) == 18
     observed = {(r["service"], r["action"]) for r in data["coverage"]}
     assert {(s.service, s.action) for s in (*COLLECTORS, *EXTRA_COLLECTORS)} <= observed
     exposure = next(r for r in data["coverage"] if r["action"] == "AnalyzeClbExposure")

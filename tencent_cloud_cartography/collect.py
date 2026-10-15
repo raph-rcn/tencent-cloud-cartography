@@ -570,6 +570,9 @@ class CollectorRunner:
         from .network_parity import collect as collect_network_parity
 
         collect_network_parity(self, services)
+        from .data_metadata import collect as collect_data_metadata
+
+        collect_data_metadata(self, services)
         from .exclusions import record as record_exclusions
 
         record_exclusions(
@@ -610,10 +613,16 @@ def collect(
     analysis_limit=25000,
     discover_regions=False,
     tccli_python=None,
+    cos_object_acls=None,
 ):
     from .authorization import analysis_limit as validate_analysis_limit
 
     analysis_limit = validate_analysis_limit(analysis_limit)
+    from .cos_object_acls import validate as validate_cos_object_acls
+
+    cos_object_acls = validate_cos_object_acls([] if cos_object_acls is None else cos_object_acls)
+    if cos_object_acls and services and "cos" not in services:
+        raise ValueError("COS ACL selection requires the cos service")
     from .collection_plan import RegionPlan, blank_scopes, region_restrictions
     from .fleet_coverage import reconcile_organization
 
@@ -740,6 +749,10 @@ def collect(
             interrupted = None
             try:
                 runner.run(services)
+                if cos_object_acls:
+                    from .cos_object_acls import collect as collect_cos_object_acls
+
+                    collect_cos_object_acls(runner, cos_object_acls)
                 if not services or "tke" in services:
                     from .tke import collect_access_mappings
 
@@ -814,6 +827,21 @@ def collect(
                         f"Profile {profile}: authentication {auth['status']} ({auth['code']})"
                         + (f"; {auth['remediation']}" if auth["remediation"] else "")
                     )
+    for selection in cos_object_acls:
+        if selection["account"] not in graph.accounts:
+            graph.coverage.append(
+                dict(
+                    account=selection["account"],
+                    region=selection["region"],
+                    service="cos",
+                    action="get_object_acl",
+                    detail=json.dumps(selection, sort_keys=True),
+                    status="not-queried",
+                    error="NoVerifiedProfileForSelectedObjectAcl",
+                    count=0,
+                    request_ids=[],
+                )
+            )
     reconcile_organization(graph)
     from .inventory import reconcile_global_inventory
 
@@ -842,6 +870,12 @@ def collect(
     from .network_parity import link as link_network_parity
 
     link_network_parity(graph)
+    from .data_metadata import link as link_data_metadata
+
+    link_data_metadata(graph)
+    from .dlc_authorization_metadata import link as link_dlc
+
+    link_dlc(graph)
     from .dns import link_dns
 
     link_dns(graph)
@@ -889,7 +923,7 @@ def collect(
     analyze_permissions(graph, analysis_limit)
     from .public_access import analyze as analyze_public_access
 
-    analyze_public_access(graph)
+    analyze_public_access(graph, max_decisions=analysis_limit)
     from .cos_authorization import analyze as analyze_cos_authorization
     from .role_assumption import analyze as analyze_role_assumption
 

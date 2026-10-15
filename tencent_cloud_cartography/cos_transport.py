@@ -20,7 +20,7 @@ def credentials(profile):
 
 
 def validate_scope(action, region, params):
-    # Restrict both method and parameters: no object operations, custom hosts or headers.
+    # Restrict methods and parameters: ACL metadata only; no custom hosts or headers.
     if action == "list_buckets":
         if (
             not set(params) <= {"Marker", "MaxKeys"}
@@ -39,6 +39,28 @@ def validate_scope(action, region, params):
             )
         ):
             raise CollectionError("InvalidCosScope")
+        return
+    if action == "get_object_acl":
+        if set(params) - {"Bucket", "Key", "VersionId"} or not {"Bucket", "Key"} <= set(params):
+            raise CollectionError("InvalidCosScope")
+        if (
+            not isinstance(params["Key"], str)
+            or not params["Key"]
+            or ("VersionId" in params and params["VersionId"] is None)
+        ):
+            raise CollectionError("InvalidCosScope")
+        for key in ("Key", "VersionId"):
+            value = params.get(key)
+            if value is not None and (
+                not isinstance(value, str)
+                or not value
+                or len(value.encode()) > 1024
+                or any(ord(c) < 32 for c in value)
+            ):
+                raise CollectionError("InvalidCosScope")
+        if params["Key"].startswith("/") or any(p in {".", ".."} for p in params["Key"].split("/")):
+            raise CollectionError("InvalidCosScope")
+        validate_scope("get_bucket_acl", region, {"Bucket": params["Bucket"]})
         return
     if action not in COS_ACTIONS:
         raise CollectionError("BlockedAction", "COS action is outside the metadata allowlist")
@@ -85,6 +107,30 @@ def call(profile, action, region, params, timeout, material=None):
                 params=query,
             )
             result = parse_xml(response.content)
+        elif action == "get_object_acl":
+            from qcloud_cos.cos_auth import CosS3Auth
+
+            from .cos_object_acls import parse_xml
+
+            # The SDK helper maps VersionId to a header instead of the query.
+            # Fix the exact signed query here so a version cannot silently turn
+            # into the current object ACL. This request never retrieves object contents.
+            query = {"acl": ""}
+            if params.get("VersionId"):
+                query["versionId"] = params["VersionId"]
+            response = client.send_request(
+                method="GET",
+                url=config.uri(bucket=params["Bucket"], path=params["Key"]),
+                bucket=params["Bucket"],
+                auth=CosS3Auth(config, params["Key"], params=query),
+                headers={},
+                params=query,
+            )
+            result = parse_xml(response.content)
+            if response.headers.get("x-cos-acl") == "default":
+                result["CannedACL"] = "default"
+            if response.headers.get("x-cos-request-id"):
+                result["x-cos-request-id"] = response.headers["x-cos-request-id"]
         else:
             result = getattr(client, action)(**params)
     except CosServiceError as exc:

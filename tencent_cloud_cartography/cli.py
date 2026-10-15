@@ -65,6 +65,11 @@ def main(argv=None):
         action="append",
         help="Explicit ACCOUNT/REGION/CLUSTER=CONTEXT; reads only Kubernetes Tables without objects",
     )
+    sync.add_argument(
+        "--cos-object-acls",
+        type=Path,
+        help="JSON manifest of up to 256 exact object ACL metadata reads; no object contents",
+    )
     sync.add_argument("--output", type=Path)
     sync.add_argument("--project", help="Use saved environment settings and isolated snapshot")
     sync.add_argument("--projects-dir", type=Path, default=Path(".local/projects"))
@@ -88,6 +93,11 @@ def main(argv=None):
     database_options(publish)
     analysis = sub.add_parser(
         "analyze", help="Analyze saved authorization and exposure configuration without cloud calls"
+    )
+    analysis.add_argument(
+        "--session-policies",
+        type=Path,
+        help="Offline exact-principal STS policy declarations; no token acquisition",
     )
     analysis.add_argument("--input", type=Path, required=True)
     analysis.add_argument("--output", type=Path, required=True)
@@ -156,6 +166,7 @@ def main(argv=None):
                     "Unknown service; supported native services: "
                     + ", ".join(sorted(SERVICE_ICONS))
                 )
+            from .cos_object_acls import load as load_cos_object_acls
             from .kubernetes_metadata import parse_contexts
 
             snapshot = collect(
@@ -165,6 +176,9 @@ def main(argv=None):
                 args.tccli,
                 tccli_python=args.tccli_python,
                 kube_contexts=parse_contexts(args.kube_context),
+                cos_object_acls=load_cos_object_acls(args.cos_object_acls)
+                if args.cos_object_acls
+                else None,
                 analysis_limit=args.analysis_limit,
                 discover_regions=args.discover_regions
                 or bool(project and project.get("discover_regions")),
@@ -201,11 +215,15 @@ def main(argv=None):
         elif args.command == "analyze":
             from .authorization import load_context
             from .permissions import analyze_snapshot
+            from .session_policy import load as load_session_policies
 
             snapshot = analyze_snapshot(
                 load(args.input),
                 load_context(args.context) if args.context else None,
                 args.analysis_limit,
+                session_policies=load_session_policies(args.session_policies)
+                if args.session_policies
+                else None,
             )
             save(snapshot, args.output)
             print(

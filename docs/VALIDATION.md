@@ -910,3 +910,40 @@ Sources: [DescribeApi](https://intl.cloud.tencent.com/document/product/628/36659
   launch-time addressing, default ACL, endpoint IAM/private-DNS and other native
   schema differences are documented; offline tests do not establish full AWS
   equivalence, public reachability or effective authorization.
+
+
+## Storage/database/secret metadata extension — 2026-10-15 (0.7.0)
+
+- Implemented the feasible additions for all nine requested areas; see
+  [the disposition and usage guide](STORAGE-DATABASE-PARITY.md).
+- Added **37 exact read operations / 270 total**, with **265 registered kinds**.
+  Recursive native TCCLI SDK schema checks cover every declarative projection,
+  including nested response types. No new data/credential/log retrieval methods
+  are allowed. The native SDK includes operations absent from the older
+  international package; they use the native transport.
+- **1490 Python tests passed**, including the isolated native TCCLI contracts.
+  Controls cover wrong instance/account/namespace, malformed/duplicate/changing
+  pagination, unsafe XML and method/parameter injection, empty/default versus
+  explicit ACLs, missing directory metadata, current-object named and anonymous
+  decisions, fixed signed version queries, session-policy intersections,
+  replication ownership ambiguity and rotation-history truncation.
+- **13 frontend tests passed**; `npm ci`, production build and production dependency
+  audit passed with **0 vulnerabilities**. Vite retains its existing large-chunk
+  advisory; this extension does not change the frontend bundle structure.
+- Pre-commit Ruff checks/format and official asset integrity passed. All **896 SVGs**
+  and the Tencent wordmark remain byte-verified.
+- Separate loopback browser validation used an explicitly labeled **EXAMPLE DATA**
+  fixture; the user's real project snapshots were not replaced. Full view showed
+  **98 resources / 139 relationships / 14 services**. The editable draw.io export
+  preserved every relationship: **119 editable vertices**, including **96 embedded
+  official resource icons**, plus VPC/subnet and structural containers. Export:
+  `.local/validation/data-metadata-export-20261015.drawio`.
+- The **0.7.0 wheel and source archive** were built. The wheel was installed in a
+  fresh environment away from the checkout; packaged UI, all official icons/logo,
+  and isolated empty project workspaces were verified without cloud access.
+- Local logs and temporary fixture: `.local/validation/data-metadata-*`.
+  No live Tencent requests, database login/query, object contents, secret values,
+  or TcaplusDB passwords/schema contents were used in validation.
+- Full AWS parity remains unverified. The account-wide COS block equivalence,
+  native-model differences, unsafe mixed responses and missing runtime evidence
+  stay explicit in the nine-area report and per-collector audit.
