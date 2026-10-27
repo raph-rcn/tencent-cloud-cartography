@@ -10,7 +10,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "cytoscape": "3.33.0",
+    "cytoscape": "3.34.4",
     "cytoscape-cola": "2.5.1",
     "cytoscape-expand-collapse": "4.1.0",
     "cytoscape-fcose": "2.2.0",
